@@ -1,0 +1,4 @@
+*
+!myEA/*.mq4
+!myEA/*.txt
+!.gitignore
