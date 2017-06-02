@@ -17,10 +17,12 @@
 ///////////////////////////////inputs
 input int      pattern_len=12;
 input int      correlation_thresh=94;
-input int      hit_threshold=70;
-input int      min_hit=40;
+input int      thresh_hC=65;
+input double   thresh_aC=0.4;
+input int      min_hit=20;
 input int      max_hit=100;
-input int      history=20000;
+input ConcludeCriterion criterion=USE_aveC1;
+input int      lookback_len=3000;
 input double   i_Lots=1;
 //////////////////////////////parameters
 int history_size;
@@ -30,6 +32,9 @@ int state=0;
 //////////////////////////////objects
 Screen screen;
 int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
+int outfilehandle=FileOpen("./tradefiles/data"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+"_"+IntegerToString(pattern_len)+"_"+IntegerToString(correlation_thresh)+".csv",FILE_WRITE|FILE_CSV,',');
+int output_counter=0;
+int processed_bars=0;
 
 //+------------------------------------------------------------------+
 //| operation                                                        |
@@ -37,29 +42,44 @@ int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
 int search()
 {  //returns 1 if opens a trade to proceed to next state
    //0 if unsuccessful search
-   history_size=(int)MyMath::min(Bars-100,history);
+   int history_bars=Bars-10-pattern_len;
+   if(history_bars<=lookback_len)
+      return 0;   //not enough history
    processed_bars++;
-   screen.add_L2_comment("History:"+IntegerToString(history_size));
    screen.add_L2_comment(" bars:"+IntegerToString(processed_bars));
-   
-   Pattern now_pattern(Close,1,pattern_len,0);
-   ExamineBar examine(0,&now_pattern);
+
+   Pattern* p_pattern;
+   ExamineBar* p_bar;
    Pattern moving_pattern;
-   for(int i=10;i<history_size;i++)
+
+   int _ref=0;//only to keep compatibility with the script
+   p_pattern=new Pattern(Close,_ref,pattern_len,0);
+      //TODO: replace with Open,0 
+   p_bar=new ExamineBar(_ref,p_pattern);
+   
+   for(int j=10+_ref;j<_ref+lookback_len-pattern_len;j++)
    {
-      moving_pattern.set_data(Close,i,pattern_len,Close[i-1]);
-      if(examine.check_another_bar(moving_pattern,correlation_thresh,max_hit))
+      moving_pattern.set_data(Close,j,pattern_len,Close[j-1]);
+      if(p_bar.check_another_bar(moving_pattern,correlation_thresh,max_hit))
          break;
    }
-   if(examine.number_of_hits>min_hit)
-   {  //a famous bar!
-      if(100*examine.higher_c1/examine.number_of_hits >= hit_threshold)
-      {  
-         examine.log_to_file(file);
-         OrderSend(Symbol(),OP_BUY, i_Lots, Ask, 0, Ask/2,Ask*2,NULL,++trade_id,0,clrAliceBlue);
-         return 1;
-      }
+   if(p_bar.conclude(criterion,min_hit,thresh_hC,thresh_aC))
+   {  //a famous and good bar!
+      p_bar.log_to_file_tester(outfilehandle);
+      p_bar.log_to_file_common(outfilehandle);
+      trade_counter++;
+      examine.log_to_file(file);
+      OrderSend(Symbol(),OP_BUY, i_Lots, Ask, 0, Ask/2,Ask*2,NULL,++trade_id,0,clrAliceBlue);
+      delete p_bar;
+      delete p_pattern;
+      screen.clear_L2_comment();
+      screen.add_L2_comment("tradecnt:"+IntegerToString(output_counter));
+      screen.clear_L3_comment();
+      screen.add_L3_comment("trade placed");
+      return 1;
    }
+   delete p_bar;
+   delete p_pattern;
    return 0;
 }
 int handle()
@@ -87,7 +107,7 @@ void    close_positions()
 int OnInit()
 {
    screen.add_L1_comment("EA started-");
-   if(file<0)
+   if(file<0 || outfilehandle<0)
    {
       screen.add_L1_comment("file error");
       Print("Failed to open the file");
@@ -109,7 +129,7 @@ void OnTick()
    if (Time0 == Time[0])
       return;
    Time0 = Time[0];
-   screen.clear_L2_comment();
+   screen.clear_L3_comment();
    
    switch(state)
    {

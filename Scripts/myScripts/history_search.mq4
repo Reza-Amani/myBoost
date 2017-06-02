@@ -67,7 +67,6 @@ void OnStart()
          if(p_bar.check_another_bar(moving_pattern,correlation_thresh,max_hit))
             break;
       }
-//      if(p_bar.number_of_hits>=min_hit)
       if(p_bar.conclude(criterion,min_hit,thresh_hC,thresh_aC))
       {  //a famous and good bar!
          p_bar.log_to_file_tester(outfilehandle);
