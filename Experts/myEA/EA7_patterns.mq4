@@ -66,7 +66,10 @@ int search()
       p_bar.log_to_file_tester(outfilehandle);
       p_bar.log_to_file_common(outfilehandle);
       trade_counter++;
-      OrderSend(Symbol(),OP_BUY, i_Lots, Ask, 0, Ask/2,Ask*2,NULL,++trade_id,0,clrAliceBlue);
+      if(p_bar.direction==1)
+         OrderSend(Symbol(),OP_BUY, i_Lots, Ask, 0, Ask/2,Ask*2,NULL,++trade_id,0,clrAliceBlue);
+      else if(p_bar.direction==-1)
+         OrderSend(Symbol(),OP_SELL, i_Lots, Bid, 0, Bid*2,Bid/2,NULL,++trade_id,0,clrAliceBlue);
       delete p_bar;
       delete p_pattern;
       screen.clear_L2_comment();
