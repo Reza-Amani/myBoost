@@ -1,4 +1,6 @@
 +  considering the deadtime of history bars in tester history
--> definition of trade strategy quality
--> investing on best len; fixed pattern len
--> investing on best correlation thresh; fixed pattern len
++  autocorrelation: correl(j2:j1000,j3;j1001) first try on M5 and H1 under no profit: no colrrelation.
+-> debug/assessments and execution
+   definition of trade strategy quality
+   investing on best len; fixed pattern len
+   investing on best correlation thresh; fixed pattern len
