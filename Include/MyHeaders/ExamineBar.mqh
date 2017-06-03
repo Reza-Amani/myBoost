@@ -93,7 +93,7 @@ bool ExamineBar::check_another_bar(Pattern &_check_pattern, int _correlation_thr
 }
 
 bool ExamineBar::conclude(ConcludeCriterion _criterion, int _min_hits, int _thresh_hC, double _thresh_aC)
-{
+{ //return false if not suitable bar. direction shows the suggestion
    if(number_of_hits<_min_hits)
       return false;
    switch(_criterion)

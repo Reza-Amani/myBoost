@@ -25,16 +25,14 @@ input ConcludeCriterion criterion=USE_aveC1;
 input int      lookback_len=3000;
 input double   i_Lots=1;
 //////////////////////////////parameters
-int history_size;
 int processed_bars=0;
 int trade_id=0;
 int state=0;
+int trade_counter=0;
 //////////////////////////////objects
 Screen screen;
 int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
 int outfilehandle=FileOpen("./tradefiles/data"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+"_"+IntegerToString(pattern_len)+"_"+IntegerToString(correlation_thresh)+".csv",FILE_WRITE|FILE_CSV,',');
-int output_counter=0;
-int processed_bars=0;
 
 //+------------------------------------------------------------------+
 //| operation                                                        |
@@ -68,12 +66,14 @@ int search()
       p_bar.log_to_file_tester(outfilehandle);
       p_bar.log_to_file_common(outfilehandle);
       trade_counter++;
-      examine.log_to_file(file);
-      OrderSend(Symbol(),OP_BUY, i_Lots, Ask, 0, Ask/2,Ask*2,NULL,++trade_id,0,clrAliceBlue);
+      if(p_bar.direction==1)
+         OrderSend(Symbol(),OP_BUY, i_Lots, Ask, 0, Ask/2,Ask*2,NULL,++trade_id,0,clrAliceBlue);
+      else if(p_bar.direction==-1)
+         OrderSend(Symbol(),OP_SELL, i_Lots, Bid, 0, Bid*2,Bid/2,NULL,++trade_id,0,clrAliceBlue);
       delete p_bar;
       delete p_pattern;
       screen.clear_L2_comment();
-      screen.add_L2_comment("tradecnt:"+IntegerToString(output_counter));
+      screen.add_L2_comment("tradecnt:"+IntegerToString(trade_counter));
       screen.clear_L3_comment();
       screen.add_L3_comment("trade placed");
       return 1;
