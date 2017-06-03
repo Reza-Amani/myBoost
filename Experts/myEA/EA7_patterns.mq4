@@ -15,7 +15,7 @@
 #include <MyHeaders\Tools.mqh>
 
 ///////////////////////////////inputs
-input int      pattern_len=12;
+input int      pattern_len=6;
 input int      correlation_thresh=94;
 input int      thresh_hC=65;
 input double   thresh_aC=0.4;
@@ -40,9 +40,6 @@ int outfilehandle=FileOpen("./tradefiles/data"+Symbol()+EnumToString(ENUM_TIMEFR
 int search()
 {  //returns 1 if opens a trade to proceed to next state
    //0 if unsuccessful search
-   int history_bars=Bars-10-pattern_len;
-   if(history_bars<=lookback_len)
-      return 0;   //not enough history
    processed_bars++;
    screen.add_L2_comment(" bars:"+IntegerToString(processed_bars));
 
@@ -119,6 +116,7 @@ int OnInit()
 }
 void OnDeinit(const int reason)
 {
+   FileWrite(file,"processed bars:", processed_bars," trade cnt", trade_counter);
 }
 void OnTick()
 {
@@ -128,6 +126,10 @@ void OnTick()
    static datetime Time0=0;
    if (Time0 == Time[0])
       return;
+   int history_bars=Bars-10-pattern_len;
+   if(history_bars<=lookback_len)
+      return;   //not enough history
+
    Time0 = Time[0];
    screen.clear_L3_comment();
    

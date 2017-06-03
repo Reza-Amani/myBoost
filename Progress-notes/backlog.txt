@@ -1,0 +1,4 @@
++  considering the deadtime of history bars in tester history
+-> definition of trade strategy quality
+-> investing on best len; fixed pattern len
+-> investing on best correlation thresh; fixed pattern len
