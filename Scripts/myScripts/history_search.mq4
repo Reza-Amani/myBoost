@@ -69,8 +69,6 @@ void OnStart()
             break;
       }
       if(p_bar.conclude(criterion,min_hit,thresh_hC,thresh_aC))
-      {
-      }
       {  //a famous and good bar!
          p_bar.log_to_file_tester(outfilehandle);
          p_bar.log_to_file_common(outfilehandle);

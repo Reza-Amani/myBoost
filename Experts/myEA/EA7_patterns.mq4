@@ -15,11 +15,13 @@
 #include <MyHeaders\Tools.mqh>
 
 ///////////////////////////////inputs
-input int      pattern_len=6;
-input int      correlation_thresh=94;
-input int      thresh_hC=30;  //30 means: 2*0.65-1
+input int      pattern_len=10;
+input int      correlation_thresh=90;
+input int      thresh_hC=30;  
+                  //30 means: 2*0.65-1
 input int      thresh_aC=40;
-input int      min_hit=20;
+                  //40 means: 0.4
+input int      min_hit=25;
 input int      max_hit=100;
 input ConcludeCriterion criterion=USE_aveC1;
 input int      lookback_len=3000;
