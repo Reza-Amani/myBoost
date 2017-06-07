@@ -1,10 +1,11 @@
 +  considering the deadtime of history bars in tester history
-=>  autocorrelation: correl(j2:j1000,j3;j1001) first try on M5 and H1 under no profit: no colrrelation.
++  autocorrelation: correl(j2:j1000,j3;j1001) first try on M5 and H1 under no profit: no colrrelation.
 +  debug/assessments and execution
+=> making sure that correlation calculation and report are working fine, after recent reforms
    definition of trade strategy quality
    pre-assessment, based on first 20 hits
-...   investing on best len; fixed pattern len
-...   investing on best correlation thresh; fixed pattern len
+...   investigating on best len; fixed pattern len
+...   investigating on best correlation thresh; fixed pattern len
 
 
 legend:
