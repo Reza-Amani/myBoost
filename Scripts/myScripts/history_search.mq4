@@ -18,8 +18,9 @@
 
 input int      pattern_len=6;
 input int      correlation_thresh=95;
-input int      thresh_hC=65;
-input double   thresh_aC=0.4;
+input int      thresh_hC=30;  
+            //30 means: 2*0.65-1
+input int      thresh_aC=40;
 input int      min_hit=20;
 input int      max_hit=100;
 input ConcludeCriterion criterion=USE_aveC1;
