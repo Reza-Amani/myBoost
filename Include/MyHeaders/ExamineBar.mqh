@@ -38,6 +38,7 @@ class ExamineBar
   private:
    int asses_use_hc1(int _thresh_hC);
    int asses_use_ac1(double _thresh_aC);
+   int asses_use_hc1ac1(int _thresh_hC, double _thresh_aC);
 };
 ExamineBar::ExamineBar(int _barno, Pattern* _pattern)
 {
@@ -111,6 +112,10 @@ bool ExamineBar::conclude(ConcludeCriterion _criterion, int _min_hits, int _thre
             return true;
          break;
       case USE_HC1aveC1:
+         potential = asses_use_hc1ac1(_thresh_hC,_thresh_aC);
+         direction=MyMath::sign(potential);
+         if(direction!=0)
+            return true;
          break;
 
    }
@@ -132,5 +137,23 @@ int ExamineBar::asses_use_ac1(double _thresh_aC)
    if(MathAbs(result)<_thresh_aC)
       result=0;
    result=(int)MyMath::cap(result,100,-100);
+   return result;
+}
+
+int ExamineBar::asses_use_hc1ac1(int _thresh_hC, double _thresh_aC)
+{
+   int result_ac1 = (int)(100*sum_ac1/number_of_hits);
+   if(MathAbs(result_ac1)<_thresh_aC)
+      result_ac1=0;
+   result_ac1=(int)MyMath::cap(result_ac1,100,-100);
+   int result_hc1 = (int)(200*higher_c1/number_of_hits-100);
+   if(MathAbs(result_hc1)<_thresh_hC)
+      result_hc1=0;
+   result_hc1=(int)MyMath::cap(result_hc1,100,-100);
+   
+   int result=0;
+   if(result_ac1*result_hc1>0)
+      result= (result_hc1+result_ac1)/2;
+   
    return result;
 }
