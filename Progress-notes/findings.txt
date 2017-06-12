@@ -1,1 +1,0 @@
-limit the ac1 to 0.5 and hc1 to 0.65 (both) removes some useless samples in len10 M30
