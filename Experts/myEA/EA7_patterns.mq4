@@ -15,11 +15,11 @@
 #include <MyHeaders\Tools.mqh>
 
 ///////////////////////////////inputs
-input int      pattern_len=10;
-input int      correlation_thresh=84;
+input int      pattern_len=12;
+input int      correlation_thresh=90;
 input int      thresh_hC=30;  
                   //30 means: 2*0.65-1
-input int      thresh_aC=30;
+input int      thresh_aC=40;
                   //40 means: 0.4
 input int      min_hit=25;
 input int      max_hit=100;

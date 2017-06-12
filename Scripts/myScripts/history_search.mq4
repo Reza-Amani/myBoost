@@ -16,12 +16,12 @@
 #include <MyHeaders\Tools.mqh>
 
 
-input int      pattern_len=6;
-input int      correlation_thresh=95;
+input int      pattern_len=12;
+input int      correlation_thresh=90;
 input int      thresh_hC=30;  
             //30 means: 2*0.65-1
 input int      thresh_aC=40;
-input int      min_hit=20;
+input int      min_hit=25;
 input int      max_hit=100;
 input ConcludeCriterion criterion=USE_aveC1;
 input int      bars_to_search=3000;
