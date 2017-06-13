@@ -3,7 +3,7 @@
 +  debug/assessments and execution
 => making sure that correlation calculation and report are working fine, after recent reforms
    definition of trade strategy quality
-   pre-assessment, based on first 20 hits
++  pre-assessment: almost always useless, more test in the future recommended
 ...   investigating on best len; fixed pattern len
 ...   investigating on best correlation thresh; fixed pattern len
 
