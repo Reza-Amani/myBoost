@@ -21,9 +21,11 @@ input int      thresh_hC=30;
                   //30 means: 2*0.65-1
 input int      thresh_aC=40;
                   //40 means: 0.4
-input int      min_hit=25;
+input int      min_hit=30;
 input int      max_hit=100;
 input ConcludeCriterion criterion=USE_aveC1;
+input bool     use_preassessment=true;
+input int      preassessmnet_at=15;
 input int      lookback_len=6000;
 input double   i_Lots=1;
 //////////////////////////////parameters
@@ -59,24 +61,30 @@ int search()
       moving_pattern.set_data(Close,j,pattern_len,Close[j-1]);
       if(p_bar.check_another_bar(moving_pattern,correlation_thresh,max_hit))
          break;
+      if(use_preassessment)
+         if(!p_bar.pre_assessed)
+            if(p_bar.number_of_hits==preassessmnet_at)
+               if(!p_bar.pre_assessment(criterion,thresh_hC,thresh_aC))
+                  break;
    }
    if(p_bar.conclude(criterion,min_hit,thresh_hC,thresh_aC))
-   {  //a famous and good bar!
-      p_bar.log_to_file_tester(outfilehandle);
-      p_bar.log_to_file_common(outfilehandle);
-      trade_counter++;
-      if(p_bar.direction==1)
-         OrderSend(Symbol(),OP_BUY, i_Lots, Ask, 0, Ask/2,Ask*2,NULL,++trade_id,0,clrAliceBlue);
-      else if(p_bar.direction==-1)
-         OrderSend(Symbol(),OP_SELL, i_Lots, Bid, 0, Bid*2,Bid/2,NULL,++trade_id,0,clrAliceBlue);
-      delete p_bar;
-      delete p_pattern;
-      screen.clear_L2_comment();
-      screen.add_L2_comment("tradecnt:"+IntegerToString(trade_counter));
-      screen.clear_L3_comment();
-      screen.add_L3_comment("trade placed");
-      return 1;
-   }
+      if(!use_preassessment || p_bar.pre_assessed_direction==p_bar.direction)
+      {  //a famous and good bar!
+         p_bar.log_to_file_tester(outfilehandle);
+         p_bar.log_to_file_common(outfilehandle);
+         trade_counter++;
+         if(p_bar.direction==1)
+            OrderSend(Symbol(),OP_BUY, i_Lots, Ask, 0, Ask/2,Ask*2,NULL,++trade_id,0,clrAliceBlue);
+         else if(p_bar.direction==-1)
+            OrderSend(Symbol(),OP_SELL, i_Lots, Bid, 0, Bid*2,Bid/2,NULL,++trade_id,0,clrAliceBlue);
+         delete p_bar;
+         delete p_pattern;
+         screen.clear_L2_comment();
+         screen.add_L2_comment("tradecnt:"+IntegerToString(trade_counter));
+         screen.clear_L3_comment();
+         screen.add_L3_comment("trade placed");
+         return 1;
+      }
    delete p_bar;
    delete p_pattern;
    return 0;

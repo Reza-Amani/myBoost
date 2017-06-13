@@ -22,6 +22,8 @@ class ExamineBar
   public:
    ExamineBar(int _barno, Pattern* _pattern);
    int barno;
+   bool pre_assessed;
+   int pre_assessed_direction;
    Pattern* pattern;
 
    int number_of_hits;
@@ -34,6 +36,7 @@ class ExamineBar
    void log_to_file_tester(int file_handle);
    bool check_another_bar(Pattern &_check_pattern, int _correlation_thresh, int _max_hit);
    bool conclude(ConcludeCriterion _criterion, int _min_hits, int _thresh_hC, double _thresh_aC);
+   bool pre_assessment(ConcludeCriterion _criterion, int _thresh_hC, double _thresh_aC);
 
   private:
    int asses_use_hc1(int _thresh_hC);
@@ -48,6 +51,8 @@ ExamineBar::ExamineBar(int _barno, Pattern* _pattern)
    higher_c1=0;
    potential=0;
    direction=0;
+   pre_assessed=false;
+   pre_assessed_direction=0;
 }
 
 void ExamineBar::log_to_file_common(int file_handle)
@@ -120,6 +125,13 @@ bool ExamineBar::conclude(ConcludeCriterion _criterion, int _min_hits, int _thre
 
    }
    return false;
+}
+bool ExamineBar::pre_assessment(ConcludeCriterion _criterion, int _thresh_hC, double _thresh_aC)
+{
+   bool pre_assessment_result = conclude(_criterion,0,_thresh_hC, _thresh_aC);
+   pre_assessed=true;
+   pre_assessed_direction=direction;
+   return pre_assessment_result;
 }
 
 int ExamineBar::asses_use_hc1(int _thresh_hC)
