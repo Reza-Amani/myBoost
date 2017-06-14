@@ -3,10 +3,12 @@
 +  debug/assessments and execution
 => making sure that correlation calculation and report are working fine, after recent reforms
    definition of trade strategy quality
-   pre-assessment, based on first 20 hits
++  pre-assessment; not beneficial; further checks might be needed
 ...   investigating on best len; fixed pattern len
 ...   investigating on best correlation thresh; fixed pattern len
-
+   trying different len's on each bar
+   trying different correl-thresh's on each len, each bar
+... investigating on valueablity of volume
 
 legend:
 ... in progress
