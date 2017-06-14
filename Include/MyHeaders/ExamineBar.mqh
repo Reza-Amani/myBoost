@@ -27,6 +27,7 @@ class ExamineBar
    int number_of_hits;
    int potential;
    double sum_ac1;
+   double sum_vol_correl;
    double higher_c1;
    int direction;
    
@@ -48,6 +49,7 @@ ExamineBar::ExamineBar(int _barno, Pattern* _pattern)
    higher_c1=0;
    potential=0;
    direction=0;
+   sum_vol_correl=0;
 }
 
 void ExamineBar::log_to_file_common(int file_handle)
@@ -65,6 +67,9 @@ void ExamineBar::log_to_file_common(int file_handle)
    cont;
    if(number_of_hits!=0)
       FileWrite(file_handle,"","SR&direction",potential,direction);
+   cont;
+   if(number_of_hits!=0)
+      FileWrite(file_handle,"","ave_vol_correl",sum_vol_correl/number_of_hits);
    cont;
    pattern.log_to_file(file_handle);
 
@@ -88,6 +93,7 @@ bool ExamineBar::check_another_bar(Pattern &_check_pattern, int _correlation_thr
       sum_ac1+=MyMath::cap(_check_pattern.ac1,MAX_AC1,-MAX_AC1);
       if(_check_pattern.fc1>_check_pattern.close[0])
          higher_c1++;
+      sum_vol_correl+=pattern.correlation_volume(_check_pattern);
 
    }
    return (number_of_hits>=_max_hit);
