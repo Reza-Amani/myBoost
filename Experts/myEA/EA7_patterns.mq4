@@ -15,6 +15,7 @@
 #include <MyHeaders\Tools.mqh>
 
 ///////////////////////////////inputs
+input bool     USE_add_vol_correl=true;
 input int      pattern_len=12;
 input int      correlation_thresh=90;
 input int      thresh_hC=30;  
@@ -24,7 +25,7 @@ input int      thresh_aC=40;
 input int      min_hit=25;
 input int      max_hit=100;
 input ConcludeCriterion criterion=USE_aveC1;
-input bool     USE_add_vol_correl=true;
+
 input int      lookback_len=6000;
 input double   i_Lots=1;
 //////////////////////////////parameters

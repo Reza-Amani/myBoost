@@ -87,11 +87,10 @@ void ExamineBar::log_to_file_tester(int file_handle)
 
 bool ExamineBar::check_another_bar(Pattern &_check_pattern, int _correlation_thresh, int _max_hit, bool include_vol_correl)
 {  //returns true, if the number of matches is above 100
-   int total_correlation;
-   total_correlation = pattern & _check_pattern;
+   int vol_correlation=100;
    if(include_vol_correl)
-      total_correlation += pattern.correlation_volume(_check_pattern)/10;
-   if( total_correlation >= _correlation_thresh)
+      vol_correlation = pattern.correlation_volume(_check_pattern);
+   if( (pattern & _check_pattern) >= _correlation_thresh && vol_correlation>=0)
    {  //found a match!
       number_of_hits++;
       sum_ac1+=MyMath::cap(_check_pattern.ac1,MAX_AC1,-MAX_AC1);
