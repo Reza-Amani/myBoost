@@ -24,6 +24,7 @@ input int      thresh_aC=40;
 input int      min_hit=25;
 input int      max_hit=100;
 input ConcludeCriterion criterion=USE_aveC1;
+input bool     USE_add_vol_correl=true;
 input int      bars_to_search=3000;
 input int      lookback_len=3000;
 
@@ -65,7 +66,7 @@ void OnStart()
       for(int j=10+_ref;j<_ref+lookback_len-pattern_len;j++)
       {
          moving_pattern.set_data(Close,j,Volume,j,pattern_len,Close[j-1]);
-         if(p_bar.check_another_bar(moving_pattern,correlation_thresh,max_hit))
+         if(p_bar.check_another_bar(moving_pattern,correlation_thresh,max_hit,USE_add_vol_correl))
             break;
       }
       if(p_bar.conclude(criterion,min_hit,thresh_hC,thresh_aC))
