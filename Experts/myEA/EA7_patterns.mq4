@@ -31,6 +31,7 @@ int processed_bars=0;
 int trade_id=0;
 int state=0;
 int trade_counter=0;
+int open_ticket=0;
 //////////////////////////////objects
 Screen screen;
 int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
@@ -66,16 +67,24 @@ int search()
       p_bar.log_to_file_common(outfilehandle);
       trade_counter++;
       if(p_bar.direction==1)
-         OrderSend(Symbol(),OP_BUY, i_Lots, Ask, 0, Ask/2,Ask*2,NULL,++trade_id,0,clrAliceBlue);
+         open_ticket=OrderSend(Symbol(),OP_BUY, i_Lots, Ask, 0, 0,0,NULL,++trade_id,0,clrAliceBlue); //returns ticket n assigned by server, or -1 for error
       else if(p_bar.direction==-1)
-         OrderSend(Symbol(),OP_SELL, i_Lots, Bid, 0, Bid*2,Bid/2,NULL,++trade_id,0,clrAliceBlue);
+         open_ticket=OrderSend(Symbol(),OP_SELL, i_Lots, Bid, 0, 0,0,NULL,++trade_id,0,clrAliceBlue);
       delete p_bar;
       delete p_pattern;
       screen.clear_L2_comment();
       screen.add_L2_comment("tradecnt:"+IntegerToString(trade_counter));
       screen.clear_L3_comment();
-      screen.add_L3_comment("trade placed");
-      return 1;
+      if(open_ticket==-1)
+      {
+         screen.add_L3_comment("error in sending trade");
+         return 0;
+      }
+      else
+      {
+         screen.add_L3_comment("trade placed");
+         return 1;
+      }
    }
    delete p_bar;
    delete p_pattern;
@@ -84,21 +93,15 @@ int search()
 int handle()
 {  //returns 1 if closes the trade to return to base state
    //0 if remains here
-   close_positions();
-   return 1;
-}
-void    close_positions()
-{
-   for(int i=0; i<OrdersTotal(); i++)
-   {
-      if(OrderSelect(i,SELECT_BY_POS)==false) continue; 
-      if(OrderType()==OP_BUY) 
-         OrderClose(OrderTicket(),OrderLots(),Bid,3);
-      else if(OrderType()==OP_SELL)
-         OrderClose(OrderTicket(),OrderLots(),Ask,3);
-      else
-         OrderDelete(OrderTicket(),clrGray);
-   }
+   if(OrderSelect(open_ticket,SELECT_BY_TICKET)) 
+      if(OrderClose(OrderTicket(),OrderLots(), (OrderType()==OP_BUY)?Bid:Ask,10))
+         return 1;
+
+  //error in closing
+   screen.clear_L3_comment();
+   screen.add_L3_comment("error in CLOSING");
+   Print("error in closing");
+   return 0;
 }
 //+------------------------------------------------------------------+
 //| standard function                                                |
