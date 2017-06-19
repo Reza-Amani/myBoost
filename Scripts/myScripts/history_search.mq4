@@ -58,13 +58,13 @@ void OnStart()
    int output_counter=0;
    for(int _ref=10;_ref<bars_to_search;_ref++)
    {
-      p_pattern=new Pattern(Close,_ref,pattern_len,Close[_ref-1]);
+      p_pattern=new Pattern(Close,_ref,pattern_len,Close[_ref-1],High[_ref-1],Low[_ref-1]);
       
       p_bar=new ExamineBar(_ref,p_pattern);
      
       for(int j=10+_ref;j<_ref+lookback_len-pattern_len;j++)
       {
-         moving_pattern.set_data(Close,j,pattern_len,Close[j-1]);
+         moving_pattern.set_data(Close,j,pattern_len,Close[j-1],High[j-1],Low[j-1]);
          if(p_bar.check_another_bar(moving_pattern,correlation_thresh,max_hit))
             break;
       }

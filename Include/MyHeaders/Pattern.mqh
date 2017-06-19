@@ -15,12 +15,12 @@ class Pattern
 {
   public:
    Pattern();
-   Pattern(const double &_src[],int _src_start, int _size, double _f_close1);
+   Pattern(const double &_src[],int _src_start, int _size, double _f_close1, double _f_high1, double _f_low1);
    int size;
    double close[];
-   double fc1,ac1;
+   double fc1,ac1,aH1,aL1;
    double absolute_diffs;
-   void set_data(const double &_src[],int _src_start, int _size, double _f_close1);
+   void set_data(const double &_src[],int _src_start, int _size, double _f_close1, double _f_high1, double _f_low1);
    void log_to_file(int file_handle);
    int operator&(const Pattern &p2)const;
   private:
@@ -53,14 +53,14 @@ void Pattern::log_to_file(int file_handle)
    cont;
    FileWrite(file_handle,"","fc1ac1",fc1,ac1);
 }
-Pattern::Pattern(const double &_src[],int _src_start,int _size, double _f_close1)
+Pattern::Pattern(const double &_src[],int _src_start,int _size, double _f_close1, double _f_high1, double _f_low1)
 {
-   set_data(_src,_src_start,_size,_f_close1);
+   set_data(_src,_src_start,_size,_f_close1, _f_high1, _f_low1);
 }
 Pattern::Pattern(void)
 {
 }
-void Pattern::set_data(const double &_src[],int _src_start, int _size, double _f_close1)
+void Pattern::set_data(const double &_src[],int _src_start, int _size, double _f_close1, double _f_high1, double _f_low1)
 {
    size = _size;
    fc1=_f_close1;
@@ -68,7 +68,15 @@ void Pattern::set_data(const double &_src[],int _src_start, int _size, double _f
    ArrayCopy(close,_src,0,_src_start,size);
    absolute_diffs = calculate_absolute_diff();
    if(absolute_diffs!=0)
+   {
+      aH1=(_f_high1-close[0])/absolute_diffs;
+      aL1=(_f_low1-close[0])/absolute_diffs;
       ac1=(fc1-close[0])/absolute_diffs;
+   }
    else
+   {
+      aH1=0;
       ac1=0;
+      aL1=0;
+   }
 }
