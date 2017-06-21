@@ -29,13 +29,15 @@ class ExamineBar
    double sum_ac1;
    double higher_c1;
    int direction;
-   
+   double ave_aH1,ave_aL1;
+
    void log_to_file_common(int file_handle);
    void log_to_file_tester(int file_handle);
    bool check_another_bar(Pattern &_check_pattern, int _correlation_thresh, int _max_hit);
    bool conclude(ConcludeCriterion _criterion, int _min_hits, int _thresh_hC, double _thresh_aC);
 
   private:
+   double sum_aH1,sum_aL1;
    int asses_use_hc1(int _thresh_hC);
    int asses_use_ac1(double _thresh_aC);
    int asses_use_hc1ac1(int _thresh_hC, double _thresh_aC);
@@ -48,6 +50,8 @@ ExamineBar::ExamineBar(int _barno, Pattern* _pattern)
    higher_c1=0;
    potential=0;
    direction=0;
+   sum_aH1=0; sum_aL1=0;
+   ave_aH1=0; ave_aL1=0;
 }
 
 void ExamineBar::log_to_file_common(int file_handle)
@@ -65,6 +69,9 @@ void ExamineBar::log_to_file_common(int file_handle)
    cont;
    if(number_of_hits!=0)
       FileWrite(file_handle,"","SR&direction",potential,direction);
+   cont;
+   if(number_of_hits!=0)
+      FileWrite(file_handle,"","ave_aH1_aL1",ave_aH1,ave_aL1);
    cont;
    pattern.log_to_file(file_handle);
 
@@ -86,6 +93,8 @@ bool ExamineBar::check_another_bar(Pattern &_check_pattern, int _correlation_thr
    {  //found a match!
       number_of_hits++;
       sum_ac1+=MyMath::cap(_check_pattern.ac1,MAX_AC1,-MAX_AC1);
+      sum_aH1+=_check_pattern.aH1;
+      sum_aL1+=_check_pattern.aL1;
       if(_check_pattern.fc1>_check_pattern.close[0])
          higher_c1++;
 
@@ -97,6 +106,8 @@ bool ExamineBar::conclude(ConcludeCriterion _criterion, int _min_hits, int _thre
 { //return false if not suitable bar. direction shows the suggestion
    if(number_of_hits<_min_hits)
       return false;
+   ave_aH1=sum_aH1/number_of_hits;
+   ave_aL1=sum_aL1/number_of_hits;
    switch(_criterion)
    {
       case USE_HC1:
