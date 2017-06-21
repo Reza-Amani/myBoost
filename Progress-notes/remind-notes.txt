@@ -1,3 +1,4 @@
 thresh-Hc1 is between 0 and 100 for 50 to 100 percent
 1.14120 to 1.14130 is one pip
 in yen: 77.73 to 77.740 is one pip
+lot size=100,000

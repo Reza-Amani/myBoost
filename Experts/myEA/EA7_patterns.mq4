@@ -25,6 +25,9 @@ input int      min_hit=25;
 input int      max_hit=100;
 input ConcludeCriterion criterion=USE_aveC1;
 input bool     use_tp=true; 
+input double   tp_factor=1;
+input bool     use_sl=true; 
+input double   sl_factor=2;
 input int      lookback_len=6000;
 input double   i_Lots=1;
 //////////////////////////////parameters
@@ -69,17 +72,21 @@ int search()
       trade_counter++;
       if(p_bar.direction==1)
       {
-         double tp=0;
+         double tp=0,sl=0;
          if(use_tp)
-            tp=p_bar.pattern.close[0]+(2*p_bar.ave_aH1)*p_bar.pattern.absolute_diffs;
-         open_ticket=OrderSend(Symbol(),OP_BUY, i_Lots, Ask, 0, 0,tp,NULL,++trade_id,0,clrAliceBlue); //returns ticket n assigned by server, or -1 for error
+            tp=p_bar.pattern.close[0]+(tp_factor*p_bar.ave_aH1)*p_bar.pattern.absolute_diffs;
+         if(use_sl)
+            sl=p_bar.pattern.close[0]+(sl_factor*p_bar.ave_aL1)*p_bar.pattern.absolute_diffs;
+         open_ticket=OrderSend(Symbol(),OP_BUY, i_Lots, Ask, 0,sl,tp,NULL,++trade_id,0,clrAliceBlue); //returns ticket n assigned by server, or -1 for error
       }
       else if(p_bar.direction==-1)
       {
-         double tp=0;
+         double tp=0,sl=0;
          if(use_tp)
-            tp=p_bar.pattern.close[0]+(2*p_bar.ave_aL1)*p_bar.pattern.absolute_diffs;
-         open_ticket=OrderSend(Symbol(),OP_SELL, i_Lots, Bid, 0, 0,tp,NULL,++trade_id,0,clrAliceBlue);
+            tp=p_bar.pattern.close[0]+(tp_factor*p_bar.ave_aL1)*p_bar.pattern.absolute_diffs;
+         if(use_sl)
+            sl=p_bar.pattern.close[0]+(sl_factor*p_bar.ave_aH1)*p_bar.pattern.absolute_diffs;
+         open_ticket=OrderSend(Symbol(),OP_SELL, i_Lots, Bid, 0, sl,tp,NULL,++trade_id,0,clrAliceBlue);
       }
       delete p_bar;
       delete p_pattern;
