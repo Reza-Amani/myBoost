@@ -15,19 +15,19 @@
 #include <MyHeaders\Tools.mqh>
 
 ///////////////////////////////inputs
-input int      pattern_len=12;
-input int      correlation_thresh=90;
+input int      pattern_len=10;
+input int      correlation_thresh=86;
 input int      thresh_hC=30;  
                   //30 means: 2*0.65-1
 input int      thresh_aC=40;
                   //40 means: 0.4
-input int      min_hit=25;
+input int      min_hit=30;
 input int      max_hit=100;
 input ConcludeCriterion criterion=USE_aveC1;
 input bool     use_tp=true; 
-input double   tp_factor=1;
+input double   tp_factor=2;
 input bool     use_sl=true; 
-input double   sl_factor=2;
+input double   sl_factor=3;
 input int      lookback_len=6000;
 input double   i_Lots=1;
 //////////////////////////////parameters
