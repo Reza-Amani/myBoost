@@ -15,20 +15,30 @@ class Pattern
 {
   public:
    Pattern();
-   Pattern(const double &_src[],int _src_start, int _size, double _f_close1, double _f_high1, double _f_low1);
+   Pattern(const double &_high[],const double &_low[],const double &_src[],int _src_start, int _size, double _f_close1, double _f_high1, double _f_low1);
    int size;
-   double close[];
+   double close[],high[],low[];
    double fc1,ac1,aH1,aL1;
    double absolute_diffs;
-   void set_data(const double &_src[],int _src_start, int _size, double _f_close1, double _f_high1, double _f_low1);
+   void set_data(const double &_high[],const double &_low[],const double &_src[],int _src_start, int _size, double _f_close1, double _f_high1, double _f_low1);
    void log_to_file(int file_handle);
    int operator&(const Pattern &p2)const;
+   int operator&&(const Pattern &p2)const;
   private:
    double calculate_absolute_diff();
 };
+int Pattern::operator&&(const Pattern &p2)const
+{  //correlation
+   int result=MyMath::correlation_array(close,0,p2.close,0,size);
+   result+=MyMath::correlation_array(high,0,p2.high,0,size);
+   result+=MyMath::correlation_array(low,0,p2.low,0,size);
+   result=result/3;
+   return result;
+}
 int Pattern::operator&(const Pattern &p2)const
 {  //correlation
-   return MyMath::correlation_array(close,0,p2.close,0,size);
+   int result=MyMath::correlation_array(close,0,p2.close,0,size);
+   return result;
 }
 double Pattern::calculate_absolute_diff()
 {  
@@ -53,19 +63,23 @@ void Pattern::log_to_file(int file_handle)
    cont;
    FileWrite(file_handle,"","fc1ac1",fc1,ac1);
 }
-Pattern::Pattern(const double &_src[],int _src_start,int _size, double _f_close1, double _f_high1, double _f_low1)
+Pattern::Pattern(const double &_high[],const double &_low[],const double &_src[],int _src_start,int _size, double _f_close1, double _f_high1, double _f_low1)
 {
-   set_data(_src,_src_start,_size,_f_close1, _f_high1, _f_low1);
+   set_data(_high,_low,_src,_src_start,_size,_f_close1, _f_high1, _f_low1);
 }
 Pattern::Pattern(void)
 {
 }
-void Pattern::set_data(const double &_src[],int _src_start, int _size, double _f_close1, double _f_high1, double _f_low1)
+void Pattern::set_data(const double &_high[],const double &_low[],const double &_src[],int _src_start, int _size, double _f_close1, double _f_high1, double _f_low1)
 {
    size = _size;
    fc1=_f_close1;
    ArrayResize(close,size);
    ArrayCopy(close,_src,0,_src_start,size);
+   ArrayResize(high,size);
+   ArrayCopy(high,_high,0,_src_start,size);
+   ArrayResize(low,size);
+   ArrayCopy(low,_low,0,_src_start,size);
    absolute_diffs = calculate_absolute_diff();
    if(absolute_diffs!=0)
    {
