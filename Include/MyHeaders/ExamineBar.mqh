@@ -17,11 +17,6 @@ enum ConcludeCriterion
    USE_aveC1,
    USE_HC1aveC1
 };
-enum CorrelationBase
-{
-   CORREL_CLOSE,
-   CORREL_HLC
-};
 class ExamineBar
 {
   public:
