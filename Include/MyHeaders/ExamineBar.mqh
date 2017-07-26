@@ -33,7 +33,7 @@ class ExamineBar
 
    void log_to_file_common(int file_handle);
    void log_to_file_tester(int file_handle);
-   bool check_another_bar(Pattern &_check_pattern, int _correlation_thresh, int _max_hit, CorrelationBase _correl_base);
+   bool check_another_bar(Pattern &_check_pattern, int _correlation_thresh, int _max_hit);
    bool conclude(ConcludeCriterion _criterion, int _min_hits, int _thresh_hC, double _thresh_aC);
 
   private:
@@ -87,7 +87,7 @@ void ExamineBar::log_to_file_tester(int file_handle)
 
 }
 
-bool ExamineBar::check_another_bar(Pattern &_check_pattern, int _correlation_thresh, int _max_hit, CorrelationBase _correl_base)
+bool ExamineBar::check_another_bar(Pattern &_check_pattern, int _correlation_thresh, int _max_hit)
 {  //returns true, if the number of matches is above 100
    int correlation;
    correlation = pattern && _check_pattern;
