@@ -52,11 +52,6 @@ int Pattern::operator&&(const Pattern &p2)const
       
    }
 }
-int Pattern::operator&(const Pattern &p2)const
-{  //correlation
-   int result=MyMath::correlation_array(close,0,p2.close,0,size);
-   return result;
-}
 double Pattern::calculate_absolute_diff()
 {  
    double result=0;
