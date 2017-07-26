@@ -12,7 +12,8 @@
 enum CorrelationBase
 {
    CORREL_CLOSE,
-   CORREL_HLC
+   CORREL_HLC,
+   CORREL_HC0LC0
 };
 
 #define cont    FileSeek(file_handle,-2,SEEK_CUR)
@@ -24,7 +25,7 @@ class Pattern
    Pattern(const double &_high[],const double &_low[],const double &_close[],int _src_start, int _size, double _f_close1, double _f_high1, double _f_low1,CorrelationBase _corr_base);
    int size;
    CorrelationBase corr_base;
-   double close[],high[],low[];
+   double close[],high[],low[],highc0[],lowc0[];
    double fc1,ac1,aH1,aL1;
    double absolute_diffs;
    void set_data(const double &_high[],const double &_low[],const double &_close[],int _src_start, int _size, double _f_close1, double _f_high1, double _f_low1, CorrelationBase _corr_base);
@@ -49,6 +50,11 @@ int Pattern::operator&&(const Pattern &p2)const
          result=result/3;
          return result;
          break;
+      case CORREL_HC0LC0:
+         result=MyMath::correlation_array(highc0,0,p2.highc0,0,size+1);
+         result+=MyMath::correlation_array(lowc0,0,p2.lowc0,0,size+1);
+         return result/2;
+         break;
       default:
          return 0;
       
@@ -56,7 +62,7 @@ int Pattern::operator&&(const Pattern &p2)const
 }
 double Pattern::calculate_absolute_diff()
 {  
-   double result=0;
+  double result=0;
    for(int i=0;i<size-1;i++)
    {
       result+=MathAbs(close[i]-close[i+1]);
@@ -93,6 +99,12 @@ void Pattern::set_data(const double &_high[],const double &_low[],const double &
    ArrayCopy(close,_close,0,_src_start,size);
    ArrayResize(high,size);
    ArrayCopy(high,_high,0,_src_start,size);
+   ArrayResize(highc0,size+1);
+   ArrayCopy(highc0,_high,1,_src_start,size);
+   highc0[0]=close[0];
+   ArrayResize(lowc0,size+1);
+   ArrayCopy(lowc0,_low,1,_src_start,size);
+   lowc0[0]=close[0];
    ArrayResize(low,size);
    ArrayCopy(low,_low,0,_src_start,size);
    absolute_diffs = calculate_absolute_diff();
