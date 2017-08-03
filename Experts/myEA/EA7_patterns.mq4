@@ -56,14 +56,14 @@ int search()
    Pattern moving_pattern;
 
    int _ref=0;//only to keep compatibility with the script
-   p_pattern=new Pattern(High,Low,Close,_ref,pattern_len,0,0,0);
+   p_pattern=new Pattern(High,Low,Close,_ref,pattern_len,0,0,0,correlation_base);
       //TODO: replace with Open,0 
    p_bar=new ExamineBar(_ref,p_pattern);
    
    for(int j=10+_ref;j<_ref+lookback_len-pattern_len;j++)
    {
-      moving_pattern.set_data(High,Low,Close,j,pattern_len,Close[j-1],High[j-1],Low[j-1]);
-      if(p_bar.check_another_bar(moving_pattern,correlation_thresh,max_hit,correlation_base))
+      moving_pattern.set_data(High,Low,Close,j,pattern_len,Close[j-1],High[j-1],Low[j-1],correlation_base);
+      if(p_bar.check_another_bar(moving_pattern,correlation_thresh,max_hit))
          break;
    }
    if(p_bar.conclude(criterion,min_hit,thresh_hC,thresh_aC))
@@ -137,6 +137,10 @@ int OnInit()
    }
    screen.add_L1_comment("file ok-");
    return(INIT_SUCCEEDED);
+}
+double OnTester()
+{
+   return trade_counter;
 }
 void OnDeinit(const int reason)
 {

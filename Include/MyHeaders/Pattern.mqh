@@ -9,18 +9,26 @@
 
 #include <MyHeaders\MyMath.mqh>
 
+enum CorrelationBase
+{
+   CORREL_CLOSE,
+   CORREL_HLC,
+   CORREL_HC0LC0
+};
+
 #define cont    FileSeek(file_handle,-2,SEEK_CUR)
 
 class Pattern
 {
   public:
    Pattern();
-   Pattern(const double &_high[],const double &_low[],const double &_src[],int _src_start, int _size, double _f_close1, double _f_high1, double _f_low1);
+   Pattern(const double &_high[],const double &_low[],const double &_close[],int _src_start, int _size, double _f_close1, double _f_high1, double _f_low1,CorrelationBase _corr_base);
    int size;
-   double close[],high[],low[];
+   CorrelationBase corr_base;
+   double close[],high[],low[],highc0[],lowc0[];
    double fc1,ac1,aH1,aL1;
    double absolute_diffs;
-   void set_data(const double &_high[],const double &_low[],const double &_src[],int _src_start, int _size, double _f_close1, double _f_high1, double _f_low1);
+   void set_data(const double &_high[],const double &_low[],const double &_close[],int _src_start, int _size, double _f_close1, double _f_high1, double _f_low1, CorrelationBase _corr_base);
    void log_to_file(int file_handle);
    int operator&(const Pattern &p2)const;
    int operator&&(const Pattern &p2)const;
@@ -29,20 +37,32 @@ class Pattern
 };
 int Pattern::operator&&(const Pattern &p2)const
 {  //correlation
-   int result=MyMath::correlation_array(close,0,p2.close,0,size);
-   result+=MyMath::correlation_array(high,0,p2.high,0,size);
-   result+=MyMath::correlation_array(low,0,p2.low,0,size);
-   result=result/3;
-   return result;
-}
-int Pattern::operator&(const Pattern &p2)const
-{  //correlation
-   int result=MyMath::correlation_array(close,0,p2.close,0,size);
-   return result;
+   int result;
+   switch(corr_base)
+   {
+      case CORREL_CLOSE:
+         return MyMath::correlation_array(close,0,p2.close,0,size);
+         break;
+      case CORREL_HLC:
+         result=MyMath::correlation_array(close,0,p2.close,0,size);
+         result+=MyMath::correlation_array(high,0,p2.high,0,size);
+         result+=MyMath::correlation_array(low,0,p2.low,0,size);
+         result=result/3;
+         return result;
+         break;
+      case CORREL_HC0LC0:
+         result=MyMath::correlation_array(highc0,0,p2.highc0,0,size+1);
+         result+=MyMath::correlation_array(lowc0,0,p2.lowc0,0,size+1);
+         return result/2;
+         break;
+      default:
+         return 0;
+      
+   }
 }
 double Pattern::calculate_absolute_diff()
 {  
-   double result=0;
+  double result=0;
    for(int i=0;i<size-1;i++)
    {
       result+=MathAbs(close[i]-close[i+1]);
@@ -63,21 +83,28 @@ void Pattern::log_to_file(int file_handle)
    cont;
    FileWrite(file_handle,"","fc1ac1",fc1,ac1);
 }
-Pattern::Pattern(const double &_high[],const double &_low[],const double &_src[],int _src_start,int _size, double _f_close1, double _f_high1, double _f_low1)
+Pattern::Pattern(const double &_high[],const double &_low[],const double &_close[],int _src_start,int _size, double _f_close1, double _f_high1, double _f_low1,CorrelationBase _corr_base)
 {
-   set_data(_high,_low,_src,_src_start,_size,_f_close1, _f_high1, _f_low1);
+   set_data( _high, _low, _close, _src_start, _size, _f_close1, _f_high1, _f_low1, _corr_base);
 }
 Pattern::Pattern(void)
 {
 }
-void Pattern::set_data(const double &_high[],const double &_low[],const double &_src[],int _src_start, int _size, double _f_close1, double _f_high1, double _f_low1)
+void Pattern::set_data(const double &_high[],const double &_low[],const double &_close[],int _src_start, int _size, double _f_close1, double _f_high1, double _f_low1,CorrelationBase _corr_base)
 {
    size = _size;
    fc1=_f_close1;
+   corr_base=_corr_base;
    ArrayResize(close,size);
-   ArrayCopy(close,_src,0,_src_start,size);
+   ArrayCopy(close,_close,0,_src_start,size);
    ArrayResize(high,size);
    ArrayCopy(high,_high,0,_src_start,size);
+   ArrayResize(highc0,size+1);
+   ArrayCopy(highc0,_high,1,_src_start,size);
+   highc0[0]=close[0];
+   ArrayResize(lowc0,size+1);
+   ArrayCopy(lowc0,_low,1,_src_start,size);
+   lowc0[0]=close[0];
    ArrayResize(low,size);
    ArrayCopy(low,_low,0,_src_start,size);
    absolute_diffs = calculate_absolute_diff();

@@ -17,11 +17,6 @@ enum ConcludeCriterion
    USE_aveC1,
    USE_HC1aveC1
 };
-enum CorrelationBase
-{
-   CORREL_CLOSE,
-   CORREL_HLC
-};
 class ExamineBar
 {
   public:
@@ -38,7 +33,7 @@ class ExamineBar
 
    void log_to_file_common(int file_handle);
    void log_to_file_tester(int file_handle);
-   bool check_another_bar(Pattern &_check_pattern, int _correlation_thresh, int _max_hit, CorrelationBase _correl_base);
+   bool check_another_bar(Pattern &_check_pattern, int _correlation_thresh, int _max_hit);
    bool conclude(ConcludeCriterion _criterion, int _min_hits, int _thresh_hC, double _thresh_aC);
 
   private:
@@ -92,19 +87,10 @@ void ExamineBar::log_to_file_tester(int file_handle)
 
 }
 
-bool ExamineBar::check_another_bar(Pattern &_check_pattern, int _correlation_thresh, int _max_hit, CorrelationBase _correl_base)
+bool ExamineBar::check_another_bar(Pattern &_check_pattern, int _correlation_thresh, int _max_hit)
 {  //returns true, if the number of matches is above 100
    int correlation;
-   switch(_correl_base)
-   {
-      case CORREL_CLOSE:
-         correlation = pattern & _check_pattern;
-         break;
-      case CORREL_HLC:
-      default:
-         correlation = pattern && _check_pattern;
-         break;
-   }
+   correlation = pattern && _check_pattern;
    if( correlation >= _correlation_thresh)
    {  //found a match!
       number_of_hits++;
