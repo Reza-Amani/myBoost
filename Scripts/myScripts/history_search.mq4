@@ -23,7 +23,8 @@ input int      thresh_hC=30;
 input int      thresh_aC=40;
 input int      min_hit=25;
 input int      max_hit=100;
-input ConcludeCriterion criterion=USE_aveC1;
+input CorrelationBase correlation_base=CORREL_HLS;
+input ConcludeCriterion criterion=USE_HH1;
 input int      bars_to_search=3000;
 input int      lookback_len=3000;
 
@@ -58,13 +59,13 @@ void OnStart()
    int output_counter=0;
    for(int _ref=10;_ref<bars_to_search;_ref++)
    {
-      p_pattern=new Pattern(Close,_ref,pattern_len,Close[_ref-1],High[_ref-1],Low[_ref-1]);
+      p_pattern=new Pattern(High,Low,Close,_ref,pattern_len,Close[_ref-1],High[_ref-1],Low[_ref-1],correlation_base);
       
       p_bar=new ExamineBar(_ref,p_pattern);
      
       for(int j=10+_ref;j<_ref+lookback_len-pattern_len;j++)
       {
-         moving_pattern.set_data(Close,j,pattern_len,Close[j-1],High[j-1],Low[j-1]);
+         moving_pattern.set_data(High,Low,Close,j,pattern_len,Close[j-1],High[j-1],Low[j-1],correlation_base);
          if(p_bar.check_another_bar(moving_pattern,correlation_thresh,max_hit))
             break;
       }

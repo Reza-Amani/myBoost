@@ -15,7 +15,8 @@ enum ConcludeCriterion
 {
    USE_HC1,
    USE_aveC1,
-   USE_HC1aveC1
+   USE_HC1aveC1,
+   USE_HH1
 };
 class ExamineBar
 {
@@ -27,7 +28,7 @@ class ExamineBar
    int number_of_hits;
    int potential;
    double sum_ac1;
-   double higher_c1;
+   double higher_c1,higher_h1; //number of bars with a higher high or close
    int direction;
    double ave_aH1,ave_aL1;
 
@@ -39,6 +40,7 @@ class ExamineBar
   private:
    double sum_aH1,sum_aL1;
    int asses_use_hc1(int _thresh_hC);
+   int asses_use_hh1(int _thresh_hC);
    int asses_use_ac1(double _thresh_aC);
    int asses_use_hc1ac1(int _thresh_hC, double _thresh_aC);
 };
@@ -47,7 +49,7 @@ ExamineBar::ExamineBar(int _barno, Pattern* _pattern)
    barno=_barno; pattern=_pattern;
    number_of_hits=0;
    sum_ac1=0;
-   higher_c1=0;
+   higher_c1=0; higher_h1=0;
    potential=0;
    direction=0;
    sum_aH1=0; sum_aL1=0;
@@ -60,12 +62,12 @@ void ExamineBar::log_to_file_common(int file_handle)
    FileWrite(file_handle,"","Bar",barno);
    cont;
    FileWrite(file_handle,"","hits",number_of_hits);
+//   cont;
+//   if(number_of_hits!=0)
+//      FileWrite(file_handle,"","aveaC1",sum_ac1/number_of_hits);
    cont;
    if(number_of_hits!=0)
-      FileWrite(file_handle,"","aveaC1",sum_ac1/number_of_hits);
-   cont;
-   if(number_of_hits!=0)
-      FileWrite(file_handle,"","higherC1",higher_c1,higher_c1/number_of_hits);
+      FileWrite(file_handle,"","higherH1",higher_h1,higher_h1/number_of_hits);
    cont;
    if(number_of_hits!=0)
       FileWrite(file_handle,"","SR&direction",potential,direction);
@@ -80,11 +82,13 @@ void ExamineBar::log_to_file_common(int file_handle)
 void ExamineBar::log_to_file_tester(int file_handle)
 {
    if(number_of_hits!=0)
+      FileWrite(file_handle,"","Normalised Result-dH1",direction*(pattern.fh1-pattern.high[0]));
+/*   if(number_of_hits!=0)
       FileWrite(file_handle,"","dC1-ac1-nextdir",pattern.fc1-pattern.close[0],pattern.ac1,(pattern.ac1>0)?1:-1);
    cont;
    if(number_of_hits!=0)
-      FileWrite(file_handle,"","Normalised Result-dC1-aC1-dir",direction*(pattern.fc1-pattern.close[0]),direction*pattern.ac1,direction*((pattern.ac1>0)?1:-1));
-
+      FileWrite(file_handle,"","Normalised Result-dH1-aC1-dir",direction*(pattern.fc1-pattern.close[0]),direction*pattern.ac1,direction*((pattern.ac1>0)?1:-1));
+*/
 }
 
 bool ExamineBar::check_another_bar(Pattern &_check_pattern, int _correlation_thresh, int _max_hit)
@@ -99,6 +103,8 @@ bool ExamineBar::check_another_bar(Pattern &_check_pattern, int _correlation_thr
       sum_aL1+=_check_pattern.aL1;
       if(_check_pattern.fc1>_check_pattern.close[0])
          higher_c1++;
+      if(_check_pattern.fh1>_check_pattern.high[0])
+         higher_h1++;
 
    }
    return (number_of_hits>=_max_hit);
@@ -130,6 +136,12 @@ bool ExamineBar::conclude(ConcludeCriterion _criterion, int _min_hits, int _thre
          if(direction!=0)
             return true;
          break;
+      case USE_HH1:
+         potential = asses_use_hh1(_thresh_hC);
+         direction=MyMath::sign(potential);
+         if(direction!=0)
+            return true;
+         break;
 
    }
    return false;
@@ -138,6 +150,15 @@ bool ExamineBar::conclude(ConcludeCriterion _criterion, int _min_hits, int _thre
 int ExamineBar::asses_use_hc1(int _thresh_hC)
 {  //_thresh_hC..100 for buy potential, -_thresh_hC..-100 for sell potential
    int result = (int)(200*higher_c1/number_of_hits-100);
+   if(MathAbs(result)<_thresh_hC)
+      result=0;
+   result=(int)MyMath::cap(result,100,-100);
+   return result;
+}
+
+int ExamineBar::asses_use_hh1(int _thresh_hC)
+{  //_thresh_hC..100 for buy potential, -_thresh_hC..-100 for sell potential
+   int result = (int)(200*higher_h1/number_of_hits-100);
    if(MathAbs(result)<_thresh_hC)
       result=0;
    result=(int)MyMath::cap(result,100,-100);
