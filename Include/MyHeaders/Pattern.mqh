@@ -80,17 +80,23 @@ double Pattern::calculate_absolute_diff()
 }
 void Pattern::log_to_file(int file_handle)
 {
-   FileWrite(file_handle,"","close");
+   FileWrite(file_handle,"","high0..size-1");
    for(int i=0;i<size;i++)
    {
       cont;
-      FileWrite(file_handle,"",close[i]);
+      FileWrite(file_handle,"",high[i]);
    }  
+   cont;
+   FileWrite(file_handle,"","close0-f1");
+   cont;
+   FileWrite(file_handle,"",close[0],fc1);
    cont;
    FileWrite(file_handle,"","diff",absolute_diffs);
    cont;
 //   FileWrite(file_handle,"","fc1ac1",fc1,ac1);
    FileWrite(file_handle,"","fh1fc1",fh1,fc1);
+   cont;
+   FileWrite(file_handle,"","aH1aL1aC1",aH1,aL1,ac1);
 }
 Pattern::Pattern(const double &_high[],const double &_low[],const double &_close[],int _src_start,int _size, double _f_close1, double _f_high1, double _f_low1,CorrelationBase _corr_base)
 {

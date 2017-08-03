@@ -82,7 +82,7 @@ void ExamineBar::log_to_file_common(int file_handle)
 void ExamineBar::log_to_file_tester(int file_handle)
 {
    if(number_of_hits!=0)
-      FileWrite(file_handle,"","Normalised Result-dH1",direction*(pattern.fh1-pattern.high[0]));
+      FileWrite(file_handle,"","Normalised Result-dH1-1/0",direction*(pattern.fh1-pattern.high[0]),(direction*(pattern.fh1-pattern.high[0])>0)?1:0);
 /*   if(number_of_hits!=0)
       FileWrite(file_handle,"","dC1-ac1-nextdir",pattern.fc1-pattern.close[0],pattern.ac1,(pattern.ac1>0)?1:-1);
    cont;
