@@ -138,6 +138,10 @@ int OnInit()
    screen.add_L1_comment("file ok-");
    return(INIT_SUCCEEDED);
 }
+double OnTester()
+{
+   return trade_counter;
+}
 void OnDeinit(const int reason)
 {
    FileWrite(file,"processed bars:", processed_bars," trade cnt", trade_counter);
