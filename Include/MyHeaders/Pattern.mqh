@@ -13,7 +13,8 @@ enum CorrelationBase
 {
    CORREL_CLOSE,
    CORREL_HLC,
-   CORREL_HC0LC0
+   CORREL_HC0LC0,
+   CORREL_HLS
 };
 
 #define cont    FileSeek(file_handle,-2,SEEK_CUR)
@@ -25,8 +26,8 @@ class Pattern
    Pattern(const double &_high[],const double &_low[],const double &_close[],int _src_start, int _size, double _f_close1, double _f_high1, double _f_low1,CorrelationBase _corr_base);
    int size;
    CorrelationBase corr_base;
-   double close[],high[],low[],highc0[],lowc0[];
-   double fc1,ac1,aH1,aL1;
+   double close[],high[],low[],highc0[],lowc0[],bar_size[];
+   double fc1,fh1,fl1,ac1,aH1,aL1;
    double absolute_diffs;
    void set_data(const double &_high[],const double &_low[],const double &_close[],int _src_start, int _size, double _f_close1, double _f_high1, double _f_low1, CorrelationBase _corr_base);
    void log_to_file(int file_handle);
@@ -55,6 +56,13 @@ int Pattern::operator&&(const Pattern &p2)const
          result+=MyMath::correlation_array(lowc0,0,p2.lowc0,0,size+1);
          return result/2;
          break;
+      case CORREL_HLS:
+         result=MyMath::correlation_array(bar_size,0,p2.bar_size,0,size);
+         result+=MyMath::correlation_array(high,0,p2.high,0,size);
+         result+=MyMath::correlation_array(low,0,p2.low,0,size);
+         result=result/3;
+         return result;
+         break;
       default:
          return 0;
       
@@ -72,16 +80,23 @@ double Pattern::calculate_absolute_diff()
 }
 void Pattern::log_to_file(int file_handle)
 {
-   FileWrite(file_handle,"","close");
+   FileWrite(file_handle,"","high0..size-1");
    for(int i=0;i<size;i++)
    {
       cont;
-      FileWrite(file_handle,"",close[i]);
+      FileWrite(file_handle,"",high[i]);
    }  
+   cont;
+   FileWrite(file_handle,"","close0-f1");
+   cont;
+   FileWrite(file_handle,"",close[0],fc1);
    cont;
    FileWrite(file_handle,"","diff",absolute_diffs);
    cont;
-   FileWrite(file_handle,"","fc1ac1",fc1,ac1);
+//   FileWrite(file_handle,"","fc1ac1",fc1,ac1);
+   FileWrite(file_handle,"","fh1fc1",fh1,fc1);
+   cont;
+   FileWrite(file_handle,"","aH1aL1aC1",aH1,aL1,ac1);
 }
 Pattern::Pattern(const double &_high[],const double &_low[],const double &_close[],int _src_start,int _size, double _f_close1, double _f_high1, double _f_low1,CorrelationBase _corr_base)
 {
@@ -94,6 +109,8 @@ void Pattern::set_data(const double &_high[],const double &_low[],const double &
 {
    size = _size;
    fc1=_f_close1;
+   fh1=_f_high1;
+   fl1=_f_low1;
    corr_base=_corr_base;
    ArrayResize(close,size);
    ArrayCopy(close,_close,0,_src_start,size);
@@ -107,6 +124,11 @@ void Pattern::set_data(const double &_high[],const double &_low[],const double &
    lowc0[0]=close[0];
    ArrayResize(low,size);
    ArrayCopy(low,_low,0,_src_start,size);
+   
+   ArrayResize(bar_size,size);
+   for(int i=0; i<size; i++)
+      bar_size[i]=high[i]-low[i];
+
    absolute_diffs = calculate_absolute_diff();
    if(absolute_diffs!=0)
    {
