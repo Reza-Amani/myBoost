@@ -3,6 +3,7 @@
 //|                                                             Reza |
 //|                                                                  |
 //+------------------------------------------------------------------+
+#include <MyHeaders\Pattern.mqh>
 #property copyright "Reza"
 #property link      ""
 #property version   "1.00"
@@ -17,9 +18,9 @@
 double         Buffer_correl[];
 double         Buffer_bar_no[];
 //--- input parameters
-input int      pattern_len = 20;
+input int      pattern_len = 50;
 input int      ref_offset = 10;
-input int      history_len = 100;
+input int      history_len = 1000;
 //vars
 datetime    _last_open_time;
 int limit;
@@ -31,6 +32,10 @@ int OnInit()
    SetIndexStyle(0, DRAW_LINE, STYLE_SOLID, 1, clrBlue);
    SetIndexBuffer(0,Buffer_correl);
    SetIndexLabel(0 ,"self correlation");   
+   
+   SetIndexStyle(1, DRAW_NONE, STYLE_SOLID, 1, clrBlue);
+   SetIndexBuffer(1,Buffer_bar_no);
+   SetIndexLabel(1 ,"bar no");   
 
    _last_open_time=0;
    limit = 0;
@@ -61,7 +66,17 @@ int OnCalculate(const int rates_total,
       for(int i=limit-1; i >= 0; i--)
       {
          Buffer_bar_no[i]= i;
-       }
+      }
+      
+      Pattern ref_pattern,moving_pattern;
+      ref_pattern.set_data(High, Low, Close, ref_offset, pattern_len,0,0,0, CORREL_CLOSE);
+      
+      for(int i=limit-1; i >= ref_offset; i--)
+      {
+         moving_pattern.set_data(High, Low, Close, i, pattern_len,0,0,0, CORREL_CLOSE);
+         Buffer_correl[i]= ref_pattern && moving_pattern;
+      }
+      
     }
 
    return(rates_total);
