@@ -33,7 +33,8 @@ int search()
 {  //returns 1 if opens a trade to proceed to next state
    //0 if unsuccessful search
 
-   double rsi1 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,1); 
+//   double rsi1 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,1); 
+   double rsi1 = iCustom(Symbol(), Period(),"myIndicators/swing_quality", 1,1); 
    double rsi2 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,2); 
       //RSI of median price on last bar
       //a little aggressive, and ignoring the new open price

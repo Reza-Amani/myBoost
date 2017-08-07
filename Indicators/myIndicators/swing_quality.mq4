@@ -58,18 +58,25 @@ int OnCalculate(const int rates_total,
 
    //--- if counted_bars=0, reduce the starting position in the loop by 1,   
    if(counted_bars==0) 
+   {
       limit--;  // to avoid the array out of range problem when counted_bars==0
-   else //--- the indicator has been already calculated, counted_bars>0
-      limit++;//--- for repeated calls increase limit by 1 to update the indicator values for the last bar
+      Buffer_buy_quality[Bars-1]=0;
+      Buffer_sell_quality[Bars-1]=0;
+      Buffer_total_smoothed_quality[Bars-1]=0;
+      limit--; //reset the first value and start from the second one
+   }
+//   else //--- the indicator has been already calculated, counted_bars>0
+//      limit++;//--- for repeated calls increase limit by 1 to update the indicator values for the last bar
       
    //--- the main calculation loop
    for (int i=limit; i>=0; i--)
    {
-      double rsi1 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", 14, MODE_SMMA, PRICE_MEDIAN ,0,i+1); 
-      double rsi2 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", 14, MODE_SMMA, PRICE_MEDIAN ,0,i+2);
-      Buffer_buy_quality[i]=(i%100>50)?50:0;
-      Buffer_sell_quality[i]=rsi2;
-      Buffer_total_smoothed_quality[i]=iMAOnArray(Buffer_buy_quality,0,4,0,MODE_SMA,i);
+      double rsi0 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", 14, MODE_SMMA, PRICE_MEDIAN ,0,i+0); 
+      double rsi1 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", 14, MODE_SMMA, PRICE_MEDIAN ,0,i+1);
+      Buffer_buy_quality[i]=(i%100>=50)?5:-5;
+      Buffer_sell_quality[i]=rsi0;
+//      Buffer_total_smoothed_quality[i]=iMAOnArray(Buffer_buy_quality,0,4,0,MODE_SMA,i);
+      Buffer_total_smoothed_quality[i]=Buffer_total_smoothed_quality[i+1]+Buffer_buy_quality[i];
    }
 
 //--- return value of prev_calculated for next call
