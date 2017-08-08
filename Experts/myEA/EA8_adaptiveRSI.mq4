@@ -33,17 +33,23 @@ int search()
 {  //returns 1 if opens a trade to proceed to next state
    //0 if unsuccessful search
 
-//   double rsi1 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,1); 
-   double rsi1 = iCustom(Symbol(), Period(),"myIndicators/swing_quality", 1,1); 
+   double rsi1 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,1); 
    double rsi2 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,2); 
+   double buy_quality = iCustom(Symbol(), Period(),"myIndicators/swing_quality", 0,1); 
+   double sell_quality = iCustom(Symbol(), Period(),"myIndicators/swing_quality", 1,1); 
+   double slow_total_quality = iCustom(Symbol(), Period(),"myIndicators/swing_quality", 2,1); 
       //RSI of median price on last bar
       //a little aggressive, and ignoring the new open price
       //TODO: maybe considering the new open price for extra caution
 //   double new_open_rsi = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_OPEN ,0,0); 
       
-   screen.clear_L2_comment();
 //   screen.add_L2_comment(" rsi 00="+DoubleToString(iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, 0, 0,0,0))+" 10="+DoubleToString(iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, 1, 0,0,0))+" 20="+DoubleToString(iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, 2, 0,0,0))+" 3="+DoubleToString(iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, 3, 0,0,0)));
-   screen.add_L2_comment(" rsi ="+DoubleToString(rsi1));
+   screen.clear_L1_comment();
+   screen.add_L1_comment(" rsi ="+DoubleToString(rsi1));
+   screen.clear_L2_comment();
+   screen.add_L2_comment(" rsi ="+DoubleToString(buy_quality));
+   screen.clear_L3_comment();
+   screen.add_L3_comment(" rsi ="+DoubleToString(slow_total_quality));
    
    bool officer_allows = true;
    int thresh_over_bought = 70;

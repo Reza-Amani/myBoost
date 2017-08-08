@@ -67,13 +67,45 @@ int OnCalculate(const int rates_total,
    }
 //   else //--- the indicator has been already calculated, counted_bars>0
 //      limit++;//--- for repeated calls increase limit by 1 to update the indicator values for the last bar
-      
+   
+   static bool crossed_down=false;
+   static bool crossed_up=false;
    //--- the main calculation loop
    for (int i=limit; i>=0; i--)
    {
       double rsi0 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", 14, MODE_SMMA, PRICE_MEDIAN ,0,i+0); 
       double rsi1 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", 14, MODE_SMMA, PRICE_MEDIAN ,0,i+1);
-      Buffer_buy_quality[i]=(i%100>=50)?5:-5;
+      double rsi2 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", 14, MODE_SMMA, PRICE_MEDIAN ,0,i+2);
+      double rsi3 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", 14, MODE_SMMA, PRICE_MEDIAN ,0,i+3);
+      
+      Buffer_buy_quality[i]=Buffer_buy_quality[i+1];
+      //Buy quality calculation
+      if(rsi0>=80 && rsi1<=80 && crossed_down)
+         Buffer_buy_quality[i] += +4;
+      if(rsi0>=70 && rsi1<=70 && crossed_down)
+         Buffer_buy_quality[i] += +4;
+      if(rsi0<=40 && rsi1>=40)
+         Buffer_buy_quality[i] += +4;
+      if(rsi0<=20 && rsi1>=20)
+         Buffer_buy_quality[i] += -2;
+      if(rsi0>rsi1 && rsi1>=rsi2 && rsi2<rsi3 && rsi2<70 && rsi2>40)
+         Buffer_buy_quality[i] += -2;
+      if(rsi0<=rsi1 && rsi1<rsi2 && rsi2>rsi3 && rsi2<70 && rsi2>40)
+         Buffer_buy_quality[i] += -4;
+      
+      if(Buffer_buy_quality[i]<0)
+         Buffer_buy_quality[i]=0;
+
+      if(rsi0<=70 && rsi1>=70)
+         crossed_down=false;
+      if(rsi0<=40 && rsi1>=40)
+         crossed_down=true;
+         
+         
+         
+         
+         
+//      Buffer_buy_quality[i]=(i%100>=50)?5:-5;
       Buffer_sell_quality[i]=rsi0;
 //      Buffer_total_smoothed_quality[i]=iMAOnArray(Buffer_buy_quality,0,4,0,MODE_SMA,i);
       Buffer_total_smoothed_quality[i]=Buffer_total_smoothed_quality[i+1]+Buffer_buy_quality[i];
