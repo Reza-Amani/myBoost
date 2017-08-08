@@ -68,8 +68,7 @@ int OnCalculate(const int rates_total,
 //   else //--- the indicator has been already calculated, counted_bars>0
 //      limit++;//--- for repeated calls increase limit by 1 to update the indicator values for the last bar
    
-   static bool crossed_down=false;
-   static bool crossed_up=false;
+   static bool peak_turn=false;
    //--- the main calculation loop
    for (int i=limit; i>=0; i--)
    {
@@ -81,29 +80,28 @@ int OnCalculate(const int rates_total,
       
       Buffer_buy_quality[i]=Buffer_buy_quality[i+1];
       //Buy quality calculation
-      if(rsi0>=80 && rsi1<=80 && crossed_down)
+      if(rsi0>=70 && rsi1<=70 && peak_turn)
       {
-         crossed_down=false;
+         peak_turn=false;
+         Buffer_buy_quality[i] += +6;
+      }
+      if(rsi0<=40 && rsi1>=40 && !peak_turn)
+      {  
+         peak_turn = true;
          Buffer_buy_quality[i] += +4;
       }
-      if(rsi0>=70 && rsi1<=70 && crossed_down)
-         Buffer_buy_quality[i] += +4;
-      if(rsi0<=40 && rsi1>=40)
-         Buffer_buy_quality[i] += +4;
-      if(rsi0<=20 && rsi1>=20)
-         Buffer_buy_quality[i] += -2;
+      if(rsi0<=20)
+         Buffer_buy_quality[i] += -1.5;
       if(rsi0>=rsi1 && rsi1>=rsi2 && rsi2<=rsi3 && rsi3<=rsi4 && rsi2<70 && rsi2>40)
-         Buffer_buy_quality[i] += -2;
+         Buffer_buy_quality[i] += -3;
       if(rsi0<=rsi1 && rsi1<=rsi2 && rsi2>=rsi3 && rsi3>=rsi4 && rsi2<70 && rsi2>40)
-         Buffer_buy_quality[i] += -4;
+         Buffer_buy_quality[i] += -5;
       
+      if(rsi0>rsi1 && rsi1>rsi2 && rsi2>rsi3 && rsi3>rsi4)
+         Buffer_buy_quality[i] += +0.5;
+
       if(Buffer_buy_quality[i]<0)
          Buffer_buy_quality[i]=0;
-
-      if(rsi0<=70 && rsi1>=70)
-         crossed_down=false;
-      if(rsi0<=40 && rsi1>=40)
-         crossed_down=true;
          
          
          
