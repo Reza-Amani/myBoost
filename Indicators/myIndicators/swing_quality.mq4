@@ -77,20 +77,24 @@ int OnCalculate(const int rates_total,
       double rsi1 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", 14, MODE_SMMA, PRICE_MEDIAN ,0,i+1);
       double rsi2 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", 14, MODE_SMMA, PRICE_MEDIAN ,0,i+2);
       double rsi3 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", 14, MODE_SMMA, PRICE_MEDIAN ,0,i+3);
+      double rsi4 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", 14, MODE_SMMA, PRICE_MEDIAN ,0,i+4);
       
       Buffer_buy_quality[i]=Buffer_buy_quality[i+1];
       //Buy quality calculation
       if(rsi0>=80 && rsi1<=80 && crossed_down)
+      {
+         crossed_down=false;
          Buffer_buy_quality[i] += +4;
+      }
       if(rsi0>=70 && rsi1<=70 && crossed_down)
          Buffer_buy_quality[i] += +4;
       if(rsi0<=40 && rsi1>=40)
          Buffer_buy_quality[i] += +4;
       if(rsi0<=20 && rsi1>=20)
          Buffer_buy_quality[i] += -2;
-      if(rsi0>rsi1 && rsi1>=rsi2 && rsi2<rsi3 && rsi2<70 && rsi2>40)
+      if(rsi0>=rsi1 && rsi1>=rsi2 && rsi2<=rsi3 && rsi3<=rsi4 && rsi2<70 && rsi2>40)
          Buffer_buy_quality[i] += -2;
-      if(rsi0<=rsi1 && rsi1<rsi2 && rsi2>rsi3 && rsi2<70 && rsi2>40)
+      if(rsi0<=rsi1 && rsi1<=rsi2 && rsi2>=rsi3 && rsi3>=rsi4 && rsi2<70 && rsi2>40)
          Buffer_buy_quality[i] += -4;
       
       if(Buffer_buy_quality[i]<0)
