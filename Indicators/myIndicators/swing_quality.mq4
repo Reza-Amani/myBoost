@@ -6,16 +6,18 @@
 #property copyright "Reza"
 #property strict
 #property indicator_separate_window
-#property indicator_buffers 3
-#property indicator_plots   3
+#property indicator_buffers 4
+#property indicator_plots   4
 #property indicator_maximum 100
 #property indicator_minimum 0
 //--- indicator buffers
 double         Buffer_buy_quality[];
 double         Buffer_sell_quality[];
+double         Buffer_both_quality[];
 double         Buffer_total_smoothed_quality[];
 //-----------------macros
 //-----------------inputs
+input int RSI_len=14;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
@@ -28,9 +30,12 @@ int OnInit()
    SetIndexStyle(1, DRAW_LINE, STYLE_DOT, 1, clrPaleVioletRed);
    SetIndexBuffer(1,Buffer_sell_quality);
    SetIndexLabel(1 ,"sell");   
-   SetIndexStyle(2, DRAW_LINE, STYLE_SOLID, 1, clrGold);
-   SetIndexBuffer(2,Buffer_total_smoothed_quality);
-   SetIndexLabel(2 ,"total");   
+   SetIndexStyle(2, DRAW_LINE, STYLE_DOT, 1, clrWhiteSmoke);
+   SetIndexBuffer(2,Buffer_both_quality);
+   SetIndexLabel(2 ,"both");   
+   SetIndexStyle(3, DRAW_LINE, STYLE_SOLID, 1, clrGold);
+   SetIndexBuffer(3,Buffer_total_smoothed_quality);
+   SetIndexLabel(3 ,"total");   
 //---
    return(INIT_SUCCEEDED);
   }
@@ -62,6 +67,7 @@ int OnCalculate(const int rates_total,
       limit--;  // to avoid the array out of range problem when counted_bars==0
       Buffer_buy_quality[Bars-1]=0;
       Buffer_sell_quality[Bars-1]=0;
+      Buffer_both_quality[Bars-1]=0;
       Buffer_total_smoothed_quality[Bars-1]=0;
       limit--; //reset the first value and start from the second one
    }
@@ -72,11 +78,11 @@ int OnCalculate(const int rates_total,
    //--- the main calculation loop
    for (int i=limit; i>=0; i--)
    {
-      double rsi0 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", 14, MODE_SMMA, PRICE_MEDIAN ,0,i+0); 
-      double rsi1 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", 14, MODE_SMMA, PRICE_MEDIAN ,0,i+1);
-      double rsi2 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", 14, MODE_SMMA, PRICE_MEDIAN ,0,i+2);
-      double rsi3 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", 14, MODE_SMMA, PRICE_MEDIAN ,0,i+3);
-      double rsi4 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", 14, MODE_SMMA, PRICE_MEDIAN ,0,i+4);
+      double rsi0 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,i+0); 
+      double rsi1 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,i+1);
+      double rsi2 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,i+2);
+      double rsi3 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,i+3);
+      double rsi4 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,i+4);
       
       Buffer_buy_quality[i]=Buffer_buy_quality[i+1];
       //Buy quality calculation
@@ -102,6 +108,8 @@ int OnCalculate(const int rates_total,
 
       if(Buffer_buy_quality[i]<0)
          Buffer_buy_quality[i]=0;
+      if(Buffer_buy_quality[i]>=70)
+         Buffer_buy_quality[i]=70;
          
          
          

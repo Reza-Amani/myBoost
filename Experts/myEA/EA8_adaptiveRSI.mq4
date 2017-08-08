@@ -13,8 +13,9 @@
 #include <MyHeaders\Tools.mqh>
 
 ///////////////////////////////inputs
-input int RSI_len=14;
-input bool     use_tp=true; 
+input int      RSI_len=14;
+input bool     use_buysell_quality=false; 
+input bool     use_tp=false; 
 input double i_Lots = 0.1;
 //////////////////////////////parameters
 int trade_id=0;
@@ -35,9 +36,9 @@ int search()
 
    double rsi1 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,1); 
    double rsi2 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,2); 
-   double buy_quality = iCustom(Symbol(), Period(),"myIndicators/swing_quality", 0,1); 
-   double sell_quality = iCustom(Symbol(), Period(),"myIndicators/swing_quality", 1,1); 
-   double slow_total_quality = iCustom(Symbol(), Period(),"myIndicators/swing_quality", 2,1); 
+   double buy_quality = (use_buysell_quality) ? iCustom(Symbol(), Period(),"myIndicators/swing_quality", RSI_len, 0,1) : 100;
+   double sell_quality = (use_buysell_quality) ? iCustom(Symbol(), Period(),"myIndicators/swing_quality", RSI_len, 1,1) : 100; 
+   double slow_total_quality = iCustom(Symbol(), Period(),"myIndicators/swing_quality", RSI_len, 3,1); 
       //RSI of median price on last bar
       //a little aggressive, and ignoring the new open price
       //TODO: maybe considering the new open price for extra caution
@@ -65,7 +66,7 @@ int search()
 //            tp=;
 //         if(use_sl)
 //            sl=s;
-         open_ticket=OrderSend(Symbol(),OP_SELL, i_Lots, Bid, 0, sl,tp,"sell",++trade_id,0,clrRed);
+//!!         open_ticket=OrderSend(Symbol(),OP_SELL, i_Lots, Bid, 0, sl,tp,"sell",++trade_id,0,clrRed);
       }
       else if(rsi2<=thresh_over_sold && rsi1>=thresh_over_sold)
       {
@@ -74,7 +75,8 @@ int search()
 //            tp=;
 //         if(use_sl)
 //            sl=s;
-         open_ticket=OrderSend(Symbol(),OP_BUY, i_Lots, Ask, 0,sl,tp,"buy",++trade_id,0,clrAliceBlue); //returns ticket n assigned by server, or -1 for error
+         if(buy_quality>30)
+            open_ticket=OrderSend(Symbol(),OP_BUY, i_Lots, Ask, 0,sl,tp,"buy",++trade_id,0,clrAliceBlue); //returns ticket n assigned by server, or -1 for error
       }
 
       if(open_ticket==-1)
