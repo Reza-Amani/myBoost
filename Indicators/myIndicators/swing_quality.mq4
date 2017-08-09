@@ -6,7 +6,7 @@
 #property copyright "Reza"
 #property strict
 #property indicator_separate_window
-#property indicator_buffers 4
+#property indicator_buffers 5
 #property indicator_plots   4
 #property indicator_maximum 100
 #property indicator_minimum 0
@@ -15,6 +15,7 @@ double         Buffer_buy_quality[];
 double         Buffer_sell_quality[];
 double         Buffer_both_quality[];
 double         Buffer_total_smoothed_quality[];
+double         Buffer_peak_turn[];
 //-----------------macros
 //-----------------inputs
 input int RSI_len=14;
@@ -36,6 +37,9 @@ int OnInit()
    SetIndexStyle(3, DRAW_LINE, STYLE_SOLID, 1, clrGold);
    SetIndexBuffer(3,Buffer_total_smoothed_quality);
    SetIndexLabel(3 ,"total");   
+   SetIndexStyle(4, DRAW_NONE, STYLE_SOLID, 1, clrGold);
+   SetIndexBuffer(4,Buffer_peak_turn);
+   SetIndexLabel(4 ,"turn");   
 //---
    return(INIT_SUCCEEDED);
   }
@@ -69,12 +73,12 @@ int OnCalculate(const int rates_total,
       Buffer_sell_quality[Bars-1]=0;
       Buffer_both_quality[Bars-1]=0;
       Buffer_total_smoothed_quality[Bars-1]=0;
+      Buffer_peak_turn[0]=false;
       limit--; //reset the first value and start from the second one
    }
 //   else //--- the indicator has been already calculated, counted_bars>0
 //      limit++;//--- for repeated calls increase limit by 1 to update the indicator values for the last bar
    
-   static bool peak_turn=false;
    //--- the main calculation loop
    for (int i=limit; i>=0; i--)
    {
@@ -86,14 +90,14 @@ int OnCalculate(const int rates_total,
       
       Buffer_buy_quality[i]=Buffer_buy_quality[i+1];
       //Buy quality calculation
-      if(rsi0>=70 && rsi1<=70 && peak_turn)
+      if(rsi0>=70 && rsi1<=70 && Buffer_peak_turn[i+1])
       {
-         peak_turn=false;
+         Buffer_peak_turn[i]=false;
          Buffer_buy_quality[i] += +6;
       }
-      if(rsi0<=40 && rsi1>=40 && !peak_turn)
+      if(rsi0<=40 && rsi1>=40 && !Buffer_peak_turn[i+1])
       {  
-         peak_turn = true;
+         Buffer_peak_turn[i] = true;
          Buffer_buy_quality[i] += +4;
       }
       if(rsi0<=20)
