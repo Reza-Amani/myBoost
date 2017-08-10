@@ -16,6 +16,7 @@
 input int      RSI_len=14;
 input bool     use_buysell_quality=false; 
 input bool     use_tp=false; 
+input bool     aggressive_close=true; 
 input double i_Lots = 0.1;
 //////////////////////////////parameters
 int trade_id=0;
@@ -75,7 +76,7 @@ int search()
 //            tp=;
 //         if(use_sl)
 //            sl=s;
-         if(buy_quality>30)
+         if(buy_quality>20)
             open_ticket=OrderSend(Symbol(),OP_BUY, i_Lots, Ask, 0,sl,tp,"buy",++trade_id,0,clrAliceBlue); //returns ticket n assigned by server, or -1 for error
       }
 
@@ -125,6 +126,7 @@ int handle()
    double rsi1 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,1); 
    double rsi2 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,2); 
    double rsi3 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,3); 
+   double rsi4 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,4); 
 //   double new_open_rsi = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_OPEN ,0,0); 
 
    if(OrderSelect(open_ticket,SELECT_BY_TICKET)) 
@@ -132,8 +134,25 @@ int handle()
       switch(OrderType())
       {
          case OP_BUY:
-            if(rsi1<=rsi2 && rsi2<=rsi3)
-               return_closed = close_order(open_ticket);
+            switch(aggressive_close)
+            {
+               case true:
+                  if(rsi3>70 && rsi1<=rsi2 && rsi1<=rsi3)
+                     return_closed = close_order(open_ticket);
+                  else if(rsi2>80 && rsi1<rsi2)
+                     return_closed = close_order(open_ticket);
+                  else if(rsi3<=70 && rsi1<rsi2 && rsi1<rsi3-15)
+                     return_closed = close_order(open_ticket);
+                  else if(rsi3<=70 && rsi1<=rsi2 && rsi2<=rsi3 && rsi1<rsi4-20)
+                     return_closed = close_order(open_ticket);
+                  else if(rsi1<30 && rsi2>=30)
+                     return_closed = close_order(open_ticket);
+                  break;
+               case false:
+                  if(rsi1<=rsi2 && rsi2<=rsi3)
+                     return_closed = close_order(open_ticket);
+                  break;
+            }
             break;
          case OP_SELL:
             if(rsi1>=rsi2 && rsi2>=rsi3)
