@@ -93,22 +93,20 @@ int OnCalculate(const int rates_total,
       if(rsi0>=70 && rsi1<=70 && Buffer_peak_turn[i+1])
       {
          Buffer_peak_turn[i]=false;
-         Buffer_buy_quality[i] += +6;
+         Buffer_buy_quality[i] += +8;
       }
       if(rsi0<=40 && rsi1>=40 && !Buffer_peak_turn[i+1])
       {  
          Buffer_peak_turn[i] = true;
-         Buffer_buy_quality[i] += +4;
+         Buffer_buy_quality[i] += +6;
       }
-      if(rsi0<=20)
-         Buffer_buy_quality[i] += -1.5;
       if(rsi0>=rsi1 && rsi1>=rsi2 && rsi2<=rsi3 && rsi3<=rsi4 && rsi2<70 && rsi2>40)
-         Buffer_buy_quality[i] += -3;
+         Buffer_buy_quality[i] += -4;
       if(rsi0<=rsi1 && rsi1<=rsi2 && rsi2>=rsi3 && rsi3>=rsi4 && rsi2<70 && rsi2>40)
-         Buffer_buy_quality[i] += -5;
+         Buffer_buy_quality[i] += -6;
       
-      if(rsi0>rsi1 && rsi1>rsi2 && rsi2>rsi3 && rsi3>rsi4)
-         Buffer_buy_quality[i] += +0.5;
+      if(rsi0<=30)
+         Buffer_buy_quality[i] += -0.5;
 
       if(Buffer_buy_quality[i]<0)
          Buffer_buy_quality[i]=0;

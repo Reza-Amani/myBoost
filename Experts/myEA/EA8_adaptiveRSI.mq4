@@ -17,7 +17,7 @@ input int      RSI_len=14;
 input bool     use_buysell_quality=false; 
 input bool     use_tp=false; 
 input bool     aggressive_close=true; 
-input double i_Lots = 0.1;
+input double   lots_base = 1;
 //////////////////////////////parameters
 int trade_id=0;
 int state=0;
@@ -37,8 +37,8 @@ int search()
 
    double rsi1 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,1); 
    double rsi2 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,2); 
-   double buy_quality = (use_buysell_quality) ? iCustom(Symbol(), Period(),"myIndicators/swing_quality", RSI_len, 0,1) : 100;
-   double sell_quality = (use_buysell_quality) ? iCustom(Symbol(), Period(),"myIndicators/swing_quality", RSI_len, 1,1) : 100; 
+   double buy_quality = iCustom(Symbol(), Period(),"myIndicators/swing_quality", RSI_len, 0,1);
+   double sell_quality = iCustom(Symbol(), Period(),"myIndicators/swing_quality", RSI_len, 1,1); 
    double slow_total_quality = iCustom(Symbol(), Period(),"myIndicators/swing_quality", RSI_len, 3,1); 
       //RSI of median price on last bar
       //a little aggressive, and ignoring the new open price
@@ -47,20 +47,20 @@ int search()
       
 //   screen.add_L2_comment(" rsi 00="+DoubleToString(iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, 0, 0,0,0))+" 10="+DoubleToString(iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, 1, 0,0,0))+" 20="+DoubleToString(iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, 2, 0,0,0))+" 3="+DoubleToString(iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, 3, 0,0,0)));
    screen.clear_L1_comment();
-   screen.add_L1_comment(" rsi ="+DoubleToString(rsi1));
+   screen.add_L1_comment(" rsi1 ="+DoubleToString(rsi1));
    screen.clear_L2_comment();
-   screen.add_L2_comment(" rsi ="+DoubleToString(buy_quality));
+   screen.add_L2_comment(" buyQ ="+DoubleToString(buy_quality));
    screen.clear_L3_comment();
-   screen.add_L3_comment(" rsi ="+DoubleToString(slow_total_quality));
+   screen.add_L3_comment(" ? ="+DoubleToString(slow_total_quality));
    
    bool officer_allows = true;
-   int thresh_over_bought = 70;
-   int thresh_over_sold = 30;
+   int thresh_sell = 70;
+   int thresh_buy = 30;
    
    if(officer_allows)
    {
       open_ticket=0;
-      if(rsi2>=thresh_over_bought && rsi1<=thresh_over_bought)
+      if(rsi2>=thresh_sell && rsi1<=thresh_sell)
       {
          double tp=0,sl=0;
 //         if(use_tp)
@@ -69,15 +69,25 @@ int search()
 //            sl=s;
 //!!         open_ticket=OrderSend(Symbol(),OP_SELL, i_Lots, Bid, 0, sl,tp,"sell",++trade_id,0,clrRed);
       }
-      else if(rsi2<=thresh_over_sold && rsi1>=thresh_over_sold)
+      else if(rsi2<=thresh_buy && rsi1>=thresh_buy)
       {
          double tp=0,sl=0;
 //         if(use_tp)
 //            tp=;
 //         if(use_sl)
 //            sl=s;
-         if(buy_quality>20)
-            open_ticket=OrderSend(Symbol(),OP_BUY, i_Lots, Ask, 0,sl,tp,"buy",++trade_id,0,clrAliceBlue); //returns ticket n assigned by server, or -1 for error
+         tp=100+buy_quality;
+         double lots = lots_base;
+         if(use_buysell_quality)
+         {
+            if(buy_quality>40)
+               lots *= 1;
+            else if(buy_quality>20)
+               lots *= 0.1;
+            else
+               lots *= 0.01;
+         }
+         open_ticket=OrderSend(Symbol(),OP_BUY, lots, Ask, 0,sl,tp,"buy",++trade_id,0,clrAliceBlue); //returns ticket n assigned by server, or -1 for error
       }
 
       if(open_ticket==-1)
