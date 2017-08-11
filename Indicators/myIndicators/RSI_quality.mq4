@@ -8,8 +8,8 @@
 #property copyright "Reza"
 #property strict
 #property indicator_separate_window
-#property indicator_buffers 4
-#property indicator_plots   4
+#property indicator_buffers 6
+#property indicator_plots   6
 #property indicator_maximum 100
 #property indicator_minimum 0
 #property indicator_level1  30
@@ -19,9 +19,13 @@ double         Buffer_rsi[];
 double         Buffer_peak_detector[];
 double         Buffer_raw_score[];
 double         Buffer_smoothdrop_score[];
+double         Buffer_filtered_score[];
+double         Buffer_longterm_score[];
 //-----------------macros
 //-----------------inputs
 input int RSI_len=14;
+input int shortF_len=100;
+input int longF_len=500;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
@@ -40,6 +44,12 @@ int OnInit()
    SetIndexStyle(3, DRAW_LINE, STYLE_DASHDOT, 1, clrDarkOrange);
    SetIndexBuffer(3,Buffer_smoothdrop_score);
    SetIndexLabel(3 ,"smoothed drop");   
+   SetIndexStyle(4, DRAW_LINE, STYLE_SOLID, 1, clrGold);
+   SetIndexBuffer(4,Buffer_filtered_score);
+   SetIndexLabel(4 ,"filtered quality");   
+   SetIndexStyle(5, DRAW_LINE, STYLE_SOLID, 1, clrWhite);
+   SetIndexBuffer(5,Buffer_longterm_score);
+   SetIndexLabel(5 ,"long term quality");   
 //---
    return(INIT_SUCCEEDED);
   }
@@ -107,6 +117,15 @@ int OnCalculate(const int rates_total,
       if(rsi1==99 || rsi1==1)
          Buffer_raw_score[i]=math.max(Buffer_raw_score[i],Buffer_raw_score[i+1],Buffer_raw_score[i+2]);
       Buffer_smoothdrop_score[i]=math.max(Buffer_smoothdrop_score[i+1]-3,Buffer_raw_score[i],0);
+      
+      if(i<Bars-1-shortF_len)
+         Buffer_filtered_score[i]=iMAOnArray(Buffer_smoothdrop_score,0,shortF_len,0,MODE_LWMA,i);
+      else
+         Buffer_filtered_score[i]=30;
+      if(i<Bars-1-longF_len )
+         Buffer_longterm_score[i]=iMAOnArray(Buffer_filtered_score,0,longF_len,0,MODE_LWMA,i);
+      else
+         Buffer_longterm_score[i]=2;
    }
 
 //--- return value of prev_calculated for next call
