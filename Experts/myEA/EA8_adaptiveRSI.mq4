@@ -12,11 +12,21 @@
 #include <MyHeaders\Screen.mqh>
 #include <MyHeaders\Tools.mqh>
 
+enum SearchAlgo
+{
+   SEARCH_BUYSELL_Q,
+   SEARCH_STEP_PEAK
+};
+enum CloseAlgo
+{
+   CLOSE_AGGRESSIVE,
+   CLOSE_CONSERVATIVE
+};
 ///////////////////////////////inputs
 input int      RSI_len=14;
-input bool     use_buysell_quality=false; 
+input SearchAlgo     search_algo=SEARCH_BUYSELL_Q;
 input bool     use_tp=false; 
-input bool     aggressive_close=true; 
+input CloseAlgo     close_algo=CLOSE_AGGRESSIVE; 
 input double   lots_base = 1;
 //////////////////////////////parameters
 int trade_id=0;
@@ -60,36 +70,29 @@ int search()
    if(officer_allows)
    {
       open_ticket=0;
-      if(rsi2>=thresh_sell && rsi1<=thresh_sell)
+      switch(search_algo)
       {
-         double tp=0,sl=0;
-//         if(use_tp)
-//            tp=;
-//         if(use_sl)
-//            sl=s;
-//!!         open_ticket=OrderSend(Symbol(),OP_SELL, i_Lots, Bid, 0, sl,tp,"sell",++trade_id,0,clrRed);
+         case SEARCH_BUYSELL_Q:
+            if(rsi2<=thresh_buy && rsi1>=thresh_buy)
+            {
+               double tp=0,sl=0;
+      //         if(use_tp)
+      //            tp=;
+      //         if(use_sl)
+      //            sl=s;
+               tp=100+buy_quality;
+               double lots = lots_base;
+               if(buy_quality>35)
+                  lots *= 1;
+               else if(buy_quality>18)
+                  lots *= 0.1;
+               else
+                  lots *= 0.01;
+               open_ticket=OrderSend(Symbol(),OP_BUY, lots, Ask, 0,sl,tp,"buy",++trade_id,0,clrAliceBlue); //returns ticket n assigned by server, or -1 for error
+            }
+            break;
       }
-      else if(rsi2<=thresh_buy && rsi1>=thresh_buy)
-      {
-         double tp=0,sl=0;
-//         if(use_tp)
-//            tp=;
-//         if(use_sl)
-//            sl=s;
-         tp=100+buy_quality;
-         double lots = lots_base;
-         if(use_buysell_quality)
-         {
-            if(buy_quality>40)
-               lots *= 1;
-            else if(buy_quality>20)
-               lots *= 0.1;
-            else
-               lots *= 0.01;
-         }
-         open_ticket=OrderSend(Symbol(),OP_BUY, lots, Ask, 0,sl,tp,"buy",++trade_id,0,clrAliceBlue); //returns ticket n assigned by server, or -1 for error
-      }
-
+      
       if(open_ticket==-1)
       {
          screen.add_L3_comment("error in sending trade");
@@ -108,6 +111,60 @@ int search()
    }
    return 0;
 }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+int handle()
+{  //returns 1 if closes the trade to return to base state
+   //0 if the position remains still
+   int return_closed=0;
+
+   double rsi1 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,1); 
+   double rsi2 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,2); 
+   double rsi3 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,3); 
+   double rsi4 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,4); 
+//   double new_open_rsi = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_OPEN ,0,0); 
+
+   if(OrderSelect(open_ticket,SELECT_BY_TICKET)) 
+   {
+      int order_type=OrderType();
+      if(order_type!=OP_BUY && order_type!=OP_SELL)
+      {  //unexpected order type
+         screen.clear_L3_comment();
+         screen.add_L3_comment("unexpected order type");
+         Print("unexpected order type");
+         return 0;
+      }
+      switch(close_algo)
+      {
+         case CLOSE_AGGRESSIVE:
+            if(rsi3>70 && rsi1<=rsi2 && rsi1<=rsi3)
+               return_closed = close_order(open_ticket);
+            else if(rsi2>80 && rsi1<rsi2)
+               return_closed = close_order(open_ticket);
+            else if(rsi3<=70 && rsi1<rsi2 && rsi1<rsi3-15)
+               return_closed = close_order(open_ticket);
+            else if(rsi3<=70 && rsi1<=rsi2 && rsi2<=rsi3 && rsi1<rsi4-20)
+               return_closed = close_order(open_ticket);
+            else if(rsi1<30 && rsi2>=30)
+               return_closed = close_order(open_ticket);
+            break;
+         case CLOSE_CONSERVATIVE:
+            if(rsi1<=rsi2 && rsi2<=rsi3)
+               return_closed = close_order(open_ticket);
+            break;
+      }
+   }
+   else
+   {  //error in selecting the ticket
+     //error in closing
+      screen.clear_L3_comment();
+      screen.add_L3_comment("error in selecting the ticket");
+      Print("error in selecting the ticket");
+   }
+   return return_closed;
+
+}
+///////////////////////////////////////////////////
 int close_order(int ticket)
 {
    if(OrderSelect(ticket,SELECT_BY_TICKET)) 
@@ -126,62 +183,6 @@ int close_order(int ticket)
    screen.add_L3_comment("error in selecting the ticket");
    Print("error in selecting the ticket");
    return 0;
-
-}
-int handle()
-{  //returns 1 if closes the trade to return to base state
-   //0 if the position remains still
-   int return_closed=0;
-
-   double rsi1 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,1); 
-   double rsi2 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,2); 
-   double rsi3 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,3); 
-   double rsi4 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,4); 
-//   double new_open_rsi = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_OPEN ,0,0); 
-
-   if(OrderSelect(open_ticket,SELECT_BY_TICKET)) 
-   {
-      switch(OrderType())
-      {
-         case OP_BUY:
-            switch(aggressive_close)
-            {
-               case true:
-                  if(rsi3>70 && rsi1<=rsi2 && rsi1<=rsi3)
-                     return_closed = close_order(open_ticket);
-                  else if(rsi2>80 && rsi1<rsi2)
-                     return_closed = close_order(open_ticket);
-                  else if(rsi3<=70 && rsi1<rsi2 && rsi1<rsi3-15)
-                     return_closed = close_order(open_ticket);
-                  else if(rsi3<=70 && rsi1<=rsi2 && rsi2<=rsi3 && rsi1<rsi4-20)
-                     return_closed = close_order(open_ticket);
-                  else if(rsi1<30 && rsi2>=30)
-                     return_closed = close_order(open_ticket);
-                  break;
-               case false:
-                  if(rsi1<=rsi2 && rsi2<=rsi3)
-                     return_closed = close_order(open_ticket);
-                  break;
-            }
-            break;
-         case OP_SELL:
-            if(rsi1>=rsi2 && rsi2>=rsi3)
-               return_closed = close_order(open_ticket);
-            break;
-         default:    //unexpected order type
-         screen.clear_L3_comment();
-         screen.add_L3_comment("unexpected order type");
-         Print("unexpected order type");
-      }
-   }
-   else
-   {  //error in selecting the ticket
-     //error in closing
-      screen.clear_L3_comment();
-      screen.add_L3_comment("error in selecting the ticket");
-      Print("error in selecting the ticket");
-   }
-   return return_closed;
 
 }
 //+------------------------------------------------------------------+
