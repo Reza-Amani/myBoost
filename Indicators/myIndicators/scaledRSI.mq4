@@ -64,7 +64,7 @@ int OnCalculate(const int rates_total,
    {
       double rsi = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,i+0); 
       
-      Buffer_scaledRSI[i]= 50+ (rsi-50)* (1+0.025*(RSI_len-14));
+      Buffer_scaledRSI[i]= 50+ (rsi-50)* (1+0.051*(RSI_len-14));
       if(Buffer_scaledRSI[i]>99)
          Buffer_scaledRSI[i]=99;
       if(Buffer_scaledRSI[i]<1)
