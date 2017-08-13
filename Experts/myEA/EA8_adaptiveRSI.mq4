@@ -147,13 +147,13 @@ int handle()
       switch(close_algo)
       {
          case CLOSE_AGGRESSIVE:
-            if(rsi3>70 && rsi1<=rsi2 && rsi1<=rsi3)
+            if(rsi3>70 && rsi1<rsi2 && rsi1<rsi3)
                return_closed = close_order(open_ticket);
             else if(rsi2>80 && rsi1<rsi2)
                return_closed = close_order(open_ticket);
             else if(rsi3<=70 && rsi1<rsi2 && rsi1<rsi3-15)
                return_closed = close_order(open_ticket);
-            else if(rsi4<=70 && rsi1<=rsi2 && rsi2<=rsi3 && rsi1<rsi4-20)
+            else if(rsi4<=70 && rsi1<=rsi2 && rsi2<=rsi3 && rsi3<=rsi4)
                return_closed = close_order(open_ticket);
             else if(rsi1<30 && rsi2>=30)
                return_closed = close_order(open_ticket);
