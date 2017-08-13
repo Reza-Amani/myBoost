@@ -14,6 +14,7 @@
 
 enum SearchAlgo
 {
+   SEARCH_BLIND_BUY_AT_30,
    SEARCH_BUYSELL_Q,
    SEARCH_STEP_PEAK
 };
@@ -45,8 +46,8 @@ int search()
 {  //returns 1 if opens a trade to proceed to next state
    //0 if unsuccessful search
 
-   double rsi1 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,1); 
-   double rsi2 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,2); 
+   double rsi1 = iCustom(Symbol(), Period(),"myIndicators/scaledRSI", RSI_len, 0,1); 
+   double rsi2 = iCustom(Symbol(), Period(),"myIndicators/scaledRSI", RSI_len, 0,2); 
    double buy_quality = iCustom(Symbol(), Period(),"myIndicators/swing_quality", RSI_len, 0,1);
    double sell_quality = iCustom(Symbol(), Period(),"myIndicators/swing_quality", RSI_len, 1,1); 
    double slow_total_quality = iCustom(Symbol(), Period(),"myIndicators/swing_quality", RSI_len, 3,1); 
@@ -72,6 +73,15 @@ int search()
       open_ticket=0;
       switch(search_algo)
       {
+         case SEARCH_BLIND_BUY_AT_30:
+            if(rsi2<=thresh_buy && rsi1>=thresh_buy)
+            {
+               double tp=0,sl=0;
+               tp=100+buy_quality;
+               double lots = lots_base;
+               open_ticket=OrderSend(Symbol(),OP_BUY, lots, Ask, 0,sl,tp,"buy",++trade_id,0,clrAliceBlue); //returns ticket n assigned by server, or -1 for error
+            }
+            break;
          case SEARCH_BUYSELL_Q:
             if(rsi2<=thresh_buy && rsi1>=thresh_buy)
             {
@@ -143,7 +153,7 @@ int handle()
                return_closed = close_order(open_ticket);
             else if(rsi3<=70 && rsi1<rsi2 && rsi1<rsi3-15)
                return_closed = close_order(open_ticket);
-            else if(rsi3<=70 && rsi1<=rsi2 && rsi2<=rsi3 && rsi1<rsi4-20)
+            else if(rsi4<=70 && rsi1<=rsi2 && rsi2<=rsi3 && rsi1<rsi4-20)
                return_closed = close_order(open_ticket);
             else if(rsi1<30 && rsi2>=30)
                return_closed = close_order(open_ticket);
