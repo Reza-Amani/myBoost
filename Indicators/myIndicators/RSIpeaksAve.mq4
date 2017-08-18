@@ -22,7 +22,7 @@ double         Buffer_peak_ave[];
 double         Buffer_valey_ave[];
 //-----------------macros
 //-----------------inputs
-input int RSI_len=14;
+input int RSI_len=28;
 input int filter_len=50;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
