@@ -16,18 +16,21 @@ enum SearchAlgo
 {
    SEARCH_BLIND_BUY_AT_30,
    SEARCH_BUYSELL_Q,
-   SEARCH_PEAK_FLOW
+   SEARCH_PEAK_FLOW,
+   SEARCH_PEAK_AGGRESSIVE
 };
 enum CloseAlgo
 {
    CLOSE_AGGRESSIVE,
    CLOSE_CONSERVATIVE,
-   CLOSE_FLOW_CONSERVATIVE
+   CLOSE_FLOW_CONSERVATIVE,
+   CLOSE_FLOW_AGGRESSIVE
+
 };
 ///////////////////////////////inputs
 input int      RSI_len=28;
 input int      filter_len=50;
-input SearchAlgo     search_algo=SEARCH_PEAK_FLOW;
+input SearchAlgo     search_algo=SEARCH_PEAK_AGGRESSIVE;
 input bool     use_tp=false; 
 input CloseAlgo     close_algo=CLOSE_FLOW_CONSERVATIVE; 
 input double   lots_base = 1;
@@ -38,6 +41,7 @@ int trade_counter=0;
 int open_ticket=0;
 //////////////////////////////objects
 Screen screen;
+MyMath math;
 //int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
 //int outfilehandle=FileOpen("./tradefiles/data"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+"_"+IntegerToString(pattern_len)+"_"+IntegerToString(correlation_thresh)+".csv",FILE_WRITE|FILE_CSV,',');
 
@@ -50,6 +54,8 @@ int search()
 
    double rsi1 = iCustom(Symbol(), Period(),"myIndicators/scaledRSI", RSI_len, 0,1); 
    double rsi2 = iCustom(Symbol(), Period(),"myIndicators/scaledRSI", RSI_len, 0,2); 
+   double rsi3 = iCustom(Symbol(), Period(),"myIndicators/scaledRSI", RSI_len ,0,3); 
+   double rsi4 = iCustom(Symbol(), Period(),"myIndicators/scaledRSI", RSI_len ,0,4); 
    double buy_quality = iCustom(Symbol(), Period(),"myIndicators/swing_quality", RSI_len, 0,1);
    double sell_quality = iCustom(Symbol(), Period(),"myIndicators/swing_quality", RSI_len, 1,1); 
    double slow_total_quality = iCustom(Symbol(), Period(),"myIndicators/swing_quality", RSI_len, 3,1); 
@@ -114,6 +120,18 @@ int search()
             thresh_buy=(int)valey_flow;
             thresh_sell=(int)peak_flow;
             if( peak_flow>=70 && rsi2<=thresh_buy && rsi1>=thresh_buy)
+            {
+               double tp=0,sl=0;
+               tp=100+buy_quality;
+               double lots = lots_base;
+               open_ticket=OrderSend(Symbol(),OP_BUY, lots, Ask, 0,sl,tp,"buy",++trade_id,0,clrAliceBlue); //returns ticket n assigned by server, or -1 for error
+            }
+            break;
+         case SEARCH_PEAK_AGGRESSIVE:
+            thresh_buy=(int)valey_flow;
+            thresh_sell=(int)peak_flow;
+            if( (peak_flow>=70 && rsi2<=thresh_buy && rsi1>=thresh_buy)
+               ||(peak_flow>=70 && rsi2<=thresh_buy && rsi1>=10+math.min(rsi2,rsi3,rsi4)))
             {
                double tp=0,sl=0;
                tp=100+buy_quality;
