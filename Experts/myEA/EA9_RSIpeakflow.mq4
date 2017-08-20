@@ -24,7 +24,7 @@ enum CloseAlgo
    CLOSE_AGGRESSIVE,
    CLOSE_CONSERVATIVE,
    CLOSE_FLOW_CONSERVATIVE,
-   CLOSE_FLOW_AGGRESSIVE
+   CLOSE_FLOW_EARLY
 
 };
 ///////////////////////////////inputs
@@ -185,6 +185,7 @@ int handle()
          Print("unexpected order type");
          return 0;
       }
+      double max=math.max(rsi2,rsi3,rsi4);
       switch(close_algo)
       {
          case CLOSE_AGGRESSIVE:
@@ -207,6 +208,16 @@ int handle()
             if(rsi1<=rsi2 && rsi1<=rsi3-15)
                return_closed = close_order(open_ticket);
             else if(rsi1<=peak_flow && rsi2>=peak_flow)
+               return_closed = close_order(open_ticket);
+            break;
+         case CLOSE_FLOW_EARLY:
+            if(rsi1<=peak_flow && rsi2>=peak_flow)
+               return_closed = close_order(open_ticket);
+            else if(max>peak_flow && rsi1<=max-5)
+               return_closed = close_order(open_ticket);
+            else if(rsi1<=max-10)
+               return_closed = close_order(open_ticket);
+            else if(max==99 && rsi1<=99)
                return_closed = close_order(open_ticket);
             break;
       }
