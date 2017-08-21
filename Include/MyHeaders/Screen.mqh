@@ -55,22 +55,22 @@ void Screen::add_L3_comment(string str)
 }
 void Screen::clear_L4_comment(void)
 {
-   L3_str="";
+   L4_str="";
    show_it();
 }
 void Screen::add_L4_comment(string str)
 {
-   L3_str+=str;
+   L4_str+=str;
    show_it();
 }
 void Screen::clear_L5_comment(void)
 {
-   L3_str="";
+   L5_str="";
    show_it();
 }
 void Screen::add_L5_comment(string str)
 {
-   L3_str+=str;
+   L5_str+=str;
    show_it();
 }
 void Screen::show_it(void)

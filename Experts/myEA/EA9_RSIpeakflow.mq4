@@ -74,13 +74,13 @@ int search()
    screen.add_L1_comment(" rsi1 ="+DoubleToString(rsi1));
    screen.clear_L2_comment();
    screen.add_L2_comment(" buyQ ="+DoubleToString(buy_quality));
-   screen.clear_L3_comment();
+/*   screen.clear_L3_comment();
    screen.add_L3_comment("totalQ ="+DoubleToString(slow_total_quality));
    screen.clear_L4_comment();
    screen.add_L4_comment("peakF ="+DoubleToString(peak_flow));
    screen.clear_L5_comment();
    screen.add_L5_comment("valeyF ="+DoubleToString(valey_flow));
-   
+*/   
    bool officer_allows = true;
    int thresh_sell = 70;
    int thresh_buy = 30;
@@ -135,10 +135,16 @@ int search()
             if( (peak_flow>=70 && rsi2<=thresh_buy && rsi1>=thresh_buy)
                ||(peak_flow>=70 && rsi2<=thresh_buy && rsi1>=10+math.min(rsi2,rsi3,rsi4)))
             {
-               double tp=0,sl=0;
+               double tp=0,sl=1.2;
                tp=100+buy_quality;
-               double lots = money.get_lots(2);
-               open_ticket=OrderSend(Symbol(),OP_BUY, lots, Ask, 0,sl,tp,"buy",++trade_id,0,clrAliceBlue); //returns ticket n assigned by server, or -1 for error
+               double  equity=AccountEquity();
+               double lots = money.get_lots(1,Ask,sl,equity);
+               screen.clear_L4_comment();
+               screen.add_L4_comment("lots="+DoubleToString(lots));
+               if(lots<0.01)
+                  screen.add_L4_comment("-----insufficient lots");
+               else
+                  open_ticket=OrderSend(Symbol(),OP_BUY, lots, Ask, 0,sl,tp,"buy",++trade_id,0,clrAliceBlue); //returns ticket n assigned by server, or -1 for error
             }
             break;
       }
@@ -243,14 +249,14 @@ int close_order(int ticket)
          return 1;
       else
       {   //error in closing
-         screen.clear_L3_comment();
-         screen.add_L3_comment("error in closing the ticket");
+         screen.clear_L5_comment();
+         screen.add_L5_comment("error in closing the ticket");
          Print("error in closing the ticket");
          return 0;
       }
    }
-   screen.clear_L3_comment();
-   screen.add_L3_comment("error in selecting the ticket");
+   screen.clear_L5_comment();
+   screen.add_L5_comment("error in selecting the ticket");
    Print("error in selecting the ticket");
    return 0;
 
