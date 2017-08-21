@@ -1,2 +1,3 @@
 min-hit and max-hit are important; seems that best patterns are those who have high rates in a long lookback period; so, do not decrease/increase min/max hit injustifiably
 
+use long lookbacks; seems that it makes better optimisations in terms of sustainability

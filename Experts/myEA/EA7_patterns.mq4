@@ -15,16 +15,21 @@
 #include <MyHeaders\Tools.mqh>
 
 ///////////////////////////////inputs
-input int      pattern_len=12;
-input int      correlation_thresh=90;
+input int      pattern_len=10;
+input int      correlation_thresh=92;
 input int      thresh_hC=30;  
                   //30 means: 2*0.65-1
-input int      thresh_aC=40;
+input int      thresh_aC=35;
                   //40 means: 0.4
 input int      min_hit=25;
 input int      max_hit=100;
+input CorrelationBase correlation_base=CORREL_CLOSE;
 input ConcludeCriterion criterion=USE_aveC1;
-input int      lookback_len=6000;
+input bool     use_tp=true; 
+input double   tp_factor=1.5;
+input bool     use_sl=true; 
+input double   sl_factor=3.5;
+input int      lookback_len=18000;
 input double   i_Lots=1;
 //////////////////////////////parameters
 int processed_bars=0;
@@ -51,13 +56,13 @@ int search()
    Pattern moving_pattern;
 
    int _ref=0;//only to keep compatibility with the script
-   p_pattern=new Pattern(Close,_ref,pattern_len,0);
+   p_pattern=new Pattern(High,Low,Close,_ref,pattern_len,0,0,0,correlation_base);
       //TODO: replace with Open,0 
    p_bar=new ExamineBar(_ref,p_pattern);
    
    for(int j=10+_ref;j<_ref+lookback_len-pattern_len;j++)
    {
-      moving_pattern.set_data(Close,j,pattern_len,Close[j-1]);
+      moving_pattern.set_data(High,Low,Close,j,pattern_len,Close[j-1],High[j-1],Low[j-1],correlation_base);
       if(p_bar.check_another_bar(moving_pattern,correlation_thresh,max_hit))
          break;
    }
@@ -67,9 +72,23 @@ int search()
       p_bar.log_to_file_common(outfilehandle);
       trade_counter++;
       if(p_bar.direction==1)
-         open_ticket=OrderSend(Symbol(),OP_BUY, i_Lots, Ask, 0, 0,0,NULL,++trade_id,0,clrAliceBlue); //returns ticket n assigned by server, or -1 for error
+      {
+         double tp=0,sl=0;
+         if(use_tp)
+            tp=p_bar.pattern.close[0]+(tp_factor*p_bar.ave_aH1)*p_bar.pattern.absolute_diffs;
+         if(use_sl)
+            sl=p_bar.pattern.close[0]+(sl_factor*p_bar.ave_aL1)*p_bar.pattern.absolute_diffs;
+         open_ticket=OrderSend(Symbol(),OP_BUY, i_Lots, Ask, 0,sl,tp,NULL,++trade_id,0,clrAliceBlue); //returns ticket n assigned by server, or -1 for error
+      }
       else if(p_bar.direction==-1)
-         open_ticket=OrderSend(Symbol(),OP_SELL, i_Lots, Bid, 0, 0,0,NULL,++trade_id,0,clrAliceBlue);
+      {
+         double tp=0,sl=0;
+         if(use_tp)
+            tp=p_bar.pattern.close[0]+(tp_factor*p_bar.ave_aL1)*p_bar.pattern.absolute_diffs;
+         if(use_sl)
+            sl=p_bar.pattern.close[0]+(sl_factor*p_bar.ave_aH1)*p_bar.pattern.absolute_diffs;
+         open_ticket=OrderSend(Symbol(),OP_SELL, i_Lots, Bid, 0, sl,tp,NULL,++trade_id,0,clrAliceBlue);
+      }
       delete p_bar;
       delete p_pattern;
       screen.clear_L2_comment();
@@ -101,7 +120,7 @@ int handle()
    screen.clear_L3_comment();
    screen.add_L3_comment("error in CLOSING");
    Print("error in closing");
-   return 0;
+   return 1;
 }
 //+------------------------------------------------------------------+
 //| standard function                                                |
@@ -118,6 +137,10 @@ int OnInit()
    }
    screen.add_L1_comment("file ok-");
    return(INIT_SUCCEEDED);
+}
+double OnTester()
+{
+   return trade_counter;
 }
 void OnDeinit(const int reason)
 {

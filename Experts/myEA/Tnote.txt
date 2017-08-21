@@ -1,5 +1,42 @@
-skipping search for quality of pattern, if the success rate is not positive in last 20 hits (good for both considering the most recent results and the consistency)
+Median as the input gives a higher swing and smoother RSI than close price.
+period opter:
+   -target: minimising drawbacks between 30 and 70
+      -worse: complete return
+      -less bad: short bounce
+   -by: 
+      -try to push the drawback beyond 70 limit (lower period); if it is above 60
+      -try to fade it (higher period); if it is below 60
+   -reset the period opter on every tick, or tune it gradually(more logical)?
+the EA:
+   -buy only at cross +30
+   -close at:
+       -red RSI above 70
+       -2 red RSI bars above 50
+       -return to under 30 if below 50
+   -uses period opter
+   -with the permision from officer
+the officer:
+   -should determine useless, side-going, non-swinging dynamics
+   -advanced: adjusts 30 level (for buy entry) based on trend; for both EA and period opter
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Pattern correlation notes:
+
+H1/L1 are well predicted. But they are tight to C0, i.e. useless. In ther words, this is C0 that is predicted and then next bar H&L are symmetric around high and low of C0.
 
 A simple strategy- 
   trend-based
