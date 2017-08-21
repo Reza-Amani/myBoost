@@ -11,6 +11,7 @@
 #include <MyHeaders\MyMath.mqh>
 #include <MyHeaders\Screen.mqh>
 #include <MyHeaders\Tools.mqh>
+#include <MyHeaders\MoneyManagement.mqh>
 
 enum SearchAlgo
 {
@@ -42,6 +43,7 @@ int open_ticket=0;
 //////////////////////////////objects
 Screen screen;
 MyMath math;
+MoneyManagement money(lots_base);
 //int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
 //int outfilehandle=FileOpen("./tradefiles/data"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+"_"+IntegerToString(pattern_len)+"_"+IntegerToString(correlation_thresh)+".csv",FILE_WRITE|FILE_CSV,',');
 
@@ -135,7 +137,7 @@ int search()
             {
                double tp=0,sl=0;
                tp=100+buy_quality;
-               double lots = lots_base;
+               double lots = money.get_lots(2);
                open_ticket=OrderSend(Symbol(),OP_BUY, lots, Ask, 0,sl,tp,"buy",++trade_id,0,clrAliceBlue); //returns ticket n assigned by server, or -1 for error
             }
             break;
