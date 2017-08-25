@@ -225,7 +225,7 @@ int handle()
                return_closed = close_order(open_ticket);
             else if(rsi1<=max-10)
                return_closed = close_order(open_ticket);
-            else if(max==99 && rsi1<=99)
+            else if(max==99 && rsi1<99)
                return_closed = close_order(open_ticket);
             break;
       }
