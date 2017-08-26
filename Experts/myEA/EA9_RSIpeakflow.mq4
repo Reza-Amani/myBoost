@@ -12,6 +12,7 @@
 #include <MyHeaders\Screen.mqh>
 #include <MyHeaders\Tools.mqh>
 #include <MyHeaders\MoneyManagement.mqh>
+#include <MyHeaders\StopLoss.mqh>
 
 enum SearchAlgo
 {
@@ -32,8 +33,8 @@ enum CloseAlgo
 input int      RSI_len=28;
 input int      filter_len=50;
 input SearchAlgo     search_algo=SEARCH_PEAK_AGGRESSIVE;
-input bool     use_tp=false; 
 input CloseAlgo     close_algo=CLOSE_FLOW_CONSERVATIVE; 
+input double   sl_SAR_step=0.02; 
 input double   lots_base = 1;
 //////////////////////////////parameters
 int trade_id=0;
@@ -44,6 +45,7 @@ int open_ticket=0;
 Screen screen;
 MyMath math;
 MoneyManagement money(lots_base);
+StopLoss stop_loss(sl_SAR_step, 0.2);
 //int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
 //int outfilehandle=FileOpen("./tradefiles/data"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+"_"+IntegerToString(pattern_len)+"_"+IntegerToString(correlation_thresh)+".csv",FILE_WRITE|FILE_CSV,',');
 
@@ -85,6 +87,8 @@ int search()
    int thresh_sell = 70;
    int thresh_buy = 30;
    
+   double sl=stop_loss.get_sl();
+   
    if(officer_allows)
    {
       open_ticket=0;
@@ -93,7 +97,7 @@ int search()
          case SEARCH_BLIND_BUY_AT_30:
             if(rsi2<=thresh_buy && rsi1>=thresh_buy)
             {
-               double tp=0,sl=0;
+               double tp=0;
                tp=100+buy_quality;
                double lots = lots_base;
                open_ticket=OrderSend(Symbol(),OP_BUY, lots, Ask, 0,sl,tp,"buy",++trade_id,0,clrAliceBlue); //returns ticket n assigned by server, or -1 for error
@@ -102,11 +106,7 @@ int search()
          case SEARCH_BUYSELL_Q:
             if(rsi2<=thresh_buy && rsi1>=thresh_buy)
             {
-               double tp=0,sl=0;
-      //         if(use_tp)
-      //            tp=;
-      //         if(use_sl)
-      //            sl=s;
+               double tp=0;
                tp=100+buy_quality;
                double lots = lots_base;
                if(buy_quality>35)
@@ -123,7 +123,7 @@ int search()
             thresh_sell=(int)peak_flow;
             if( peak_flow>=70 && rsi2<=thresh_buy && rsi1>=thresh_buy)
             {
-               double tp=0,sl=0;
+               double tp=0;
                tp=100+buy_quality;
                double lots = lots_base;
                open_ticket=OrderSend(Symbol(),OP_BUY, lots, Ask, 0,sl,tp,"buy",++trade_id,0,clrAliceBlue); //returns ticket n assigned by server, or -1 for error
@@ -135,7 +135,7 @@ int search()
             if( (peak_flow>=70 && rsi2<=thresh_buy && rsi1>=thresh_buy)
                ||(peak_flow>=70 && rsi2<=thresh_buy && rsi1>=10+math.min(rsi2,rsi3,rsi4)))
             {
-               double tp=0,sl=1.2;
+               double tp=0;
                tp=100+buy_quality;
                double  equity=AccountEquity();
                double lots = money.get_lots(1,Ask,sl,equity);
