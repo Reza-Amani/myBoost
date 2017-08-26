@@ -25,7 +25,7 @@ class Screen
 };
 void Screen::clear_L1_comment(void)
 {
-   L1_str="";
+   L1_str=" Prog: ";
    show_it();
 }
 void Screen::add_L1_comment(string str)
@@ -35,7 +35,7 @@ void Screen::add_L1_comment(string str)
 }
 void Screen::clear_L2_comment(void)
 {
-   L2_str="";
+   L2_str="Trade: ";
    show_it();
 }
 void Screen::add_L2_comment(string str)
@@ -45,7 +45,7 @@ void Screen::add_L2_comment(string str)
 }
 void Screen::clear_L3_comment(void)
 {
-   L3_str="";
+   L3_str=" Algo: ";
    show_it();
 }
 void Screen::add_L3_comment(string str)
@@ -55,22 +55,22 @@ void Screen::add_L3_comment(string str)
 }
 void Screen::clear_L4_comment(void)
 {
-   L3_str="";
+   L4_str="";
    show_it();
 }
 void Screen::add_L4_comment(string str)
 {
-   L3_str+=str;
+   L4_str+=str;
    show_it();
 }
 void Screen::clear_L5_comment(void)
 {
-   L3_str="";
+   L5_str="";
    show_it();
 }
 void Screen::add_L5_comment(string str)
 {
-   L3_str+=str;
+   L5_str+=str;
    show_it();
 }
 void Screen::show_it(void)
