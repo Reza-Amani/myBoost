@@ -15,7 +15,7 @@ class TradeControl
  public:
    TradeControl();
    bool buy(double _lots, double _sl, double _tp);
-   bool edit_sltp( double _sl, double _tp);
+   bool edit_sl( double _sl);
    bool have_open_trade();
    bool is_buy_trade();
    bool close();
@@ -63,11 +63,11 @@ bool TradeControl::is_buy_trade()
       return false;
    }
 }
-bool TradeControl::edit_sltp( double _sl, double _tp)
+bool TradeControl::edit_sl( double _sl)
 {
    if(OrderSelect(open_ticket,SELECT_BY_TICKET)) 
    {
-      if(OrderModify(open_ticket,OrderOpenPrice(),_sl,_tp,0,clrAliceBlue))
+      if(OrderModify(open_ticket,OrderOpenPrice(),_sl,OrderTakeProfit(),0,clrAliceBlue))
          return true;
       else
       {   //error in modifying

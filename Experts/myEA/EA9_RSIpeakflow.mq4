@@ -138,6 +138,10 @@ void search()
    }
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void trailing_sl()
+{
+   trade.edit_sl(stop_loss.get_sl());
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void handle()
 {  //returns 1 if closes the trade to return to base state
@@ -232,7 +236,9 @@ void OnTick()
       if(trade.have_open_trade())
          handle();
       else
-         search();   
+         search(); 
+      if(trade.have_open_trade())
+         trailing_sl();  
       string report=trade.get_report();
       if(report!="")
       {
