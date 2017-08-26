@@ -25,7 +25,7 @@ class Screen
 };
 void Screen::clear_L1_comment(void)
 {
-   L1_str="";
+   L1_str=" Prog: ";
    show_it();
 }
 void Screen::add_L1_comment(string str)
@@ -35,7 +35,7 @@ void Screen::add_L1_comment(string str)
 }
 void Screen::clear_L2_comment(void)
 {
-   L2_str="";
+   L2_str="Trade: ";
    show_it();
 }
 void Screen::add_L2_comment(string str)

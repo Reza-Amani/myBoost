@@ -38,10 +38,6 @@ input CloseAlgo     close_algo=CLOSE_FLOW_CONSERVATIVE;
 input double   sl_SAR_step=0.02; 
 input double   lots_base = 1;
 //////////////////////////////parameters
-int trade_id=0;
-int state=0;
-int trade_counter=0;
-int open_ticket=0;
 //////////////////////////////objects
 Screen screen;
 MyMath math;
@@ -93,7 +89,6 @@ int search()
    
    if(officer_allows)
    {
-      open_ticket=0;
       switch(search_algo)
       {
          case SEARCH_BLIND_BUY_AT_30:
@@ -151,7 +146,7 @@ int search()
             break;
       }
       
-      if(open_ticket==-1)
+/*      if(open_ticket==-1)
       {
          screen.add_L3_comment("error in sending trade");
          return 0;
@@ -161,7 +156,7 @@ int search()
          screen.add_L3_comment("trade placed");
          return 1;
       }
-   }
+*/   }
    else
    {
       screen.clear_L2_comment();
@@ -242,27 +237,6 @@ int handle()
    return return_closed;
 
 }
-///////////////////////////////////////////////////
-int close_order(int ticket)
-{
-   if(OrderSelect(ticket,SELECT_BY_TICKET)) 
-   {
-      if(OrderClose(OrderTicket(),OrderLots(), (OrderType()==OP_BUY)?Bid:Ask,10,(OrderType()==OP_BUY)?clrBlue:clrOrange))
-         return 1;
-      else
-      {   //error in closing
-         screen.clear_L5_comment();
-         screen.add_L5_comment("error in closing the ticket");
-         Print("error in closing the ticket");
-         return 0;
-      }
-   }
-   screen.clear_L5_comment();
-   screen.add_L5_comment("error in selecting the ticket");
-   Print("error in selecting the ticket");
-   return 0;
-
-}
 //+------------------------------------------------------------------+
 //| standard function                                                |
 //+------------------------------------------------------------------+
@@ -281,7 +255,7 @@ int OnInit()
 }
 double OnTester()
 {
-   return trade_counter;
+   return 0;
 }
 void OnDeinit(const int reason)
 {
@@ -300,18 +274,18 @@ void OnTick()
    else
    {  //new bar; main process
       Time0 = Time[0];
-      screen.clear_L3_comment();
-      
-      switch(state)
+
+      if(trade.have_open_trade())
+         handle();
+      else
+         search();   
+      string report=trade.get_report();
+      if(report!="")
       {
-         case 0:
-            if(search())  //chasing opurtunities and open trade if there is a valuable match
-               state=1;
-            break;
-         case 1:
-            if(handle())   //at the end of the first bar, probably close it
-               state=0;
-            break;
+         trade.clear_report();
+         screen.clear_L2_comment();
+         screen.add_L2_comment(report);
+         Print(report);
       }
    }
 }
