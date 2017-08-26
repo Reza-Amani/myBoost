@@ -34,7 +34,7 @@ input int      RSI_len=28;
 input int      filter_len=50;
 input SearchAlgo     search_algo=SEARCH_PEAK_AGGRESSIVE;
 input CloseAlgo     close_algo=CLOSE_FLOW_CONSERVATIVE; 
-input double   sl_SAR_step=0.2; 
+input double   sl_SAR_step=0.02; 
 input double   lots_base = 1;
 //////////////////////////////parameters
 int trade_id=0;
