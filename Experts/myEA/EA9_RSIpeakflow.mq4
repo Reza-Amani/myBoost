@@ -50,7 +50,7 @@ TradeControl trade();
 //+------------------------------------------------------------------+
 //| operation                                                        |
 //+------------------------------------------------------------------+
-void search()
+void check_for_open()
 {  //returns 1 if opens a trade to proceed to next state
    //0 if unsuccessful search
 
@@ -88,7 +88,8 @@ void search()
             double tp=0;
             tp=100+buy_quality;
             double lots = lots_base;
-            trade.buy(lots,sl,tp);
+            if(Open[0]>sl)
+               trade.buy(lots,sl,tp);
          }
          break;
       case SEARCH_BUYSELL_Q:
@@ -103,7 +104,8 @@ void search()
                lots *= 0.1;
             else
                lots *= 0.01;
-            trade.buy(lots,sl,tp);
+            if(Open[0]>sl)
+               trade.buy(lots,sl,tp);
          }
          break;
       case SEARCH_PEAK_FLOW:
@@ -114,7 +116,8 @@ void search()
             double tp=0;
             tp=100+buy_quality;
             double lots = lots_base;
-            trade.buy(lots,sl,tp);
+            if(Open[0]>sl)
+               trade.buy(lots,sl,tp);
          }
          break;
       case SEARCH_PEAK_AGGRESSIVE:
@@ -132,7 +135,8 @@ void search()
             if(lots<0.01)
                screen.add_L3_comment("-----insufficient lots");
             else
-               trade.buy(lots,sl,tp);
+               if(Open[0]>sl)
+                  trade.buy(lots,sl,tp);
          }
          break;
    }
@@ -143,7 +147,7 @@ void trailing_sl()
    trade.edit_sl(stop_loss.get_sl());
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void handle()
+void  check_for_close()
 {  //returns 1 if closes the trade to return to base state
    //0 if the position remains still
    int return_closed=0;
@@ -234,11 +238,12 @@ void OnTick()
       Time0 = Time[0];
 
       if(trade.have_open_trade())
-         handle();
-      else
-         search(); 
-      if(trade.have_open_trade())
+      {
          trailing_sl();  
+         check_for_close();
+      }
+      else
+         check_for_open();
       string report=trade.get_report();
       if(report!="")
       {

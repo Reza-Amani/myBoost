@@ -67,6 +67,8 @@ bool TradeControl::edit_sl( double _sl)
 {
    if(OrderSelect(open_ticket,SELECT_BY_TICKET)) 
    {
+      if(_sl==OrderStopLoss())   //no change in sl
+         return false;
       if(OrderModify(open_ticket,OrderOpenPrice(),_sl,OrderTakeProfit(),0,clrAliceBlue))
          return true;
       else
