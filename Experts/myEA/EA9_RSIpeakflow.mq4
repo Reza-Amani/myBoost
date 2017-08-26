@@ -13,6 +13,7 @@
 #include <MyHeaders\Tools.mqh>
 #include <MyHeaders\MoneyManagement.mqh>
 #include <MyHeaders\StopLoss.mqh>
+#include <MyHeaders\TradeControl.mqh>
 
 enum SearchAlgo
 {
@@ -46,6 +47,7 @@ Screen screen;
 MyMath math;
 MoneyManagement money(lots_base);
 StopLoss stop_loss(sl_SAR_step, 0.2);
+TradeControl trade();
 //int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
 //int outfilehandle=FileOpen("./tradefiles/data"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+"_"+IntegerToString(pattern_len)+"_"+IntegerToString(correlation_thresh)+".csv",FILE_WRITE|FILE_CSV,',');
 
@@ -100,7 +102,7 @@ int search()
                double tp=0;
                tp=100+buy_quality;
                double lots = lots_base;
-               open_ticket=OrderSend(Symbol(),OP_BUY, lots, Ask, 0,sl,tp,"buy",++trade_id,0,clrAliceBlue); //returns ticket n assigned by server, or -1 for error
+               trade.buy(lots,sl,tp);
             }
             break;
          case SEARCH_BUYSELL_Q:
@@ -115,7 +117,7 @@ int search()
                   lots *= 0.1;
                else
                   lots *= 0.01;
-               open_ticket=OrderSend(Symbol(),OP_BUY, lots, Ask, 0,sl,tp,"buy",++trade_id,0,clrAliceBlue); //returns ticket n assigned by server, or -1 for error
+               trade.buy(lots,sl,tp);
             }
             break;
          case SEARCH_PEAK_FLOW:
@@ -126,7 +128,7 @@ int search()
                double tp=0;
                tp=100+buy_quality;
                double lots = lots_base;
-               open_ticket=OrderSend(Symbol(),OP_BUY, lots, Ask, 0,sl,tp,"buy",++trade_id,0,clrAliceBlue); //returns ticket n assigned by server, or -1 for error
+               trade.buy(lots,sl,tp);
             }
             break;
          case SEARCH_PEAK_AGGRESSIVE:
@@ -144,7 +146,7 @@ int search()
                if(lots<0.01)
                   screen.add_L4_comment("-----insufficient lots");
                else
-                  open_ticket=OrderSend(Symbol(),OP_BUY, lots, Ask, 0,sl,tp,"buy",++trade_id,0,clrAliceBlue); //returns ticket n assigned by server, or -1 for error
+                  trade.buy(lots,sl,tp);
             }
             break;
       }
