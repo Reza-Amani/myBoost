@@ -14,6 +14,8 @@
 #include <MyHeaders\MoneyManagement.mqh>
 #include <MyHeaders\StopLoss.mqh>
 #include <MyHeaders\TradeControl.mqh>
+#include <MyHeaders\DesirabilityCriteriaBase.mqh>
+#include <MyHeaders\DesSwingQuality.mqh>
 
 enum SearchAlgo
 {
