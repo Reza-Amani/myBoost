@@ -50,7 +50,7 @@ TradeControl trade();
 //+------------------------------------------------------------------+
 //| operation                                                        |
 //+------------------------------------------------------------------+
-int search()
+void search()
 {  //returns 1 if opens a trade to proceed to next state
    //0 if unsuccessful search
 
@@ -70,103 +70,76 @@ int search()
 //   double new_open_rsi = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_OPEN ,0,0); 
       
 //   screen.add_L2_comment(" rsi 00="+DoubleToString(iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, 0, 0,0,0))+" 10="+DoubleToString(iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, 1, 0,0,0))+" 20="+DoubleToString(iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, 2, 0,0,0))+" 3="+DoubleToString(iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, 3, 0,0,0)));
-   screen.clear_L1_comment();
-   screen.add_L1_comment(" rsi1 ="+DoubleToString(rsi1));
-   screen.clear_L2_comment();
-   screen.add_L2_comment(" buyQ ="+DoubleToString(buy_quality));
-/*   screen.clear_L3_comment();
-   screen.add_L3_comment("totalQ ="+DoubleToString(slow_total_quality));
+   screen.clear_L3_comment();
+   screen.add_L3_comment(" rsi1 ="+DoubleToString(rsi1));
    screen.clear_L4_comment();
-   screen.add_L4_comment("peakF ="+DoubleToString(peak_flow));
-   screen.clear_L5_comment();
-   screen.add_L5_comment("valeyF ="+DoubleToString(valey_flow));
-*/   
-   bool officer_allows = true;
+   screen.add_L4_comment(" buyQ ="+DoubleToString(buy_quality));
+
    int thresh_sell = 70;
    int thresh_buy = 30;
    
    double sl=stop_loss.get_sl();
    
-   if(officer_allows)
+   switch(search_algo)
    {
-      switch(search_algo)
-      {
-         case SEARCH_BLIND_BUY_AT_30:
-            if(rsi2<=thresh_buy && rsi1>=thresh_buy)
-            {
-               double tp=0;
-               tp=100+buy_quality;
-               double lots = lots_base;
+      case SEARCH_BLIND_BUY_AT_30:
+         if(rsi2<=thresh_buy && rsi1>=thresh_buy)
+         {
+            double tp=0;
+            tp=100+buy_quality;
+            double lots = lots_base;
+            trade.buy(lots,sl,tp);
+         }
+         break;
+      case SEARCH_BUYSELL_Q:
+         if(rsi2<=thresh_buy && rsi1>=thresh_buy)
+         {
+            double tp=0;
+            tp=100+buy_quality;
+            double lots = lots_base;
+            if(buy_quality>35)
+               lots *= 1;
+            else if(buy_quality>18)
+               lots *= 0.1;
+            else
+               lots *= 0.01;
+            trade.buy(lots,sl,tp);
+         }
+         break;
+      case SEARCH_PEAK_FLOW:
+         thresh_buy=(int)valey_flow;
+         thresh_sell=(int)peak_flow;
+         if( peak_flow>=70 && rsi2<=thresh_buy && rsi1>=thresh_buy)
+         {
+            double tp=0;
+            tp=100+buy_quality;
+            double lots = lots_base;
+            trade.buy(lots,sl,tp);
+         }
+         break;
+      case SEARCH_PEAK_AGGRESSIVE:
+         thresh_buy=(int)valey_flow;
+         thresh_sell=(int)peak_flow;
+         if( (peak_flow>=70 && rsi2<=thresh_buy && rsi1>=thresh_buy)
+            ||(peak_flow>=70 && rsi2<=thresh_buy && rsi1>=10+math.min(rsi2,rsi3,rsi4)))
+         {
+            double tp=0;
+            tp=100+buy_quality;
+            double  equity=AccountEquity();
+            double lots = money.get_lots(1,Ask,sl,equity);
+            screen.clear_L3_comment();
+            screen.add_L3_comment("lots="+DoubleToString(lots));
+            if(lots<0.01)
+               screen.add_L3_comment("-----insufficient lots");
+            else
                trade.buy(lots,sl,tp);
-            }
-            break;
-         case SEARCH_BUYSELL_Q:
-            if(rsi2<=thresh_buy && rsi1>=thresh_buy)
-            {
-               double tp=0;
-               tp=100+buy_quality;
-               double lots = lots_base;
-               if(buy_quality>35)
-                  lots *= 1;
-               else if(buy_quality>18)
-                  lots *= 0.1;
-               else
-                  lots *= 0.01;
-               trade.buy(lots,sl,tp);
-            }
-            break;
-         case SEARCH_PEAK_FLOW:
-            thresh_buy=(int)valey_flow;
-            thresh_sell=(int)peak_flow;
-            if( peak_flow>=70 && rsi2<=thresh_buy && rsi1>=thresh_buy)
-            {
-               double tp=0;
-               tp=100+buy_quality;
-               double lots = lots_base;
-               trade.buy(lots,sl,tp);
-            }
-            break;
-         case SEARCH_PEAK_AGGRESSIVE:
-            thresh_buy=(int)valey_flow;
-            thresh_sell=(int)peak_flow;
-            if( (peak_flow>=70 && rsi2<=thresh_buy && rsi1>=thresh_buy)
-               ||(peak_flow>=70 && rsi2<=thresh_buy && rsi1>=10+math.min(rsi2,rsi3,rsi4)))
-            {
-               double tp=0;
-               tp=100+buy_quality;
-               double  equity=AccountEquity();
-               double lots = money.get_lots(1,Ask,sl,equity);
-               screen.clear_L4_comment();
-               screen.add_L4_comment("lots="+DoubleToString(lots));
-               if(lots<0.01)
-                  screen.add_L4_comment("-----insufficient lots");
-               else
-                  trade.buy(lots,sl,tp);
-            }
-            break;
-      }
-      
-/*      if(open_ticket==-1)
-      {
-         screen.add_L3_comment("error in sending trade");
-         return 0;
-      }
-      else if(open_ticket!=0  )
-      {
-         screen.add_L3_comment("trade placed");
-         return 1;
-      }
-*/   }
-   else
-   {
-      screen.clear_L2_comment();
-      screen.add_L2_comment("officer not allowed");
+         }
+         break;
    }
-   return 0;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-int handle()
+void handle()
 {  //returns 1 if closes the trade to return to base state
    //0 if the position remains still
    int return_closed=0;
@@ -180,62 +153,43 @@ int handle()
    double peak_flow = iCustom(Symbol(), Period(),"myIndicators/RSIpeaksAve", RSI_len, filter_len, 3,1); 
    double valey_flow = iCustom(Symbol(), Period(),"myIndicators/RSIpeaksAve", RSI_len, filter_len, 4,1); 
 
-   if(OrderSelect(open_ticket,SELECT_BY_TICKET)) 
+   bool buy_trade=trade.is_buy_trade();
+   double max=math.max(rsi2,rsi3,rsi4);
+   switch(close_algo)
    {
-      int order_type=OrderType();
-      if(order_type!=OP_BUY && order_type!=OP_SELL)
-      {  //unexpected order type
-         screen.clear_L3_comment();
-         screen.add_L3_comment("unexpected order type");
-         Print("unexpected order type");
-         return 0;
-      }
-      double max=math.max(rsi2,rsi3,rsi4);
-      switch(close_algo)
-      {
-         case CLOSE_AGGRESSIVE:
-            if(rsi3>70 && rsi1<rsi2 && rsi1<rsi3)
-               return_closed = close_order(open_ticket);
-            else if(rsi2>80 && rsi1<rsi2)
-               return_closed = close_order(open_ticket);
-            else if(rsi3<=70 && rsi1<rsi2 && rsi1<rsi3-15)
-               return_closed = close_order(open_ticket);
-            else if(rsi4<=70 && rsi1<=rsi2 && rsi2<=rsi3 && rsi3<=rsi4)
-               return_closed = close_order(open_ticket);
-            else if(rsi1<30 && rsi2>=30)
-               return_closed = close_order(open_ticket);
-            break;
-         case CLOSE_CONSERVATIVE:
-            if(rsi1<=rsi2 && rsi2<=rsi3)
-               return_closed = close_order(open_ticket);
-            break;
-         case CLOSE_FLOW_CONSERVATIVE:
-            if(rsi1<=rsi2 && rsi1<=rsi3-15)
-               return_closed = close_order(open_ticket);
-            else if(rsi1<=peak_flow && rsi2>=peak_flow)
-               return_closed = close_order(open_ticket);
-            break;
-         case CLOSE_FLOW_EARLY:
-            if(rsi1<=peak_flow && rsi2>=peak_flow)
-               return_closed = close_order(open_ticket);
-            else if(max>peak_flow && rsi1<=max-5)
-               return_closed = close_order(open_ticket);
-            else if(rsi1<=max-10)
-               return_closed = close_order(open_ticket);
-            else if(max==99 && rsi1<99)
-               return_closed = close_order(open_ticket);
-            break;
-      }
+      case CLOSE_AGGRESSIVE:
+         if(rsi3>70 && rsi1<rsi2 && rsi1<rsi3)
+            trade.close();
+         else if(rsi2>80 && rsi1<rsi2)
+            trade.close();
+         else if(rsi3<=70 && rsi1<rsi2 && rsi1<rsi3-15)
+            trade.close();
+         else if(rsi4<=70 && rsi1<=rsi2 && rsi2<=rsi3 && rsi3<=rsi4)
+            trade.close();
+         else if(rsi1<30 && rsi2>=30)
+            trade.close();
+         break;
+      case CLOSE_CONSERVATIVE:
+         if(rsi1<=rsi2 && rsi2<=rsi3)
+            trade.close();
+         break;
+      case CLOSE_FLOW_CONSERVATIVE:
+         if(rsi1<=rsi2 && rsi1<=rsi3-15)
+            trade.close();
+         else if(rsi1<=peak_flow && rsi2>=peak_flow)
+            trade.close();
+         break;
+      case CLOSE_FLOW_EARLY:
+         if(rsi1<=peak_flow && rsi2>=peak_flow)
+            trade.close();
+         else if(max>peak_flow && rsi1<=max-5)
+            trade.close();
+         else if(rsi1<=max-10)
+            trade.close();
+         else if(max==99 && rsi1<99)
+            trade.close();
+         break;
    }
-   else
-   {  //error in selecting the ticket
-     //error in closing
-      screen.clear_L3_comment();
-      screen.add_L3_comment("error in selecting the ticket");
-      Print("error in selecting the ticket");
-   }
-   return return_closed;
-
 }
 //+------------------------------------------------------------------+
 //| standard function                                                |

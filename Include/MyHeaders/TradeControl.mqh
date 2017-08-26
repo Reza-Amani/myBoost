@@ -17,6 +17,7 @@ class TradeControl
    bool buy(double _lots, double _sl, double _tp);
    bool edit_sltp( double _sl, double _tp);
    bool have_open_trade();
+   bool is_buy_trade();
    bool close();
    string get_report();
    void clear_report();
@@ -43,15 +44,36 @@ bool TradeControl::buy(double _lots, double _sl, double _tp)
 bool TradeControl::have_open_trade()
 {
    if(OrderSelect(open_ticket,SELECT_BY_TICKET)) 
-      return true;
+   {
+      if(OrderCloseTime()==0)
+         return true;
+      else
+         return false;
+   }
    else
       return false;
+}
+bool TradeControl::is_buy_trade()
+{
+   if(OrderSelect(open_ticket,SELECT_BY_TICKET)) 
+      return (OrderType()==OP_BUY);
+   else  //no open ticket
+   {
+      report+="error in selecting the ticket";
+      return false;
+   }
 }
 bool TradeControl::edit_sltp( double _sl, double _tp)
 {
    if(OrderSelect(open_ticket,SELECT_BY_TICKET)) 
    {
-      return true;
+      if(OrderModify(open_ticket,OrderOpenPrice(),_sl,_tp,0,clrAliceBlue))
+         return true;
+      else
+      {   //error in modifying
+         report+="error in modifying";
+         return false;
+      }
    }
    else  //no open ticket
    {

@@ -45,7 +45,7 @@ void Screen::add_L2_comment(string str)
 }
 void Screen::clear_L3_comment(void)
 {
-   L3_str="";
+   L3_str=" Algo: ";
    show_it();
 }
 void Screen::add_L3_comment(string str)
