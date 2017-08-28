@@ -37,13 +37,14 @@ input SearchAlgo     search_algo=SEARCH_PEAK_AGGRESSIVE;
 input CloseAlgo     close_algo=CLOSE_FLOW_EARLY; 
 input double   sl_SAR_step=0.01; 
 input double   lots_base = 0.1;
+input bool     ECN_account = false;
 //////////////////////////////parameters
 //////////////////////////////objects
 Screen screen;
 MyMath math;
 MoneyManagement money(lots_base);
 StopLoss stop_loss(sl_SAR_step, 0.2);
-TradeControl trade();
+TradeControl trade(ECN_account);
 //int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
 //int outfilehandle=FileOpen("./tradefiles/data"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+"_"+IntegerToString(pattern_len)+"_"+IntegerToString(correlation_thresh)+".csv",FILE_WRITE|FILE_CSV,',');
 
