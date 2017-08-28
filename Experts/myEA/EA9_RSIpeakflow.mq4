@@ -241,7 +241,7 @@ void OnTick()
          trailing_sl();  
          check_for_close();
       }
-      else
+      if(!trade.have_open_trade())
          check_for_open();
       string report=trade.get_report();
       if(report!="")
