@@ -34,9 +34,9 @@ enum CloseAlgo
 input int      RSI_len=28;
 input int      filter_len=50;
 input SearchAlgo     search_algo=SEARCH_PEAK_AGGRESSIVE;
-input CloseAlgo     close_algo=CLOSE_FLOW_CONSERVATIVE; 
-input double   sl_SAR_step=0.02; 
-input double   lots_base = 1;
+input CloseAlgo     close_algo=CLOSE_FLOW_EARLY; 
+input double   sl_SAR_step=0.01; 
+input double   lots_base = 0.1;
 //////////////////////////////parameters
 //////////////////////////////objects
 Screen screen;
@@ -127,7 +127,6 @@ void check_for_open()
             ||(peak_flow>=70 && rsi2<=thresh_buy && rsi1>=10+math.min(rsi2,rsi3,rsi4)))
          {
             double tp=0;
-            tp=100+buy_quality;
             double  equity=AccountEquity();
             double lots = money.get_lots(1,Ask,sl,equity);
             screen.clear_L3_comment();
