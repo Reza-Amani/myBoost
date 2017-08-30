@@ -38,8 +38,8 @@ int PeakEater::take_sample(double _rsi)
 				record_A(local_max);	//report and record the new A
 				looking_for_A = false;
 				local_min = 100;
-				if(A2>0 && B2>0)
-					return +1;
+				if(A2>0 && V2>0)
+					return -1;
 			}
 	}
 	else	//looking for V
@@ -52,8 +52,8 @@ int PeakEater::take_sample(double _rsi)
 				record_V(local_min);	//report and record the new V
 				looking_for_A = true;
 				local_max = 0;
-				if(A2>0 && B2>0)
-					return -1;
+				if(A2>0 && V2>0)
+					return +1;
 			}
 	}
 	return 0;
@@ -95,6 +95,6 @@ void PeakEater::record_V(double _local_min)
 string PeakEater::get_report()
 {
 	string str="";
-	str+="DBG: PeakEater: V2="+IntToString((int)V2)+" A2="+IntToString((int)A2)+" V1="+IntToString((int)V1)+" A1="+IntToString((int)A1)+" V0="+IntToString((int)V0)+" A0="+IntToString((int)A0);
+	str+="DBG: PeakEater: V2="+IntegerToString((int)V2)+" A2="+IntegerToString((int)A2)+" V1="+IntegerToString((int)V1)+" A1="+IntegerToString((int)A1)+" V0="+IntegerToString((int)V0)+" A0="+IntegerToString((int)A0);
 	return str;
 }
