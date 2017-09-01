@@ -17,6 +17,16 @@ class PeakDigester
 PeakDigester::PeakDigester()
 {
 }
-PeakDigester PeakDigester::take_sample(double _rsi)
+void PeakDigester::take_event(PeakEaterResult, int _peak)
 {
+	switch(PeakEaterResult)
+	{
+		case RESULT_CONFIRM_A:
+			break;
+		case RESULT_CONFIRM_V:
+			break;
+		case RESULT_DENY_A:
+		case RESULT_DENY_V:
+			break;
+	}
 }
