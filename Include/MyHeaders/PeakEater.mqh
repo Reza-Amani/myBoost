@@ -6,15 +6,16 @@
 #property copyright "Reza"
 #property link      "http://www.mql4.com"
 #property strict
- enum PeakEaterStatus
- {
+
+enum PeakEaterStatus
+{
  	STATUS_RISING,
  	STATUS_RISING_STEPDOWN,
  	STATUS_FALLING_STEPUP,
  	STATUS_FALLING
- }
- enum PeakEaterResult
- {
+};
+enum PeakEaterResult
+{
  	RESULT_CONFIRM_A,
  	RESULT_CANDIDATE_A,
  	RESULT_CANDIDATE_V,
@@ -22,7 +23,7 @@
  	RESULT_DENY_A,
  	RESULT_DENY_V,
  	RESULT_CONTINUE
- }
+};
 //+------------------------------------------------------------------+
 class PeakEater
 {
@@ -35,7 +36,7 @@ class PeakEater
    double V0,V1,V2,A0,A1,A2;
  public:
    PeakEater();
-   PeakEaterResult take_sample(double _rsi);
+   PeakEaterResult take_sample(double _rsi, double& _new_peak);
    string get_report();
    int get_buy_peak_order_quality();
    int get_sell_peak_order_quality();
@@ -44,7 +45,7 @@ class PeakEater
 PeakEater::PeakEater():status(STATUS_RISING),V0(-1),V1(-1),V2(-1),A0(-1),A1(-1),A2(-1),local_max(0),local_min(100)
 {
 }
-PeakEaterResult PeakEater::take_sample(double _rsi)
+PeakEaterResult PeakEater::take_sample(double _rsi, double& _new_peak)
 {
 	switch(status)
 	{
@@ -52,6 +53,7 @@ PeakEaterResult PeakEater::take_sample(double _rsi)
 			if(_rsi>=local_max)	//still rising
 			{
 				local_max=_rsi;
+				_new_peak = 0;
 				return RESULT_CONTINUE;
 			}
 			else		//step down from local_max
@@ -59,13 +61,14 @@ PeakEaterResult PeakEater::take_sample(double _rsi)
 				status = STATUS_RISING_STEPDOWN;
 				return RESULT_CANDIDATE_A;
 			}
-			bresk;
+			break;
 		case STATUS_RISING_STEPDOWN:
 			if(_rsi<get_threshold_A(local_max))	//already droppped enough
 			{
 				record_A(local_max);	//report and record the new A
 				status = STATUS_FALLING;
 				local_min = _rsi;
+				_new_peak = local_max;
 				return RESULT_CONFIRM_A;
 			}
 			else 
@@ -83,6 +86,7 @@ PeakEaterResult PeakEater::take_sample(double _rsi)
 				record_V(local_min);	//report and record the new V
 				status = STATUS_RISING;
 				local_max = _rsi;
+				_new_peak = local_min;
 				return RESULT_CONFIRM_V;
 			}
 			else 
@@ -105,7 +109,9 @@ PeakEaterResult PeakEater::take_sample(double _rsi)
 				status = STATUS_FALLING_STEPUP;
 				return RESULT_CANDIDATE_V;
 			}
-			bresk;
+			break;
+		default:
+		   return RESULT_CONTINUE;
 	}
 }
 double PeakEater::get_threshold_A(double _local_max)

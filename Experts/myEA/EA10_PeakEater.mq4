@@ -15,6 +15,7 @@
 #include <MyHeaders\StopLoss.mqh>
 #include <MyHeaders\TradeControl.mqh>
 #include <MyHeaders\PeakEater.mqh>
+#include <MyHeaders\PeakDigester.mqh>
 
 enum CloseAlgo
 {
@@ -38,6 +39,7 @@ MoneyManagement money(lots_base);
 StopLoss stop_loss(sl_SAR_step, 0.2);
 TradeControl trade();
 PeakEater peaks();
+PeakDigester digester();
 //int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
 //int outfilehandle=FileOpen("./tradefiles/data"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+"_"+IntegerToString(pattern_len)+"_"+IntegerToString(correlation_thresh)+".csv",FILE_WRITE|FILE_CSV,',');
 
@@ -76,33 +78,10 @@ void check_for_open(int _peaks_return, double _rsi1)
                if(Open[0]>sl)
                   trade.buy(lots,sl,tp);
 */
-   if(_peaks_return==1) //buy potential
-   {
-      double desire_level = 0;
-      if(peaks.A0>peaks.A1)
-      {
-         desire_level++;
-         if(peaks.A1>peaks.A2)
-            desire_level++;
-      }
-      if(peaks.V0>peaks.V1)
-      {
-         desire_level++;
-         if(peaks.V1>peaks.V2)
-            desire_level++;
-      }
-      if(desire_level>=2)
-      {
-         double sl = stop_loss.get_sl();
-         double  equity=AccountEquity();
-         double lots = money.get_lots(lots_base*(desire_level-1),Ask,sl,equity);
-         trade.buy(lots,sl,0);
-      }
-      
-   }
-   else   //sell potential
-   {
-   }
+//         double sl = stop_loss.get_sl();
+//         double  equity=AccountEquity();
+//         double lots = money.get_lots(lots_base*(desire_level-1),Ask,sl,equity);
+//         trade.buy(lots,sl,0);
    
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -202,8 +181,10 @@ void OnTick()
       Time0 = Time[0];
 
       double rsi1 = iCustom(Symbol(), Period(),"myIndicators/scaledRSI", RSI_len, 0,1); 
-      int peaks_return=0;
-      peaks_return = peaks.take_sample(rsi1);
+      PeakEaterResult peaks_return;
+      double new_peak;
+      peaks_return = peaks.take_sample(rsi1,new_peak);
+      digester.take_event(peaks_return,new_peak);
       screen.clear_L5_comment();
       screen.add_L5_comment(peaks.get_report());
       
@@ -212,7 +193,7 @@ void OnTick()
          trailing_sl();  
          check_for_close();
       }
-      else
+      if(!trade.have_open_trade())
          if(peaks_return!=0)
             check_for_open(peaks_return,rsi1);
             
