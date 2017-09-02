@@ -76,6 +76,7 @@ PeakEaterResult PeakEater::take_sample(double _rsi, double& _new_peak)
 				return RESULT_CANDIDATE_A;
 			else
 			{
+  				status = STATUS_RISING;
 				local_max=_rsi;
 				return RESULT_DENY_A;
 			}
@@ -94,6 +95,7 @@ PeakEaterResult PeakEater::take_sample(double _rsi, double& _new_peak)
 				return RESULT_CANDIDATE_V;
 			else
 			{
+  				status = STATUS_FALLING;
 				local_min=_rsi;
 				return RESULT_DENY_V;
 			}
