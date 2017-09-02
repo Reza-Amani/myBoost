@@ -17,6 +17,12 @@
 #include <MyHeaders\PeakEater.mqh>
 #include <MyHeaders\PeakDigester.mqh>
 
+enum OpenAlgo
+{
+   OPEN_ONLY_CONFIRM,
+   OPEN_ADAPTIVE,
+   OPEN_EARLY
+};
 enum CloseAlgo
 {
    CLOSE_AGGRESSIVE,
@@ -28,7 +34,10 @@ enum CloseAlgo
 ///////////////////////////////inputs
 input int      RSI_len=28;
 input int      filter_len=50;
-input CloseAlgo     close_algo=CLOSE_FLOW_EARLY; 
+input CloseAlgo   close_algo=CLOSE_FLOW_EARLY; 
+input OpenAlgo    open_algo=OPEN_EARLY;
+input bool use_digester=true;
+input bool use_order_quality=true;
 input double   sl_SAR_step=0.01; 
 input double   lots_base = 1;
 //////////////////////////////parameters
@@ -46,8 +55,49 @@ PeakDigester digester();
 //+------------------------------------------------------------------+
 //| operation                                                        |
 //+------------------------------------------------------------------+
-void check_for_open(int _peaks_return, double _rsi1)
+void check_for_open(int _peaks_return, double _rsi1, double _new_peak)
 {
+   int order_q,digest_q,total_q;
+   switch(open_algo)
+   {
+      case OPEN_ONLY_CONFIRM:
+         break;
+      case OPEN_ADAPTIVE:
+         break;
+      case OPEN_EARLY:
+         switch(_peaks_return)
+         {
+            case RESULT_CANDIDATE_A:
+               order_q = (use_order_quality)? peaks.get_sell_peak_order_quality() : 1;
+               digest_q = (use_digester)? digester.get_sell_dish()/10 - 1 : 1;
+               total_q = order_q*digest_q;
+               if(total_q>0)
+               {
+                  double sl = stop_loss.get_sl();
+                  if(sl>=Ask)
+                     sl=0;
+                  double  equity=AccountEquity();
+                  double lots = total_q;//money.get_lots(lots_base*total_q,Ask,sl,equity);
+                  trade.buy(lots,sl,0);
+               }
+               break;
+            case RESULT_CANDIDATE_V:
+/*               order_q = (use_order_quality)? peaks.get_buy_peak_order_quality() : 1;
+               digest_q = (use_digester)? digester.get_buy_dish()/10 - 1 : 1;
+               total_q = order_q*digest_q;
+               if(total_q>0)
+               {
+                  double sl = stop_loss.get_sl();
+                  if(sl<=Bid)
+                     sl=0;
+                  double  equity=AccountEquity();
+                  double lots = total_q;//money.get_lots(lots_base*total_q,Bid,sl,equity);
+                  trade.sell(lots,sl,0);
+               }
+*/               break;
+         }
+         break;
+   }
 //   double rsi1 = iCustom(Symbol(), Period(),"myIndicators/scaledRSI", RSI_len, 0,1); 
 //   double rsi2 = iCustom(Symbol(), Period(),"myIndicators/scaledRSI", RSI_len, 0,2); 
 //   double rsi3 = iCustom(Symbol(), Period(),"myIndicators/scaledRSI", RSI_len ,0,3); 
@@ -194,8 +244,8 @@ void OnTick()
          check_for_close();
       }
       if(!trade.have_open_trade())
-         if(peaks_return!=0)
-            check_for_open(peaks_return,rsi1);
+         if(peaks_return!=RESULT_CONTINUE)
+            check_for_open(peaks_return,rsi1,new_peak);
             
       string report=trade.get_report();
       if(report!="")
