@@ -59,6 +59,7 @@ PeakEaterResult PeakEater::take_sample(double _rsi, double& _new_peak)
 			else		//step down from local_max
 			{
 				status = STATUS_RISING_STEPDOWN;
+				_new_peak = local_max;
 				return RESULT_CANDIDATE_A;
 			}
 			break;
@@ -73,10 +74,14 @@ PeakEaterResult PeakEater::take_sample(double _rsi, double& _new_peak)
 			}
 			else 
 			if(_rsi<=local_max)
+			{
+				_new_peak = local_max;
 				return RESULT_CANDIDATE_A;
+			}
 			else
 			{
   				status = STATUS_RISING;
+  				_new_peak=local_max; //send the local max instead of new peak, to check over 70 
 				local_max=_rsi;
 				return RESULT_DENY_A;
 			}
@@ -92,10 +97,14 @@ PeakEaterResult PeakEater::take_sample(double _rsi, double& _new_peak)
 			}
 			else 
 			if(_rsi>=local_min)
+			{
+			   _new_peak = local_min;
 				return RESULT_CANDIDATE_V;
+			}
 			else
 			{
   				status = STATUS_FALLING;
+  				_new_peak=local_min; //send the local min instead of new peak, to check under 30 
 				local_min=_rsi;
 				return RESULT_DENY_V;
 			}

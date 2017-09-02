@@ -31,15 +31,21 @@ void PeakDigester::take_event(PeakEaterResult _event, double _peak)
 		case RESULT_CONFIRM_A:
 		   new_bite = _peak-30;
 		   take_new_bite_buy(new_bite);
+		   if(_peak==99)
+		      take_new_bite_sell(0);
 			break;
 		case RESULT_CONFIRM_V:
 		   new_bite = 70-_peak;
 		   take_new_bite_sell(new_bite);
+		   if(_peak==1)
+		      take_new_bite_buy(0);
 			break;
 		case RESULT_DENY_A:
 		case RESULT_DENY_V:
-		   take_new_bite_buy(0);
-		   take_new_bite_sell(0);
+		   if(_peak>30)
+   		   take_new_bite_sell(0);
+		   if(_peak<70)
+   		   take_new_bite_buy(0);
 			break;
 	}
 }
