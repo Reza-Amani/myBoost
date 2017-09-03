@@ -38,7 +38,7 @@ class PeakEater
    PeakEater();
    PeakEaterResult take_sample(double _rsi, double& _new_peak);
    string get_report();
-   int get_buy_peak_order_quality();
+   int get_buy_peak_order_quality();   	//range of -2 .. +4
    int get_sell_peak_order_quality();
   
 };

@@ -68,10 +68,10 @@ void check_for_open(int _peaks_return, double _rsi1, double _new_peak)
          switch(_peaks_return)
          {
             case RESULT_CANDIDATE_A:
-               order_q = (use_order_quality)? peaks.get_sell_peak_order_quality() : 1;
-               digest_q = (use_digester)? digester.get_sell_dish()/10 - 1 : 1;
+               order_q = (use_order_quality)? peaks.get_buy_peak_order_quality() : 1;
+               digest_q = (use_digester)? digester.get_buy_dish() : 1;
                total_q = order_q*digest_q;
-               if(total_q>0)
+               if(order_q>0 && digest_q>0)
                {
                   double sl = stop_loss.get_sl();
                   if(sl>=Ask)
