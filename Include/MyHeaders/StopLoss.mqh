@@ -13,14 +13,17 @@ class StopLoss
    double step,maximum;
  public:
    StopLoss(double _step,double _maximum);
-   double get_sl();
+   double get_sl(bool _for_buy, double _price);
    
 };
 StopLoss::StopLoss(double _step,double _maximum):step(_step),maximum(_maximum)
 {
 }
-double StopLoss::get_sl()
+double StopLoss::get_sl(bool _for_buy, double _price)
 {
    double SAR = iSAR(NULL,0, step, maximum, 0);
-   return SAR;
+   if(_for_buy)
+      return (SAR<_price)? SAR : 0;
+   else
+      return (SAR>_price)? SAR : 0;
 }
