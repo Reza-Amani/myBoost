@@ -73,12 +73,11 @@ void check_for_open(int _peaks_return, double _rsi1, double _new_peak)
                total_q = order_q*digest_q;
                if(order_q>0 && digest_q>0)
                {
-                  double sl = stop_loss.get_sl();
-                  if(sl<=Bid)
-                     sl=0;
+                  double sl = stop_loss.get_sl(false,Bid);
                   double  equity=AccountEquity();
                   double lots = total_q;//money.get_lots(lots_base*total_q,Ask,sl,equity);
-                  trade.sell(lots,sl,0);
+                  if(sl>0)
+                     trade.sell(lots,sl,0);
                }
                break;
             case RESULT_CANDIDATE_V:
@@ -87,12 +86,11 @@ void check_for_open(int _peaks_return, double _rsi1, double _new_peak)
                total_q = order_q*digest_q;
                if(order_q>0 && digest_q>0)
                {
-                  double sl = stop_loss.get_sl();
-                  if(sl>=Ask)
-                     sl=0;
+                  double sl = stop_loss.get_sl(false,Ask);
                   double  equity=AccountEquity();
                   double lots = total_q;//money.get_lots(lots_base*total_q,Ask,sl,equity);
-                  trade.buy(lots,sl,0);
+                  if(sl>0)
+                     trade.buy(lots,sl,0);
                }
                break;
          }
@@ -101,9 +99,11 @@ void check_for_open(int _peaks_return, double _rsi1, double _new_peak)
    
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void trailing_sl()
+void trailing_sl(bool _for_buy)
 {
-   trade.edit_sl(stop_loss.get_sl());
+   double new_sl=stop_loss.get_sl(_for_buy,Close[0]);
+   if(new_sl>0)
+      trade.edit_sl(new_sl);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void  check_for_close()
@@ -206,7 +206,7 @@ void OnTick()
       
       if(trade.have_open_trade())
       {
-         trailing_sl();  
+         trailing_sl(trade.is_buy_trade());  
          check_for_close();
       }
       if(!trade.have_open_trade())
