@@ -37,7 +37,7 @@ input int      filter_len=50;
 input CloseAlgo   close_algo=CLOSE_FLOW_EARLY; 
 input OpenAlgo    open_algo=OPEN_EARLY;
 input bool use_digester=true;
-input bool use_order_quality=true;
+input bool use_order_quality=false;
 input double   sl_SAR_step=0.01; 
 input double   lots_base = 1;
 //////////////////////////////parameters
@@ -57,7 +57,7 @@ PeakDigester digester(10);
 //+------------------------------------------------------------------+
 void check_for_open(int _peaks_return, double _rsi1, double _new_peak)
 {
-   int order_q,digest_q,total_q;
+   double order_q,digest_q,total_q;
    switch(open_algo)
    {
       case OPEN_ONLY_CONFIRM:
@@ -68,8 +68,8 @@ void check_for_open(int _peaks_return, double _rsi1, double _new_peak)
          switch(_peaks_return)
          {
             case RESULT_CANDIDATE_A:
-               order_q = (use_order_quality)? peaks.get_sell_peak_order_quality() : 1;
-               digest_q = (use_digester)? digester.get_sell_dish() : 1;
+               order_q = 1;//(use_order_quality)? peaks.get_sell_peak_order_quality() : 1;
+               digest_q = (use_digester)? digester.get_advice(false) : 1;
                total_q = order_q*digest_q;
                if(order_q>0 && digest_q>0)
                {
@@ -82,8 +82,8 @@ void check_for_open(int _peaks_return, double _rsi1, double _new_peak)
                }
                break;
             case RESULT_CANDIDATE_V:
-               order_q = (use_order_quality)? peaks.get_buy_peak_order_quality() : 1;
-               digest_q = (use_digester)? digester.get_buy_dish() : 1;
+               order_q = 1;//(use_order_quality)? peaks.get_buy_peak_order_quality() : 1;
+               digest_q = (use_digester)? digester.get_advice(true) : 1;
                total_q = order_q*digest_q;
                if(order_q>0 && digest_q>0)
                {

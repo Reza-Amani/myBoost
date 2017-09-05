@@ -21,7 +21,7 @@ double         Buffer_buy_dish[];
 double         Buffer_sell_dish[];
 //-----------------macros
 PeakEater peaks();
-PeakDigester digester(10);
+PeakDigester digester(1);
 //-----------------inputs
 input int RSI_len=28;
 //+------------------------------------------------------------------+
@@ -106,8 +106,8 @@ int OnCalculate(const int rates_total,
             Buffer_events[i] = 50;
             break;
       }
-      Buffer_buy_dish[i] = digester.get_buy_dish();
-      Buffer_sell_dish[i] = digester.get_sell_dish();
+      Buffer_buy_dish[i] = digester.buy_dish;//10*digester.get_advice(true);
+      Buffer_sell_dish[i] = digester.sell_dish;//10*digester.get_advice(false);
    }
 
 //--- return value of prev_calculated for next call

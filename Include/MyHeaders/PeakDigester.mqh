@@ -12,24 +12,52 @@
 //+------------------------------------------------------------------+
 class PeakDigester : public CriteriaBase
 {
-   double buy_dish,sell_dish;
    void take_new_bite_buy(double _new_bite);
    void take_new_bite_sell(double _new_bite);
  public:
- virtual double get_advice(bool _for_buy);
+   double buy_dish,sell_dish;
+   virtual double get_advice(bool _for_buy);
    PeakDigester(int _base_weight);
    void take_event(PeakEaterResult _event, double _peak);
-   int get_buy_dish();	//range of -2 .. +4
-   int get_sell_dish();
- 
 };
 PeakDigester::PeakDigester(int _base_weight):CriteriaBase(_base_weight)
 {
    buy_dish=0; sell_dish=0;
 }
 double PeakDigester::get_advice(bool _for_buy)
-{
-   return 0;
+{	//0(veto), 0.1,0.2,0.4,1(neutral),2,4,8
+   if(_for_buy)
+   {	//range of -2 .. +4
+      if(buy_dish>=60)
+         return 4;
+      if(buy_dish>=50)
+         return 2;
+      if(buy_dish>=40)
+         return 1;
+      if(buy_dish>=30)
+         return 0.4;
+      if(buy_dish>=20)
+         return 0.2;
+      if(buy_dish>=10)
+         return 0.1;
+      return 0;
+   }
+   else
+   {	//range of -2 .. +4
+      if(sell_dish>=60)
+         return 4;
+      if(sell_dish>=50)
+         return 2;
+      if(sell_dish>=40)
+         return 1;
+      if(sell_dish>=30)
+         return 0.4;
+      if(sell_dish>=20)
+         return 0.2;
+      if(sell_dish>=10)
+         return 0.1;
+      return 0;
+   }
 }
 void PeakDigester::take_event(PeakEaterResult _event, double _peak)
 {
@@ -64,36 +92,4 @@ void PeakDigester::take_new_bite_buy(double _new_bite)
 void PeakDigester::take_new_bite_sell(double _new_bite)
 {
    sell_dish = (sell_dish*1 + _new_bite)/(1+1);
-}
-int PeakDigester::get_buy_dish()
-{	//range of -2 .. +4
-   if(buy_dish>=60)
-      return 4;
-   if(buy_dish>=50)
-      return 3;
-   if(buy_dish>=40)
-      return 2;
-   if(buy_dish>=30)
-      return 1;
-   if(buy_dish>=20)
-      return 0;
-   if(buy_dish>=10)
-      return -1;
-   return -2;
-}
-int PeakDigester::get_sell_dish()
-{	//range of -2 .. +4
-   if(sell_dish>=60)
-      return 4;
-   if(sell_dish>=50)
-      return 3;
-   if(sell_dish>=40)
-      return 2;
-   if(sell_dish>=30)
-      return 1;
-   if(sell_dish>=20)
-      return 0;
-   if(sell_dish>=10)
-      return -1;
-   return -2;
 }
