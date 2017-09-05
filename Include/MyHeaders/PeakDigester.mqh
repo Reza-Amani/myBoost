@@ -7,21 +7,29 @@
 #property link      "http://www.mql4.com"
 #property strict
 
+#include <MyHeaders\CriteriaBase.mqh>
+
 //+------------------------------------------------------------------+
-class PeakDigester
+class PeakDigester : public CriteriaBase
 {
    double buy_dish,sell_dish;
    void take_new_bite_buy(double _new_bite);
    void take_new_bite_sell(double _new_bite);
  public:
-   PeakDigester();
+ virtual double get_advice(bool _for_buy);
+   PeakDigester(int _base_weight);
    void take_event(PeakEaterResult _event, double _peak);
    int get_buy_dish();	//range of -2 .. +4
    int get_sell_dish();
  
 };
-PeakDigester::PeakDigester():buy_dish(0),sell_dish(0)
+PeakDigester::PeakDigester(int _base_weight):CriteriaBase(_base_weight)
 {
+   buy_dish=0; sell_dish=0;
+}
+double PeakDigester::get_advice(bool _for_buy)
+{
+   return 0;
 }
 void PeakDigester::take_event(PeakEaterResult _event, double _peak)
 {

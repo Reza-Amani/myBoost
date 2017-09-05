@@ -21,7 +21,7 @@ double         Buffer_buy_dish[];
 double         Buffer_sell_dish[];
 //-----------------macros
 PeakEater peaks();
-PeakDigester digester();
+PeakDigester digester(10);
 //-----------------inputs
 input int RSI_len=28;
 //+------------------------------------------------------------------+

@@ -7,6 +7,9 @@
 #property link      "http://www.mql4.com"
 #property version   "1.00"
 #property strict
+
+#include <MyHeaders\MyMath.mqh>
+
 //+------------------------------------------------------------------+
 //|                                                                  |
 //+------------------------------------------------------------------+
@@ -20,11 +23,11 @@ private:
 	double net_good_advice;
 	int signed_advice(double _advice);	//re-scale the advice to -10(veto),-4,-2,-1,0,1,2,4
 
-	MyMath math();
+	MyMath math;
 
 public:
    CriteriaBase(int _base_weight);
-   double get_advice(bool _for_buy);	//virtual, 0(veto), 0.1,0.2,0.4,1(neutral),2,4,8
+   virtual double get_advice(bool _for_buy);	//virtual, 0(veto), 0.1,0.2,0.4,1(neutral),2,4,8
    void update_opened(bool _buy);
    void update_result(bool _profitable);
    int get_advice_percent();
@@ -41,7 +44,7 @@ void CriteriaBase::update_opened(bool _buy)
 {	//call get_advice and record the suggestion internally
 	did_agree = signed_advice(get_advice(_buy));
 }
-int CriteriaBase::signed_advice(double _advice);	
+int CriteriaBase::signed_advice(double _advice)
 {	//re-scale the advice to -10(veto),-4,-2,-1,0,1,2,4
 	if(_advice==0)
 		return -10;
@@ -79,5 +82,8 @@ int CriteriaBase::get_advice_percent()
 
 string CriteriaBase::get_report()
 {
-	
+	string str="";
+	str+="CritBase:"+IntegerToString(1);
+	return str;
+
 }

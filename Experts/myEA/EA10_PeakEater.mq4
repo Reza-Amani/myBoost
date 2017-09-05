@@ -48,7 +48,7 @@ MoneyManagement money(lots_base);
 StopLoss stop_loss(sl_SAR_step, 0.2);
 TradeControl trade();
 PeakEater peaks();
-PeakDigester digester();
+PeakDigester digester(10);
 //int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
 //int outfilehandle=FileOpen("./tradefiles/data"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+"_"+IntegerToString(pattern_len)+"_"+IntegerToString(correlation_thresh)+".csv",FILE_WRITE|FILE_CSV,',');
 
@@ -98,40 +98,6 @@ void check_for_open(int _peaks_return, double _rsi1, double _new_peak)
          }
          break;
    }
-//   double rsi1 = iCustom(Symbol(), Period(),"myIndicators/scaledRSI", RSI_len, 0,1); 
-//   double rsi2 = iCustom(Symbol(), Period(),"myIndicators/scaledRSI", RSI_len, 0,2); 
-//   double rsi3 = iCustom(Symbol(), Period(),"myIndicators/scaledRSI", RSI_len ,0,3); 
-//   double rsi4 = iCustom(Symbol(), Period(),"myIndicators/scaledRSI", RSI_len ,0,4); 
-//   double buy_quality = iCustom(Symbol(), Period(),"myIndicators/swing_quality", RSI_len, 0,1); //TODO: consider it. >18 and >35
-//   double sell_quality = iCustom(Symbol(), Period(),"myIndicators/swing_quality", RSI_len, 1,1); 
-//   double slow_total_quality = iCustom(Symbol(), Period(),"myIndicators/swing_quality", RSI_len, 3,1); 
-
-//   double peak_flow = iCustom(Symbol(), Period(),"myIndicators/RSIpeaksAve", RSI_len, filter_len, 3,1); //TODO: consider it. peak_flow>70, rsi cross above valey_flow
-//   double valey_flow = iCustom(Symbol(), Period(),"myIndicators/RSIpeaksAve", RSI_len, filter_len, 4,1); 
-   
-   
-/*      case SEARCH_PEAK_AGGRESSIVE:
-         thresh_buy=(int)valey_flow;
-         thresh_sell=(int)peak_flow;
-         if( (peak_flow>=70 && rsi2<=thresh_buy && rsi1>=thresh_buy)
-            ||(peak_flow>=70 && rsi2<=thresh_buy && rsi1>=10+math.min(rsi2,rsi3,rsi4)))
-         {
-            double tp=0;
-            tp=100+buy_quality;
-            double  equity=AccountEquity();
-            double lots = money.get_lots(1,Ask,sl,equity);
-            screen.clear_L3_comment();
-            screen.add_L3_comment("lots="+DoubleToString(lots));
-            if(lots<0.01)
-               screen.add_L3_comment("-----insufficient lots");
-            else
-               if(Open[0]>sl)
-                  trade.buy(lots,sl,tp);
-*/
-//         double sl = stop_loss.get_sl();
-//         double  equity=AccountEquity();
-//         double lots = money.get_lots(lots_base*(desire_level-1),Ask,sl,equity);
-//         trade.buy(lots,sl,0);
    
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
