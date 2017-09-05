@@ -68,6 +68,20 @@ void check_for_open(int _peaks_return, double _rsi1, double _new_peak)
          switch(_peaks_return)
          {
             case RESULT_CANDIDATE_A:
+               order_q = (use_order_quality)? peaks.get_sell_peak_order_quality() : 1;
+               digest_q = (use_digester)? digester.get_sell_dish() : 1;
+               total_q = order_q*digest_q;
+               if(order_q>0 && digest_q>0)
+               {
+                  double sl = stop_loss.get_sl();
+                  if(sl<=Bid)
+                     sl=0;
+                  double  equity=AccountEquity();
+                  double lots = total_q;//money.get_lots(lots_base*total_q,Ask,sl,equity);
+                  trade.sell(lots,sl,0);
+               }
+               break;
+            case RESULT_CANDIDATE_V:
                order_q = (use_order_quality)? peaks.get_buy_peak_order_quality() : 1;
                digest_q = (use_digester)? digester.get_buy_dish() : 1;
                total_q = order_q*digest_q;
@@ -79,20 +93,6 @@ void check_for_open(int _peaks_return, double _rsi1, double _new_peak)
                   double  equity=AccountEquity();
                   double lots = total_q;//money.get_lots(lots_base*total_q,Ask,sl,equity);
                   trade.buy(lots,sl,0);
-               }
-               break;
-            case RESULT_CANDIDATE_V:
-               order_q = (use_order_quality)? peaks.get_sell_peak_order_quality() : 1;
-               digest_q = (use_digester)? digester.get_sell_dish() : 1;
-               total_q = order_q*digest_q;
-               if(order_q>0 && digest_q>0)
-               {
-                  double sl = stop_loss.get_sl();
-                  if(sl<=Ask)
-                     sl=0;
-                  double  equity=AccountEquity();
-                  double lots = total_q;//money.get_lots(lots_base*total_q,Ask,sl,equity);
-                  trade.sell(lots,sl,0);
                }
                break;
          }

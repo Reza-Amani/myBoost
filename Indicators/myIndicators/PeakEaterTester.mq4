@@ -6,6 +6,7 @@
 #property copyright "Reza"
 #property strict
 #property indicator_separate_window
+#property indicator_level1 50
 #property indicator_buffers 3
 #property indicator_plots   3
 #property indicator_maximum 100

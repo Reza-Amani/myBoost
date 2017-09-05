@@ -34,6 +34,7 @@ class PeakEater
    void record_A(double _local_max);
    void record_V(double _local_min);
    double V0,V1,V2,A0,A1,A2;
+   double prev_sample;
  public:
    PeakEater();
    PeakEaterResult take_sample(double _rsi, double& _new_peak);
@@ -42,11 +43,13 @@ class PeakEater
    int get_sell_peak_order_quality();
   
 };
-PeakEater::PeakEater():status(STATUS_RISING),V0(-1),V1(-1),V2(-1),A0(-1),A1(-1),A2(-1),local_max(0),local_min(100)
+PeakEater::PeakEater():status(STATUS_RISING),V0(-1),V1(-1),V2(-1),A0(-1),A1(-1),A2(-1),local_max(0),local_min(100),prev_sample(50)
 {
 }
 PeakEaterResult PeakEater::take_sample(double _rsi, double& _new_peak)
 {
+   double rsi1=prev_sample;
+   prev_sample=_rsi;
 	switch(status)
 	{
 		case STATUS_RISING:
@@ -76,7 +79,10 @@ PeakEaterResult PeakEater::take_sample(double _rsi, double& _new_peak)
 			if(_rsi<=local_max)
 			{
 				_new_peak = local_max;
-				return RESULT_CANDIDATE_A;
+				if(_rsi<rsi1)
+   				return RESULT_CANDIDATE_A;
+   		   else
+   		      return RESULT_CONTINUE;
 			}
 			else
 			{
@@ -99,7 +105,10 @@ PeakEaterResult PeakEater::take_sample(double _rsi, double& _new_peak)
 			if(_rsi>=local_min)
 			{
 			   _new_peak = local_min;
-				return RESULT_CANDIDATE_V;
+				if(_rsi>rsi1)
+   				return RESULT_CANDIDATE_V;
+   		   else
+   		      return RESULT_CONTINUE;
 			}
 			else
 			{
