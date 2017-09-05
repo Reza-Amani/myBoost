@@ -14,6 +14,10 @@
 #include <MyHeaders\MoneyManagement.mqh>
 #include <MyHeaders\StopLoss.mqh>
 #include <MyHeaders\TradeControl.mqh>
+#include <MyHeaders\DesirabilityCriteriaBase.mqh>
+#include <MyHeaders\DesSwingQuality.mqh>
+#include <MyHeaders\CriteriaEvaluate.mqh>
+#include <MyHeaders\DynamicEvaluator.mqh>
 
 enum SearchAlgo
 {
@@ -44,6 +48,8 @@ MyMath math;
 MoneyManagement money(lots_base);
 StopLoss stop_loss(sl_SAR_step, 0.2);
 TradeControl trade();
+DesSwingQuality des_swing_quality();
+DynamicEvaluator dynamic_evaluator(&des_swing_quality,1);
 //int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
 //int outfilehandle=FileOpen("./tradefiles/data"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+"_"+IntegerToString(pattern_len)+"_"+IntegerToString(correlation_thresh)+".csv",FILE_WRITE|FILE_CSV,',');
 
