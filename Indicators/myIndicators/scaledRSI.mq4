@@ -23,7 +23,7 @@ input int RSI_len=14;
 int OnInit()
   {
 //--- indicator buffers mapping
-   SetIndexStyle(0, DRAW_LINE, STYLE_SOLID, 1, clrGreen);
+   SetIndexStyle(0, DRAW_LINE, STYLE_SOLID, 1, clrBrown);
    SetIndexBuffer(0,Buffer_scaledRSI);
    SetIndexLabel(0 ,"S_RSI");   
 //---
@@ -63,13 +63,16 @@ int OnCalculate(const int rates_total,
    //--- the main calculation loop
    for (int i=limit; i>=0; i--)
    {
-      double rsi = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,i+0); 
-      
-      Buffer_scaledRSI[i]= 50+ (rsi-50)* (1+0.03*(RSI_len-14));
-      if(Buffer_scaledRSI[i]>99)
-         Buffer_scaledRSI[i]=99;
-      if(Buffer_scaledRSI[i]<1)
-         Buffer_scaledRSI[i]=1;
+      double rsi0 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,i+0); 
+      double rsi1 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,i+1); 
+      double scale = 1+0.03*(RSI_len-14);
+      double result = 50+ scale*((rsi0+rsi1)/2-50);
+      result = round(result/2)*2;
+      if(result>99)
+         result=99;
+      if(result<1)
+         result=1;
+      Buffer_scaledRSI[i]=result;
    }
 
 //--- return value of prev_calculated for next call

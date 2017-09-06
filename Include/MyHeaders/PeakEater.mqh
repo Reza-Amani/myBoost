@@ -56,7 +56,7 @@ PeakEaterResult PeakEater::take_sample(double _rsi, double& _new_peak)
 			if(_rsi>=local_max)	//still rising
 			{
 				local_max=_rsi;
-				_new_peak = 0;
+				_new_peak = _rsi;
 				return RESULT_CONTINUE;
 			}
 			else		//step down from local_max
@@ -122,6 +122,7 @@ PeakEaterResult PeakEater::take_sample(double _rsi, double& _new_peak)
 			if(_rsi<=local_min)	//still falling
 			{
 				local_min=_rsi;
+				_new_peak=_rsi;
 				return RESULT_CONTINUE;
 			}
 			else		//step up from local_min

@@ -71,7 +71,7 @@ void check_for_open(int _peaks_return, double _rsi1, double _new_peak)
                order_q = 1;//(use_order_quality)? peaks.get_sell_peak_order_quality() : 1;
                digest_q = (use_digester)? digester.get_advice(false) : 1;
                total_q = order_q*digest_q;
-               if(order_q>0 && digest_q>0)
+               if(order_q>0 && digest_q>=0.2)
                {
                   double sl = stop_loss.get_sl(false,Bid);
                   double  equity=AccountEquity();
@@ -84,9 +84,9 @@ void check_for_open(int _peaks_return, double _rsi1, double _new_peak)
                order_q = 1;//(use_order_quality)? peaks.get_buy_peak_order_quality() : 1;
                digest_q = (use_digester)? digester.get_advice(true) : 1;
                total_q = order_q*digest_q;
-               if(order_q>0 && digest_q>0)
+               if(order_q>0 && digest_q>=0.2)
                {
-                  double sl = stop_loss.get_sl(false,Ask);
+                  double sl = stop_loss.get_sl(true,Ask);
                   double  equity=AccountEquity();
                   double lots = total_q;//money.get_lots(lots_base*total_q,Ask,sl,equity);
                   if(sl>0)
@@ -207,7 +207,7 @@ void OnTick()
       if(trade.have_open_trade())
       {
          trailing_sl(trade.is_buy_trade());  
-         check_for_close();
+         //check_for_close();
       }
       if(!trade.have_open_trade())
          if(peaks_return!=RESULT_CONTINUE)

@@ -14,6 +14,7 @@ class PeakDigester : public CriteriaBase
 {
    void take_new_bite_buy(double _new_bite);
    void take_new_bite_sell(double _new_bite);
+   void decay_dishes();
  public:
    double buy_dish,sell_dish;
    virtual double get_advice(bool _for_buy);
@@ -61,18 +62,23 @@ double PeakDigester::get_advice(bool _for_buy)
 }
 void PeakDigester::take_event(PeakEaterResult _event, double _peak)
 {
-   double new_bite;
 	switch(_event)
 	{
+	   case RESULT_CONTINUE:
+	   case RESULT_CANDIDATE_V:
+	   case RESULT_CANDIDATE_A:
+	      if(_peak>40 && _peak<60)
+   		   decay_dishes();
+			break;
 		case RESULT_CONFIRM_A:
-		   new_bite = _peak-30;
-		   take_new_bite_buy(new_bite);
+		   if(_peak>60)
+		   take_new_bite_buy(2*(_peak-60));
 		   if(_peak==99)
 		      take_new_bite_sell(0);
 			break;
 		case RESULT_CONFIRM_V:
-		   new_bite = 70-_peak;
-		   take_new_bite_sell(new_bite);
+		   if(_peak<40)
+		      take_new_bite_sell(2*(40-_peak));
 		   if(_peak==1)
 		      take_new_bite_buy(0);
 			break;
@@ -87,9 +93,18 @@ void PeakDigester::take_event(PeakEaterResult _event, double _peak)
 }
 void PeakDigester::take_new_bite_buy(double _new_bite)
 {
-   buy_dish = (buy_dish*1 + _new_bite)/(1+1);
+   buy_dish = (buy_dish*2 + _new_bite)/(2+1);
 }
 void PeakDigester::take_new_bite_sell(double _new_bite)
 {
-   sell_dish = (sell_dish*1 + _new_bite)/(1+1);
+   sell_dish = (sell_dish*2 + _new_bite)/(2+1);
+}
+void PeakDigester::decay_dishes(void)
+{
+   sell_dish -= 0.5;
+   buy_dish -= 0.5;
+   if(sell_dish<0)
+      sell_dish=0;
+   if(buy_dish<0)
+      buy_dish=0;
 }
