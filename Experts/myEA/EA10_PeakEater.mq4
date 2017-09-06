@@ -200,7 +200,7 @@ void OnTick()
       PeakEaterResult peaks_return;
       double new_peak;
       peaks_return = peaks.take_sample(rsi1,new_peak);
-      digester.take_event(peaks_return,new_peak);
+      digester.take_event(peaks_return,new_peak,rsi1);
       screen.clear_L5_comment();
       screen.add_L5_comment(peaks.get_report());
       

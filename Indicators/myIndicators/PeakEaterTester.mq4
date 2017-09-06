@@ -80,7 +80,7 @@ int OnCalculate(const int rates_total,
       PeakEaterResult peaks_return;
       double new_peak;
       peaks_return = peaks.take_sample(rsi1,new_peak);
-      digester.take_event(peaks_return,new_peak);
+      digester.take_event(peaks_return,new_peak,rsi1);
 
       switch(peaks_return)
       {
