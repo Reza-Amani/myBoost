@@ -10,15 +10,15 @@ class Screen
 {
   public:
    void clear_L1_comment();
-   void add_L1_comment(string str); //add to residual comment
+   void add_L1_comment(string str); //prog
    void clear_L2_comment();
-   void add_L2_comment(string str); //add to semi-volatile comment
+   void add_L2_comment(string str); //trade
    void clear_L3_comment();
-   void add_L3_comment(string str); //add to volatile comment
+   void add_L3_comment(string str); //algo
    void clear_L4_comment();
    void add_L4_comment(string str); //add to volatile comment
    void clear_L5_comment();
-   void add_L5_comment(string str); //add to volatile comment
+   void add_L5_comment(string str); //general debug
   private:
    string L1_str,L2_str,L3_str,L4_str,L5_str;
    void show_it();
