@@ -1,0 +1,4 @@
+identifying side (no-trend) by ADX<25 for a while, then use RSI for trade on both sides, along with smart tp-sl, maybe using range indicators
+trade based on RSI, adjusting levels based on ADX
+identifying trend by MACD/SMA, then confirm by ADX>25 and +DI>-DI, then use RSI for trade on trend direction.
+
