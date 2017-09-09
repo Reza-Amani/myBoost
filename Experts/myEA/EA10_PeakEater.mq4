@@ -14,13 +14,14 @@
 #include <MyHeaders\MoneyManagement.mqh>
 #include <MyHeaders\StopLoss.mqh>
 #include <MyHeaders\TradeControl.mqh>
+#include <MyHeaders\PeakEater.mqh>
+#include <MyHeaders\PeakDigester.mqh>
 
-enum SearchAlgo
+enum OpenAlgo
 {
-   SEARCH_BLIND_BUY_AT_30,
-   SEARCH_BUYSELL_Q,
-   SEARCH_PEAK_FLOW,
-   SEARCH_PEAK_AGGRESSIVE
+   OPEN_ONLY_CONFIRM,
+   OPEN_ADAPTIVE,
+   OPEN_EARLY
 };
 enum CloseAlgo
 {
@@ -33,9 +34,11 @@ enum CloseAlgo
 ///////////////////////////////inputs
 input int      RSI_len=28;
 input int      filter_len=50;
-input SearchAlgo     search_algo=SEARCH_PEAK_AGGRESSIVE;
-input CloseAlgo     close_algo=CLOSE_FLOW_CONSERVATIVE; 
-input double   sl_SAR_step=0.02; 
+input CloseAlgo   close_algo=CLOSE_FLOW_EARLY; 
+input OpenAlgo    open_algo=OPEN_EARLY;
+input bool use_digester=true;
+input bool use_order_quality=false;
+input double   sl_SAR_step=0.01; 
 input double   lots_base = 1;
 //////////////////////////////parameters
 //////////////////////////////objects
@@ -44,107 +47,63 @@ MyMath math;
 MoneyManagement money(lots_base);
 StopLoss stop_loss(sl_SAR_step, 0.2);
 TradeControl trade();
+PeakEater peaks();
+PeakDigester digester(10);
 //int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
 //int outfilehandle=FileOpen("./tradefiles/data"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+"_"+IntegerToString(pattern_len)+"_"+IntegerToString(correlation_thresh)+".csv",FILE_WRITE|FILE_CSV,',');
 
 //+------------------------------------------------------------------+
 //| operation                                                        |
 //+------------------------------------------------------------------+
-void check_for_open()
-{  //returns 1 if opens a trade to proceed to next state
-   //0 if unsuccessful search
-
-   double rsi1 = iCustom(Symbol(), Period(),"myIndicators/scaledRSI", RSI_len, 0,1); 
-   double rsi2 = iCustom(Symbol(), Period(),"myIndicators/scaledRSI", RSI_len, 0,2); 
-   double rsi3 = iCustom(Symbol(), Period(),"myIndicators/scaledRSI", RSI_len ,0,3); 
-   double rsi4 = iCustom(Symbol(), Period(),"myIndicators/scaledRSI", RSI_len ,0,4); 
-   double buy_quality = iCustom(Symbol(), Period(),"myIndicators/swing_quality", RSI_len, 0,1);
-   double sell_quality = iCustom(Symbol(), Period(),"myIndicators/swing_quality", RSI_len, 1,1); 
-   double slow_total_quality = iCustom(Symbol(), Period(),"myIndicators/swing_quality", RSI_len, 3,1); 
-
-   double peak_flow = iCustom(Symbol(), Period(),"myIndicators/RSIpeaksAve", RSI_len, filter_len, 3,1); 
-   double valey_flow = iCustom(Symbol(), Period(),"myIndicators/RSIpeaksAve", RSI_len, filter_len, 4,1); 
-      //RSI of median price on last bar
-      //a little aggressive, and ignoring the new open price
-      //TODO: maybe considering the new open price for extra caution
-//   double new_open_rsi = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_OPEN ,0,0); 
-      
-//   screen.add_L2_comment(" rsi 00="+DoubleToString(iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, 0, 0,0,0))+" 10="+DoubleToString(iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, 1, 0,0,0))+" 20="+DoubleToString(iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, 2, 0,0,0))+" 3="+DoubleToString(iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, 3, 0,0,0)));
-   screen.clear_L3_comment();
-   screen.add_L3_comment(" rsi1 ="+DoubleToString(rsi1));
-   screen.clear_L4_comment();
-   screen.add_L4_comment(" buyQ ="+DoubleToString(buy_quality));
-
-   int thresh_sell = 70;
-   int thresh_buy = 30;
-   
-   double sl=stop_loss.get_sl();
-   
-   switch(search_algo)
+void check_for_open(int _peaks_return, double _rsi1, double _new_peak)
+{
+   double order_q,digest_q,total_q;
+   switch(open_algo)
    {
-      case SEARCH_BLIND_BUY_AT_30:
-         if(rsi2<=thresh_buy && rsi1>=thresh_buy)
-         {
-            double tp=0;
-            tp=100+buy_quality;
-            double lots = lots_base;
-            if(Open[0]>sl)
-               trade.buy(lots,sl,tp);
-         }
+      case OPEN_ONLY_CONFIRM:
          break;
-      case SEARCH_BUYSELL_Q:
-         if(rsi2<=thresh_buy && rsi1>=thresh_buy)
-         {
-            double tp=0;
-            tp=100+buy_quality;
-            double lots = lots_base;
-            if(buy_quality>35)
-               lots *= 1;
-            else if(buy_quality>18)
-               lots *= 0.1;
-            else
-               lots *= 0.01;
-            if(Open[0]>sl)
-               trade.buy(lots,sl,tp);
-         }
+      case OPEN_ADAPTIVE:
          break;
-      case SEARCH_PEAK_FLOW:
-         thresh_buy=(int)valey_flow;
-         thresh_sell=(int)peak_flow;
-         if( peak_flow>=70 && rsi2<=thresh_buy && rsi1>=thresh_buy)
+      case OPEN_EARLY:
+         switch(_peaks_return)
          {
-            double tp=0;
-            tp=100+buy_quality;
-            double lots = lots_base;
-            if(Open[0]>sl)
-               trade.buy(lots,sl,tp);
-         }
-         break;
-      case SEARCH_PEAK_AGGRESSIVE:
-         thresh_buy=(int)valey_flow;
-         thresh_sell=(int)peak_flow;
-         if( (peak_flow>=70 && rsi2<=thresh_buy && rsi1>=thresh_buy)
-            ||(peak_flow>=70 && rsi2<=thresh_buy && rsi1>=10+math.min(rsi2,rsi3,rsi4)))
-         {
-            double tp=0;
-            tp=100+buy_quality;
-            double  equity=AccountEquity();
-            double lots = money.get_lots(1,Ask,sl,equity);
-            screen.clear_L3_comment();
-            screen.add_L3_comment("lots="+DoubleToString(lots));
-            if(lots<0.01)
-               screen.add_L3_comment("-----insufficient lots");
-            else
-               if(Open[0]>sl)
-                  trade.buy(lots,sl,tp);
+            case RESULT_CANDIDATE_A:
+               order_q = 1;//(use_order_quality)? peaks.get_sell_peak_order_quality() : 1;
+               digest_q = (use_digester)? digester.get_advice(false) : 1;
+               total_q = order_q*digest_q;
+               if(order_q>0 && digest_q>=0.2)
+               {
+                  double sl = stop_loss.get_sl(false,Bid);
+                  double  equity=AccountEquity();
+                  double lots = total_q;//money.get_lots(lots_base*total_q,Ask,sl,equity);
+                  if(sl>0)
+                     trade.sell(lots,sl,0);
+               }
+               break;
+            case RESULT_CANDIDATE_V:
+               order_q = 1;//(use_order_quality)? peaks.get_buy_peak_order_quality() : 1;
+               digest_q = (use_digester)? digester.get_advice(true) : 1;
+               total_q = order_q*digest_q;
+               if(order_q>0 && digest_q>=0.2)
+               {
+                  double sl = stop_loss.get_sl(true,Ask);
+                  double  equity=AccountEquity();
+                  double lots = total_q;//money.get_lots(lots_base*total_q,Ask,sl,equity);
+                  if(sl>0)
+                     trade.buy(lots,sl,0);
+               }
+               break;
          }
          break;
    }
+   
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void trailing_sl()
+void trailing_sl(bool _for_buy)
 {
-   trade.edit_sl(stop_loss.get_sl());
+   double new_sl=stop_loss.get_sl(_for_buy,Close[0]);
+   if(new_sl>0)
+      trade.edit_sl(new_sl);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void  check_for_close()
@@ -237,13 +196,23 @@ void OnTick()
    {  //new bar; main process
       Time0 = Time[0];
 
+      double rsi1 = iCustom(Symbol(), Period(),"myIndicators/scaledRSI", RSI_len, 0,1); 
+      PeakEaterResult peaks_return;
+      double new_peak;
+      peaks_return = peaks.take_sample(rsi1,new_peak);
+      digester.take_event(peaks_return,new_peak,rsi1);
+      screen.clear_L5_comment();
+      screen.add_L5_comment(peaks.get_report());
+      
       if(trade.have_open_trade())
       {
-         trailing_sl();  
-         check_for_close();
+         trailing_sl(trade.is_buy_trade());  
+         //check_for_close();
       }
-      else
-         check_for_open();
+      if(!trade.have_open_trade())
+         if(peaks_return!=RESULT_CONTINUE)
+            check_for_open(peaks_return,rsi1,new_peak);
+            
       string report=trade.get_report();
       if(report!="")
       {
