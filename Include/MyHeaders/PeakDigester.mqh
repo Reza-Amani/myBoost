@@ -19,7 +19,7 @@ class PeakDigester : public CriteriaBase
    double buy_dish,sell_dish;
    virtual double get_advice(bool _for_buy);
    PeakDigester(int _base_weight);
-   void take_event(PeakEaterResult _event, double _peak, double _rsi);
+   virtual void take_input(PeakEaterResult _event, double _peak, double _rsi);
 };
 PeakDigester::PeakDigester(int _base_weight):CriteriaBase(_base_weight)
 {
@@ -60,7 +60,7 @@ double PeakDigester::get_advice(bool _for_buy)
       return 0;
    }
 }
-void PeakDigester::take_event(PeakEaterResult _event, double _peak, double _rsi)
+void PeakDigester::take_input(PeakEaterResult _event, double _peak, double _rsi)
 {
 	switch(_event)
 	{

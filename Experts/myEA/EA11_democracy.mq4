@@ -65,10 +65,10 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1, double _new_pea
                order_q = 1;//(use_order_quality)? peaks.get_sell_peak_order_quality() : 1;
                digest_q = (use_digester)? digester.get_advice(false) : 1;
                total_q = order_q*digest_q;
-               if(order_q>0 && digest_q>=0.2)
+               if(total_q>0)
                {
                   double sl = stop_loss.get_sl(false,Bid);
-                  double  equity=AccountEquity();
+                  double equity=AccountEquity();
                   double lots = total_q;//money.get_lots(lots_base*total_q,Ask,sl,equity);
                   if(sl>0)
                      trade.sell(lots,sl,0);
@@ -78,7 +78,7 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1, double _new_pea
                order_q = 1;//(use_order_quality)? peaks.get_buy_peak_order_quality() : 1;
                digest_q = (use_digester)? digester.get_advice(true) : 1;
                total_q = order_q*digest_q;
-               if(order_q>0 && digest_q>=0.2)
+               if(total_q>0)
                {
                   double sl = stop_loss.get_sl(true,Ask);
                   double  equity=AccountEquity();
@@ -170,14 +170,18 @@ void OnTick()
       PeakEaterResult peaks_return;
       double new_peak;
       peaks_return = peaks.take_sample(rsi1,new_peak);
-      digester.take_event(peaks_return,new_peak,rsi1);
+      
+      //-----------------------------------------------------------------------------------------------------------------charging Crits
+      digester.take_input(peaks_return,new_peak,rsi1);
+      parabol.take_input(1);
+      
       screen.clear_L5_comment();
       screen.add_L5_comment(peaks.get_report());
       
       if(trade.have_open_trade())
       {
          trailing_sl(trade.is_buy_trade());  
-         //check_for_close();
+         check_for_close();
       }
       if(!trade.have_open_trade())
          if(peaks_return!=RESULT_CONTINUE)
