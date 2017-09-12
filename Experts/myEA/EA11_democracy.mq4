@@ -46,7 +46,7 @@ StopLoss stop_loss(sl_SAR_step, 0.2);
 TradeControl trade();
 PeakEater peaks();
 PeakDigester digester(10);
-ParabolicLover parabol(1);
+ParabolicLover parabol(1,sl_SAR_step,0.2);
 //int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
 //int outfilehandle=FileOpen("./tradefiles/data"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+"_"+IntegerToString(pattern_len)+"_"+IntegerToString(correlation_thresh)+".csv",FILE_WRITE|FILE_CSV,',');
 
@@ -55,7 +55,7 @@ ParabolicLover parabol(1);
 //+------------------------------------------------------------------+
 void check_for_open(PeakEaterResult _peaks_return, double _rsi1, double _new_peak)
 {
-   double order_q,digest_q,total_q;
+   double order_q,digest_q,SAR_q,total_q;
    switch(open_algo)
    {
       case OPEN_EARLY:
@@ -64,7 +64,8 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1, double _new_pea
             case RESULT_CANDIDATE_A:
                order_q = 1;//(use_order_quality)? peaks.get_sell_peak_order_quality() : 1;
                digest_q = (use_digester)? digester.get_advice(false) : 1;
-               total_q = order_q*digest_q;
+               SAR_q = (use_parabolic_lover)?parabol.get_advice(false) : 1;
+               total_q = order_q*digest_q*SAR_q;
                if(total_q>0)
                {
                   double sl = stop_loss.get_sl(false,Bid);
@@ -77,7 +78,8 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1, double _new_pea
             case RESULT_CANDIDATE_V:
                order_q = 1;//(use_order_quality)? peaks.get_buy_peak_order_quality() : 1;
                digest_q = (use_digester)? digester.get_advice(true) : 1;
-               total_q = order_q*digest_q;
+               SAR_q = (use_parabolic_lover)?parabol.get_advice(true) : 1;
+               total_q = order_q*digest_q*SAR_q;
                if(total_q>0)
                {
                   double sl = stop_loss.get_sl(true,Ask);
@@ -173,7 +175,7 @@ void OnTick()
       
       //-----------------------------------------------------------------------------------------------------------------charging Crits
       digester.take_input(peaks_return,new_peak,rsi1);
-      parabol.take_input(1);
+      parabol.take_input();
       
       screen.clear_L5_comment();
       screen.add_L5_comment(peaks.get_report());
