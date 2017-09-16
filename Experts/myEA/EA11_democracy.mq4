@@ -17,6 +17,7 @@
 #include <MyHeaders\PeakEater.mqh>
 #include <MyHeaders\PeakDigester.mqh>
 #include <MyHeaders\CritParabolicLover.mqh>
+#include <MyHeaders\CritPeakOrderer.mqh>
 
 enum OpenAlgo
 {
@@ -32,9 +33,9 @@ input int      RSI_len=28;
 input int      filter_len=50;
 input CloseAlgo   close_algo=CLOSE_EARLY; 
 input OpenAlgo    open_algo=OPEN_EARLY;
-input bool use_parabolic_lover=true;
+input bool use_parabolic_lover=false;
 input bool use_digester=false;
-input bool use_order_quality=false;
+input bool use_orderer=true;
 input double   sl_SAR_step=0.01; 
 input double   lots_base = 1;
 //////////////////////////////parameters
@@ -45,8 +46,9 @@ MoneyManagement money(lots_base);
 StopLoss stop_loss(sl_SAR_step, 0.2);
 TradeControl trade();
 PeakEater peaks();
-PeakDigester digester(10);
+PeakDigester digester(1);
 ParabolicLover parabol(1,sl_SAR_step,0.2);
+PeakOrderer orderer(1);
 //int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
 //int outfilehandle=FileOpen("./tradefiles/data"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+"_"+IntegerToString(pattern_len)+"_"+IntegerToString(correlation_thresh)+".csv",FILE_WRITE|FILE_CSV,',');
 
@@ -62,7 +64,7 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1, double _new_pea
          switch(_peaks_return)
          {
             case RESULT_CANDIDATE_A:
-               order_q = 1;//(use_order_quality)? peaks.get_sell_peak_order_quality() : 1;
+               order_q = (use_orderer)? orderer.get_advice(false) : 1;
                digest_q = (use_digester)? digester.get_advice(false) : 1;
                SAR_q = (use_parabolic_lover)?parabol.get_advice(false) : 1;
                total_q = order_q*digest_q*SAR_q;
@@ -76,7 +78,7 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1, double _new_pea
                }
                break;
             case RESULT_CANDIDATE_V:
-               order_q = 1;//(use_order_quality)? peaks.get_buy_peak_order_quality() : 1;
+               order_q = (use_orderer)? orderer.get_advice(true) : 1;
                digest_q = (use_digester)? digester.get_advice(true) : 1;
                SAR_q = (use_parabolic_lover)?parabol.get_advice(true) : 1;
                total_q = order_q*digest_q*SAR_q;
@@ -176,6 +178,7 @@ void OnTick()
       //-----------------------------------------------------------------------------------------------------------------charging Crits
       digester.take_input(peaks_return,new_peak,rsi1);
       parabol.take_input();
+      orderer.take_input(new_peak ,peaks.V0,peaks.V1,peaks.V2,peaks.A0,peaks.A1,peaks.A2);
       
       screen.clear_L5_comment();
       screen.add_L5_comment(peaks.get_report());

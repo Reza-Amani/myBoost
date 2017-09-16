@@ -30,6 +30,7 @@ public:
    virtual double get_advice(bool _for_buy);	//virtual, 0(veto), 0.1,0.2,0.4,1(neutral),2,4,8
    virtual void take_input(PeakEaterResult _event, double _peak, double _rsi);
    virtual void take_input();
+   virtual void take_input(double _last_VA, double _V0,double _V1, double _V2,double _A0 ,double _A1,double _A2);
 
    void update_opened(bool _buy);
    void update_result(bool _profitable);
