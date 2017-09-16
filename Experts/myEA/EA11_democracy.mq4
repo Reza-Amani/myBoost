@@ -8,16 +8,16 @@
 #property version   "1.00"
 #property strict
 
-#include <MyHeaders\MyMath.mqh>
-#include <MyHeaders\Screen.mqh>
-#include <MyHeaders\Tools.mqh>
-#include <MyHeaders\MoneyManagement.mqh>
-#include <MyHeaders\StopLoss.mqh>
-#include <MyHeaders\TradeControl.mqh>
-#include <MyHeaders\PeakEater.mqh>
-#include <MyHeaders\PeakDigester.mqh>
-#include <MyHeaders\CritParabolicLover.mqh>
-#include <MyHeaders\CritPeakOrderer.mqh>
+#include <MyHeaders\Tools\MyMath.mqh>
+#include <MyHeaders\Tools\Screen.mqh>
+#include <MyHeaders\Tools\Tools.mqh>
+#include <MyHeaders\Operations\MoneyManagement.mqh>
+#include <MyHeaders\Operations\StopLoss.mqh>
+#include <MyHeaders\Operations\TradeControl.mqh>
+#include <MyHeaders\Operations\PeakEater.mqh>
+#include <MyHeaders\Crits\CritPeakDigester.mqh>
+#include <MyHeaders\Crits\CritParabolicLover.mqh>
+#include <MyHeaders\Crits\CritPeakOrderer.mqh>
 
 enum OpenAlgo
 {

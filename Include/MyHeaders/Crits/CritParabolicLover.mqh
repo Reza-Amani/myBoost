@@ -7,7 +7,7 @@
 #property link      "http://www.mql4.com"
 #property strict
 
-#include <MyHeaders\CriteriaBase.mqh>
+#include <MyHeaders\Crits\CriteriaBase.mqh>
 
 //+------------------------------------------------------------------+
 class ParabolicLover : public CriteriaBase

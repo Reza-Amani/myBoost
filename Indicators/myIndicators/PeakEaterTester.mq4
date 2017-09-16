@@ -12,8 +12,8 @@
 #property indicator_maximum 100
 #property indicator_minimum 0
 
-#include <MyHeaders\PeakEater.mqh>
-#include <MyHeaders\PeakDigester.mqh>
+#include <MyHeaders\Operations\PeakEater.mqh>
+#include <MyHeaders\Crits\CritPeakDigester.mqh>
 
 //--- indicator buffers
 double         Buffer_events[];

@@ -8,7 +8,7 @@
 #property version   "1.00"
 #property strict
 
-#include <MyHeaders\MyMath.mqh>
+#include <MyHeaders\Tools\MyMath.mqh>
 
 //+------------------------------------------------------------------+
 //|                                                                  |
