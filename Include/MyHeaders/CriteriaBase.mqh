@@ -28,6 +28,9 @@ private:
 public:
    CriteriaBase(int _base_weight);
    virtual double get_advice(bool _for_buy);	//virtual, 0(veto), 0.1,0.2,0.4,1(neutral),2,4,8
+   virtual void take_input(PeakEaterResult _event, double _peak, double _rsi);
+   virtual void take_input();
+
    void update_opened(bool _buy);
    void update_result(bool _profitable);
    int get_advice_percent();
