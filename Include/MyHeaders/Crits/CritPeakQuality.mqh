@@ -7,7 +7,7 @@
 #property link      "http://www.mql4.com"
 #property strict
 
-#include <MyHeaders\CriteriaBase.mqh>
+#include <MyHeaders\Crits\CriteriaBase.mqh>
 
 //+------------------------------------------------------------------+
 class PeakQuality : public CriteriaBase
@@ -40,7 +40,7 @@ double PeakQuality::get_advice(bool _for_buy)
       if(A1<70)
          desirability -= 1;
       if(A0==99)
-         desirability += 3
+         desirability += 3;
       else if(A0>90)
          desirability += 2;
       else if(A0>80)
@@ -63,7 +63,7 @@ double PeakQuality::get_advice(bool _for_buy)
       if(V1>30)
          desirability -= 1;
       if(V0==1)
-         desirability += 3
+         desirability += 3;
       else if(V0<10)
          desirability += 2;
       else if(V0<20)
@@ -75,4 +75,20 @@ double PeakQuality::get_advice(bool _for_buy)
       if(last_VA<A0+5 && last_VA>A0-25)
          desirability += 2;
    }
+   if(desirability>=5)
+      return 8;
+   else if(desirability>=3)
+      return 4;
+   else if(desirability>=1)
+      return 2;
+   else if(desirability>=0)
+      return 1;
+   else if(desirability>=-1)
+      return 0.4;
+   else if(desirability>=-3)
+      return 0.2;
+   else if(desirability>=-5)
+      return 0.1;
+   else 
+      return 0;
 }
