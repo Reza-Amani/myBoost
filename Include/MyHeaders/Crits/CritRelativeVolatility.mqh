@@ -15,47 +15,37 @@ class RelativeVolatility : public CriteriaBase
  private:
    int len;
  public:
-   RelativeVolatility(int _base_weight);
+   RelativeVolatility(int _base_weight, int _len);
    virtual double get_advice(bool _for_buy);	//virtual, 0(veto), 0.1,0.2,0.4,1(neutral),2,4,8
    virtual void take_input();
-   double get_volatility();
+   double get_volatility(int _shift);
 };
 RelativeVolatility::RelativeVolatility(int _base_weight, int _len):CriteriaBase(_base_weight),len(_len)
 {
 }
-double RelativeVolatility::get_volatility(void)
+double RelativeVolatility::get_volatility(int _shift)
 {
    int i;
-   double maxH=0,minL=100,aveSize=0;
-   for(i=0;i<len;i++)
+   double maxC=0,minC=100,aveSize=0;
+   for(i=_shift;i<len+_shift;i++)
    {
-      if(High[i]>maxH)
-         maxH=High[i];
-      if(Low[i]<minL)
-         minL=Low[i];
+      if(Close[i]>maxC)
+         maxC=Close[i];
+      if(Close[i]<minC)
+         minC=Close[i];
       aveSize+= High[i]-Low[i];
    }
    if(aveSize==0)
       return 0;
-   return volatility = len*(maxH-minL)/aveSize;
+   return len*(maxC-minC)/aveSize;
 }
 double RelativeVolatility::get_advice(bool _for_buy)
 {	//0(veto), 0.1,0.2,0.4,1(neutral),2,4,8
-   double volatility = get_volatility();
-   if(volatility>20)
-      return 4;
-   else if(volatility>10)
+   double volat = get_volatility(0);
+   if(volat>10)
       return 2;
-   else if(volatility>5)
-      return 1;
-   else if(volatility>3)
-      return 0.4;
-   else if(volatility>2)
-      return 0.2;
-   else if(volatility>1)
-      return 0.1;
    else 
-      return 0;
+      return 0.4;
 }
 void RelativeVolatility::take_input()
 {

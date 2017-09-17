@@ -9,6 +9,7 @@
 #property strict
 
 #include <MyHeaders\Tools\MyMath.mqh>
+#include <MyHeaders\Operations\PeakEater.mqh>
 
 //+------------------------------------------------------------------+
 //|                                                                  |

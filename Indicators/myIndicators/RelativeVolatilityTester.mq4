@@ -7,9 +7,9 @@
 #property strict
 #property indicator_separate_window
 #property indicator_level1 50
-#property indicator_buffers 3
-#property indicator_plots   3
-#property indicator_maximum 100
+#property indicator_buffers 1
+#property indicator_plots   1
+#property indicator_maximum 40
 #property indicator_minimum 0
 
 #include <MyHeaders\Crits\CritRelativeVolatility.mqh>
@@ -17,7 +17,7 @@
 //--- indicator buffers
 double         Buffer_volatility[];
 //-----------------inputs
-input int volatility_len=60;
+input int volatility_len=100;
 //-----------------objects
 RelativeVolatility volatility(1,volatility_len);
 //+------------------------------------------------------------------+
@@ -52,7 +52,7 @@ int OnCalculate(const int rates_total,
    if(counted_bars<0) return(-1);
       
    //--- position of the bar from which calculation in the loop starts
-   int limit=Bars-counted_bars;
+   int limit=Bars-counted_bars-volatility_len;
 
    //--- if counted_bars=0, reduce the starting position in the loop by 1,   
    if(counted_bars==0) 
@@ -65,39 +65,7 @@ int OnCalculate(const int rates_total,
    //--- the main calculation loop
    for (int i=limit; i>=0; i--)
    {
-      double rsi1 = iCustom(Symbol(), Period(),"myIndicators/scaledRSI", RSI_len ,0,i+0); 
-      
-      PeakEaterResult peaks_return;
-      double new_peak;
-      peaks_return = peaks.take_sample(rsi1,new_peak);
-      digester.take_input(peaks_return,new_peak,rsi1);
-
-      switch(peaks_return)
-      {
-         case RESULT_CONFIRM_A:
-            Buffer_events[i] = 90;
-            break;
-         case RESULT_CONFIRM_V:
-            Buffer_events[i] = 10;
-            break;
-         case RESULT_CANDIDATE_A:
-            Buffer_events[i] = 52;
-            break;
-         case RESULT_CANDIDATE_V:
-            Buffer_events[i] = 48;
-            break;
-         case RESULT_DENY_A:
-            Buffer_events[i] = 60;
-            break;
-         case RESULT_DENY_V:
-            Buffer_events[i] = 40;
-            break;
-         case RESULT_CONTINUE:
-            Buffer_events[i] = 50;
-            break;
-      }
-      Buffer_buy_dish[i] = digester.buy_dish;//10*digester.get_advice(true);
-      Buffer_sell_dish[i] = digester.sell_dish;//10*digester.get_advice(false);
+      Buffer_volatility[i]=volatility.get_volatility(i);
    }
 
 //--- return value of prev_calculated for next call
