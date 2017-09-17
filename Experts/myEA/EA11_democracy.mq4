@@ -18,6 +18,7 @@
 #include <MyHeaders\Crits\CritPeakDigester.mqh>
 #include <MyHeaders\Crits\CritParabolicLover.mqh>
 #include <MyHeaders\Crits\CritPeakOrderer.mqh>
+#include <MyHeaders\Crits\CritRelativeVolatility.mqh>
 
 enum OpenAlgo
 {
@@ -35,7 +36,8 @@ input CloseAlgo   close_algo=CLOSE_EARLY;
 input OpenAlgo    open_algo=OPEN_EARLY;
 input bool use_parabolic_lover=false;
 input bool use_digester=false;
-input bool use_orderer=true;
+input bool use_orderer=false;
+input bool use_volatility=true;
 input double   sl_SAR_step=0.01; 
 input double   lots_base = 1;
 //////////////////////////////parameters
@@ -49,6 +51,7 @@ PeakEater peaks();
 PeakDigester digester(1);
 ParabolicLover parabol(1,sl_SAR_step,0.2);
 PeakOrderer orderer(1);
+RelativeVolatility volatility(1,100);
 //int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
 //int outfilehandle=FileOpen("./tradefiles/data"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+"_"+IntegerToString(pattern_len)+"_"+IntegerToString(correlation_thresh)+".csv",FILE_WRITE|FILE_CSV,',');
 
@@ -57,7 +60,7 @@ PeakOrderer orderer(1);
 //+------------------------------------------------------------------+
 void check_for_open(PeakEaterResult _peaks_return, double _rsi1, double _new_peak)
 {
-   double order_q,digest_q,SAR_q,total_q;
+   double order_q,digest_q,SAR_q,volatility_q,total_q;
    switch(open_algo)
    {
       case OPEN_EARLY:
@@ -67,7 +70,8 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1, double _new_pea
                order_q = (use_orderer)? orderer.get_advice(false) : 1;
                digest_q = (use_digester)? digester.get_advice(false) : 1;
                SAR_q = (use_parabolic_lover)?parabol.get_advice(false) : 1;
-               total_q = order_q*digest_q*SAR_q;
+               volatility_q = (use_volatility)? volatility.get_advice(false) : 1;
+               total_q = order_q*digest_q*SAR_q*volatility_q;
                if(total_q>0)
                {
                   double sl = stop_loss.get_sl(false,Bid);
@@ -81,7 +85,8 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1, double _new_pea
                order_q = (use_orderer)? orderer.get_advice(true) : 1;
                digest_q = (use_digester)? digester.get_advice(true) : 1;
                SAR_q = (use_parabolic_lover)?parabol.get_advice(true) : 1;
-               total_q = order_q*digest_q*SAR_q;
+               volatility_q = (use_volatility)? volatility.get_advice(true) : 1;
+               total_q = order_q*digest_q*SAR_q*volatility_q;
                if(total_q>0)
                {
                   double sl = stop_loss.get_sl(true,Ask);
@@ -179,6 +184,7 @@ void OnTick()
       digester.take_input(peaks_return,new_peak,rsi1);
       parabol.take_input();
       orderer.take_input(new_peak ,peaks.V0,peaks.V1,peaks.V2,peaks.A0,peaks.A1,peaks.A2);
+      volatility.take_input();
       
       screen.clear_L5_comment();
       screen.add_L5_comment(peaks.get_report());
