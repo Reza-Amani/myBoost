@@ -7,7 +7,7 @@
 #property link      "http://www.mql4.com"
 #property strict
 
-#include <MyHeaders\CriteriaBase.mqh>
+#include <MyHeaders\Crits\CriteriaBase.mqh>
 
 //+------------------------------------------------------------------+
 class PeakDigester : public CriteriaBase
@@ -29,33 +29,33 @@ double PeakDigester::get_advice(bool _for_buy)
 {	//0(veto), 0.1,0.2,0.4,1(neutral),2,4,8
    if(_for_buy)
    {	//range of -2 .. +4
-      if(buy_dish>=60)
+      if(buy_dish>=45)
          return 4;
-      if(buy_dish>=50)
+      if(buy_dish>=35)
          return 2;
-      if(buy_dish>=40)
+      if(buy_dish>=25)
          return 1;
-      if(buy_dish>=30)
+      if(buy_dish>=15)
          return 0.4;
-      if(buy_dish>=20)
-         return 0.2;
       if(buy_dish>=10)
+         return 0.2;
+      if(buy_dish>=5)
          return 0.1;
       return 0;
    }
    else
    {	//range of -2 .. +4
-      if(sell_dish>=60)
+      if(sell_dish>=45)
          return 4;
-      if(sell_dish>=50)
+      if(sell_dish>=35)
          return 2;
-      if(sell_dish>=40)
+      if(sell_dish>=25)
          return 1;
-      if(sell_dish>=30)
+      if(sell_dish>=15)
          return 0.4;
-      if(sell_dish>=20)
-         return 0.2;
       if(sell_dish>=10)
+         return 0.2;
+      if(sell_dish>=5)
          return 0.1;
       return 0;
    }

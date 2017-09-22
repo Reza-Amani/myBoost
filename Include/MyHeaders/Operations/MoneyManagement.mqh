@@ -7,7 +7,7 @@
 #property link      "http://www.mql4.com"
 #property strict
 
-#include <MyHeaders\MyMath.mqh>
+#include <MyHeaders\Tools\MyMath.mqh>
 //+------------------------------------------------------------------+
 class MoneyManagement
 {

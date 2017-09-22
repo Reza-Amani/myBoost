@@ -33,15 +33,12 @@ class PeakEater
    double get_threshold_V(double _local_max);
    void record_A(double _local_max);
    void record_V(double _local_min);
-   double V0,V1,V2,A0,A1,A2;
    double prev_sample;
  public:
+   double V0,V1,V2,A0,A1,A2;
    PeakEater();
    PeakEaterResult take_sample(double _rsi, double& _new_peak);
    string get_report();
-   int get_buy_peak_order_quality();   	//range of -2 .. +4
-   int get_sell_peak_order_quality();
-  
 };
 PeakEater::PeakEater():status(STATUS_RISING),V0(-1),V1(-1),V2(-1),A0(-1),A1(-1),A2(-1),local_max(0),local_min(100),prev_sample(50)
 {
@@ -140,9 +137,9 @@ double PeakEater::get_threshold_A(double _local_max)
 	if(_local_max>70)
 		return _local_max-20;
 	if(_local_max>50)
-		return _local_max-15;
+		return _local_max-12;
 	if(_local_max>30)
-		return _local_max-10;
+		return _local_max-8;
 	else
 		return 0;
 }
@@ -151,9 +148,9 @@ double PeakEater::get_threshold_V(double _local_min)
 	if(_local_min<30)
 		return _local_min+20;
 	if(_local_min<50)
-		return _local_min+15;
+		return _local_min+12;
 	if(_local_min<70)
-		return _local_min+10;
+		return _local_min+8;
 	else
 		return 100;
 }
@@ -174,46 +171,4 @@ string PeakEater::get_report()
 	string str="";
 	str+="DBG: PeakEater: V2="+IntegerToString((int)V2)+" A2="+IntegerToString((int)A2)+" V1="+IntegerToString((int)V1)+" A1="+IntegerToString((int)A1)+" V0="+IntegerToString((int)V0)+" A0="+IntegerToString((int)A0);
 	return str;
-}
-int PeakEater::get_buy_peak_order_quality()
-{	//range of -2 .. +4
-	int desirability = 0;
-	if(local_min>=V0)
-	{
-		desirability ++;
-		if(V0>=V1)
-			desirability ++;
-	}
-	else
-		desirability --;
-	if(A0>=A1)
-	{
-		desirability ++;
-		if(A1>=A2)
-			desirability ++;
-	}
-	else
-		desirability --;
-	return desirability;
-}
-int PeakEater::get_sell_peak_order_quality()
-{	//range of -2 .. +4
-	int desirability = 0;
-	if(local_max<=A0)
-	{
-		desirability ++;
-		if(A0<=A1)
-			desirability ++;
-	}
-	else
-		desirability --;
-	if(V0<=V1)
-	{
-		desirability ++;
-		if(V1<=V2)
-			desirability ++;
-	}
-	else
-		desirability --;
-	return desirability;
 }

@@ -7,7 +7,7 @@
 #property link      "https://www.mql5.com"
 #property strict
 
-#include <MyHeaders\Tools.mqh>
+#include <MyHeaders\Tools\Tools.mqh>
 
 /////////////////////////////////////////////////////////////////class
 class MyMath
