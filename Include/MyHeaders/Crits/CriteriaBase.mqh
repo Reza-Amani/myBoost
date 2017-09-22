@@ -22,7 +22,6 @@ private:
 	int did_agree;
 	double accumulated_advice;
 	double net_good_advice;
-	int signed_advice(double _advice);	//re-scale the advice to -10(veto),-4,-2,-1,0,1,2,4
 
 	MyMath math;
 
@@ -37,6 +36,7 @@ public:
    void update_result(bool _profitable);
    int get_advice_percent();
    string get_report();
+	int signed_advice(double _advice);	//re-scale the advice to -5(veto),-4,-2,-1,0,1,2,4
 };
 //+------------------------------------------------------------------+
 //|                                                                  |
@@ -50,25 +50,25 @@ void CriteriaBase::update_opened(bool _buy)
 	did_agree = signed_advice(get_advice(_buy));
 }
 int CriteriaBase::signed_advice(double _advice)
-{	//re-scale the advice to -10(veto),-4,-2,-1,0,1,2,4
+{	//re-scale the advice to -5(veto),-4,-2,-1,0,1,2,4
 	if(_advice==0)
-		return -10;
-	if(_advice==0.1)
+		return -5;
+	if(_advice<=0.1)
 		return -4;
-	if(_advice==0.2)
+	if(_advice<=0.2)
 		return -2;
-	if(_advice==0.4)
+	if(_advice<=0.4)
 		return -1;
-	if(_advice==1)
+	if(_advice<=1)
 		return 0;
-	if(_advice==2)
+	if(_advice<=2)
 		return +1;
-	if(_advice==4)
+	if(_advice<=4)
 		return +2;
-	if(_advice==8)
+	if(_advice<=8)
 		return +4;
 	else
-		return -5;	//unknown advice
+		return -6;	//unknown advice
 }
 void CriteriaBase::update_result(bool _profitable)
 {	//compare to the suggestion and update the ongoing result and dynamic weight
