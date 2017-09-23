@@ -33,6 +33,7 @@ PeakOrderer orderer(1);
 PeakQuality peak_quality(1);
 RelativeVolatility volatility(1,100);
 //-----------------inputs
+input bool for_buy=true;
 input int RSI_len=28;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
@@ -83,10 +84,10 @@ int OnCalculate(const int rates_total,
    //--- if counted_bars=0, reduce the starting position in the loop by 1,   
    if(counted_bars==0) 
    {
-      limit--;  // to avoid the array out of range problem when counted_bars==0
+      limit-=2;  // to avoid the array out of range problem when counted_bars==0
    }
-//   else //--- the indicator has been already calculated, counted_bars>0
-//      limit++;//--- for repeated calls increase limit by 1 to update the indicator values for the last bar
+   else //--- the indicator has been already calculated, counted_bars>0
+      limit--;//--- for repeated calls increase limit by 1 to update the indicator values for the last bar
    
    //--- the main calculation loop
    for (int i=limit; i>=0; i--)
@@ -98,11 +99,23 @@ int OnCalculate(const int rates_total,
       
       //-----------------------------------------------------------------------------------------------------------------charging Crits
       digester.take_input(peaks_return,new_peak,rsi1);
-      parabol.take_input();
+      parabol.take_input(i);
       orderer.take_input(new_peak ,peaks.V0,peaks.V1,peaks.V2,peaks.A0,peaks.A1,peaks.A2);
       volatility.take_input();
       peak_quality.take_input(new_peak ,peaks.V0,peaks.V1,peaks.V2,peaks.A0,peaks.A1,peaks.A2);
       
+/*      Buffer_digester[i]=parabol.signed_advice(parabol.get_advice(for_buy,i));
+      Buffer_parabolic[i]=parabol.signed_advice(parabol.get_advice(for_buy,i));
+      Buffer_orderer[i]=parabol.signed_advice(parabol.get_advice(for_buy,i));
+      Buffer_volatility[i]=parabol.signed_advice(parabol.get_advice(for_buy,i));
+      Buffer_quality[i]=parabol.signed_advice(parabol.get_advice(for_buy,i));
+*/
+      Buffer_digester[i]=digester.signed_advice(digester.get_advice(for_buy));
+      Buffer_parabolic[i]=parabol.signed_advice(parabol.get_advice(for_buy,i));
+      Buffer_orderer[i]=orderer.signed_advice(orderer.get_advice(for_buy));
+      Buffer_volatility[i]=volatility.signed_advice(volatility.get_advice(for_buy));
+      Buffer_quality[i]=peak_quality.signed_advice(peak_quality.get_advice(for_buy));
+
    }
 
 //--- return value of prev_calculated for next call
