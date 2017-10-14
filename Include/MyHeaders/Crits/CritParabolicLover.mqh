@@ -18,8 +18,8 @@ class ParabolicLover : public CriteriaBase
    double last_SAR;
  public:
    ParabolicLover(int _base_weight,double _step, double _max);
-   virtual double get_advice(bool _for_buy);	//virtual, 0(veto), 0.1,0.2,0.4,1(neutral),2,4,8
-   virtual void take_input();
+   virtual double get_advice(bool _for_buy, int i);	//virtual, 0(veto), 0.1,0.2,0.4,1(neutral),2,4,8
+   virtual void take_input(int i);
    
 //   void take_event(PeakEaterResult _event, double _recent_peak, double _rsi);
 };
@@ -28,14 +28,14 @@ ParabolicLover::ParabolicLover(int _base_weight,double _step, double _max):Crite
    bars_from_last_flip=0;
    last_SAR = iSAR(NULL,0, step, max, 0);
 }
-double ParabolicLover::get_advice(bool _for_buy)
+double ParabolicLover::get_advice(bool _for_buy, int i)
 {	//0(veto), 0.1,0.2,0.4,1(neutral),2,4,8
-   double SAR = iSAR(NULL,0, step, max, 0);
+   double SAR = iSAR(NULL,0, step, max, i+0);
    if(_for_buy)
-      if(SAR>Open[0])
+      if(SAR>Open[i+0])
          return 0.1;    //Veto?
    if(!_for_buy)
-      if(SAR<Open[0])
+      if(SAR<Open[i+0])
          return 0.1;    //Veto?
    if(bars_from_last_flip>20)
       return 0.2;
@@ -48,10 +48,10 @@ double ParabolicLover::get_advice(bool _for_buy)
    else
       return 4;
 }
-void ParabolicLover::take_input()
+void ParabolicLover::take_input(int i)
 {
-   double SAR = iSAR(NULL,0, step, max, 0);
-   if((SAR>Open[0] && last_SAR>Open[1]) || (SAR<Open[0] && last_SAR<Open[1])) //no change
+   double SAR = iSAR(NULL,0, step, max, i+0);
+   if((SAR>Open[i+0] && last_SAR>Open[i+1]) || (SAR<Open[i+0] && last_SAR<Open[i+1])) //no change
       bars_from_last_flip++;
    else
       bars_from_last_flip=0;

@@ -72,7 +72,7 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1, double _new_pea
             case RESULT_CANDIDATE_A:
                order_q = (use_orderer)? orderer.get_advice(false) : 1;
                digest_q = (use_digester)? digester.get_advice(false) : 1;
-               SAR_q = (use_parabolic_lover)? parabol.get_advice(false) : 1;
+               SAR_q = (use_parabolic_lover)? parabol.get_advice(false,0) : 1;
                volatility_q = (use_volatility)? volatility.get_advice(false) : 1;
                peak_q = (use_peak_q)? peak_quality.get_advice(false) : 1;
                total_q = order_q*digest_q*SAR_q*peak_q*volatility_q;
@@ -88,7 +88,7 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1, double _new_pea
             case RESULT_CANDIDATE_V:
                order_q = (use_orderer)? orderer.get_advice(true) : 1;
                digest_q = (use_digester)? digester.get_advice(true) : 1;
-               SAR_q = (use_parabolic_lover)?parabol.get_advice(true) : 1;
+               SAR_q = (use_parabolic_lover)?parabol.get_advice(true,0) : 1;
                volatility_q = (use_volatility)? volatility.get_advice(true) : 1;
                peak_q = (use_peak_q)? peak_quality.get_advice(false) : 1;
                total_q = order_q*digest_q*SAR_q*peak_q*volatility_q;
@@ -187,7 +187,7 @@ void OnTick()
       
       //-----------------------------------------------------------------------------------------------------------------charging Crits
       digester.take_input(peaks_return,new_peak,rsi1);
-      parabol.take_input();
+      parabol.take_input(0);
       orderer.take_input(new_peak ,peaks.V0,peaks.V1,peaks.V2,peaks.A0,peaks.A1,peaks.A2);
       volatility.take_input();
       peak_quality.take_input(new_peak ,peaks.V0,peaks.V1,peaks.V2,peaks.A0,peaks.A1,peaks.A2);
