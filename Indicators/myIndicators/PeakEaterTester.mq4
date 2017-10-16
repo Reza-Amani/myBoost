@@ -19,11 +19,12 @@
 double         Buffer_events[];
 double         Buffer_buy_dish[];
 double         Buffer_sell_dish[];
-//-----------------macros
-PeakEater peaks();
-PeakDigester digester(1);
 //-----------------inputs
 input int RSI_len=28;
+input bool fast_peak=true;
+//-----------------macros
+PeakEater peaks(fast_peak);
+PeakDigester digester(1);
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+

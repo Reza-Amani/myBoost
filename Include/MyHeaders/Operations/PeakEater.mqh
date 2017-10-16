@@ -36,101 +36,137 @@ class PeakEater
    double prev_sample;
  public:
    double V0,V1,V2,A0,A1,A2;
-   PeakEater();
+   bool fast_peak;
+   PeakEater(bool _fast_peak);
    PeakEaterResult take_sample(double _rsi, double& _new_peak);
    string get_report();
 };
-PeakEater::PeakEater():status(STATUS_RISING),V0(-1),V1(-1),V2(-1),A0(-1),A1(-1),A2(-1),local_max(0),local_min(100),prev_sample(50)
+PeakEater::PeakEater(bool _fast_peak):status(STATUS_RISING),V0(-1),V1(-1),V2(-1),A0(-1),A1(-1),A2(-1),local_max(0),local_min(100),prev_sample(50),fast_peak(_fast_peak)
 {
 }
 PeakEaterResult PeakEater::take_sample(double _rsi, double& _new_peak)
 {
    double rsi1=prev_sample;
    prev_sample=_rsi;
-	switch(status)
-	{
-		case STATUS_RISING:
-			if(_rsi>=local_max)	//still rising
-			{
-				local_max=_rsi;
-				_new_peak = _rsi;
-				return RESULT_CONTINUE;
-			}
-			else		//step down from local_max
-			{
-				status = STATUS_RISING_STEPDOWN;
-				_new_peak = local_max;
-				return RESULT_CANDIDATE_A;
-			}
-			break;
-		case STATUS_RISING_STEPDOWN:
-			if(_rsi<get_threshold_A(local_max))	//already droppped enough
-			{
-				record_A(local_max);	//report and record the new A
-				status = STATUS_FALLING;
-				local_min = _rsi;
-				_new_peak = local_max;
-				return RESULT_CONFIRM_A;
-			}
-			else 
-			if(_rsi<=local_max)
-			{
-				_new_peak = local_max;
-				if(_rsi<rsi1)
+   if(fast_peak)
+   	switch(status)
+   	{
+   		case STATUS_RISING:
+   			if(_rsi>=local_max)	//still rising
+   			{
+   				local_max=_rsi;
+   				_new_peak = _rsi;
+   				return RESULT_CONTINUE;
+   			}
+   			else		//step down from local_max
+   			{
+   				status = STATUS_FALLING;
+   				_new_peak = local_max;
+   				return RESULT_CONFIRM_A;
+   			}
+   			break;
+   		case STATUS_FALLING:
+   			if(_rsi<=local_max)	//still falling
+   			{
+   				local_max=_rsi;
+   				_new_peak = _rsi;
+   				return RESULT_CONTINUE;
+   			}
+   			else		//step down from local_max
+   			{
+   				status = STATUS_RISING;
+   				_new_peak = local_max;
+   				return RESULT_CONFIRM_V;
+   			}
+   			break;
+   		default:
+   		   return RESULT_CONTINUE;
+   	}
+	else
+   	switch(status)
+   	{
+   		case STATUS_RISING:
+   			if(_rsi>=local_max)	//still rising
+   			{
+   				local_max=_rsi;
+   				_new_peak = _rsi;
+   				return RESULT_CONTINUE;
+   			}
+   			else		//step down from local_max
+   			{
+   				status = STATUS_RISING_STEPDOWN;
+   				_new_peak = local_max;
    				return RESULT_CANDIDATE_A;
-   		   else
-   		      return RESULT_CONTINUE;
-			}
-			else
-			{
-  				status = STATUS_RISING;
-  				_new_peak=local_max; //send the local max instead of new peak, to check over 70 
-				local_max=_rsi;
-				return RESULT_DENY_A;
-			}
-			break;
-		case STATUS_FALLING_STEPUP:
-			if(_rsi>get_threshold_V(local_min))	//already rose enough
-			{
-				record_V(local_min);	//report and record the new V
-				status = STATUS_RISING;
-				local_max = _rsi;
-				_new_peak = local_min;
-				return RESULT_CONFIRM_V;
-			}
-			else 
-			if(_rsi>=local_min)
-			{
-			   _new_peak = local_min;
-				if(_rsi>rsi1)
+   			}
+   			break;
+   		case STATUS_RISING_STEPDOWN:
+   			if(_rsi<get_threshold_A(local_max))	//already droppped enough
+   			{
+   				record_A(local_max);	//report and record the new A
+   				status = STATUS_FALLING;
+   				local_min = _rsi;
+   				_new_peak = local_max;
+   				return RESULT_CONFIRM_A;
+   			}
+   			else 
+   			if(_rsi<=local_max)
+   			{
+   				_new_peak = local_max;
+   				if(_rsi<rsi1)
+      				return RESULT_CANDIDATE_A;
+      		   else
+      		      return RESULT_CONTINUE;
+   			}
+   			else
+   			{
+     				status = STATUS_RISING;
+     				_new_peak=local_max; //send the local max instead of new peak, to check over 70 
+   				local_max=_rsi;
+   				return RESULT_DENY_A;
+   			}
+   			break;
+   		case STATUS_FALLING_STEPUP:
+   			if(_rsi>get_threshold_V(local_min))	//already rose enough
+   			{
+   				record_V(local_min);	//report and record the new V
+   				status = STATUS_RISING;
+   				local_max = _rsi;
+   				_new_peak = local_min;
+   				return RESULT_CONFIRM_V;
+   			}
+   			else 
+   			if(_rsi>=local_min)
+   			{
+   			   _new_peak = local_min;
+   				if(_rsi>rsi1)
+      				return RESULT_CANDIDATE_V;
+      		   else
+      		      return RESULT_CONTINUE;
+   			}
+   			else
+   			{
+     				status = STATUS_FALLING;
+     				_new_peak=local_min; //send the local min instead of new peak, to check under 30 
+   				local_min=_rsi;
+   				return RESULT_DENY_V;
+   			}
+   			break;
+   		case STATUS_FALLING:
+   			if(_rsi<=local_min)	//still falling
+   			{
+   				local_min=_rsi;
+   				_new_peak=_rsi;
+   				return RESULT_CONTINUE;
+   			}
+   			else		//step up from local_min
+   			{
+   				status = STATUS_FALLING_STEPUP;
    				return RESULT_CANDIDATE_V;
-   		   else
-   		      return RESULT_CONTINUE;
-			}
-			else
-			{
-  				status = STATUS_FALLING;
-  				_new_peak=local_min; //send the local min instead of new peak, to check under 30 
-				local_min=_rsi;
-				return RESULT_DENY_V;
-			}
-			break;
-		case STATUS_FALLING:
-			if(_rsi<=local_min)	//still falling
-			{
-				local_min=_rsi;
-				_new_peak=_rsi;
-				return RESULT_CONTINUE;
-			}
-			else		//step up from local_min
-			{
-				status = STATUS_FALLING_STEPUP;
-				return RESULT_CANDIDATE_V;
-			}
-			break;
-		default:
-		   return RESULT_CONTINUE;
-	}
+   			}
+   			break;
+   		default:
+   		   return RESULT_CONTINUE;
+   	}
 }
 double PeakEater::get_threshold_A(double _local_max)
 {

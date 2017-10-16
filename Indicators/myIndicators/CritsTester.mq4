@@ -7,8 +7,8 @@
 #property strict
 #property indicator_separate_window
 #property indicator_level1 0
-#property indicator_buffers 5
-#property indicator_plots   5
+#property indicator_buffers 6
+#property indicator_plots   6
 #property indicator_maximum +5
 #property indicator_minimum -5
 
@@ -18,6 +18,7 @@
 #include <MyHeaders\Crits\CritPeakOrderer.mqh>
 #include <MyHeaders\Crits\CritPeakQuality.mqh>
 #include <MyHeaders\Crits\CritRelativeVolatility.mqh>
+#include <MyHeaders\Crits\CritPeakSimple.mqh>
 
 //--- indicator buffers
 double         Buffer_digester[];
@@ -25,16 +26,19 @@ double         Buffer_parabolic[];
 double         Buffer_orderer[];
 double         Buffer_quality[];
 double         Buffer_volatility[];
+double         Buffer_simple[];
+//-----------------inputs
+input bool for_buy=true;
+input int RSI_len=28;
+input bool fast_peak=true;
 //-----------------macros
-PeakEater peaks();
+PeakEater peaks(fast_peak);
 PeakDigester digester(1);
 ParabolicLover parabol(1,0.01,0.2);
 PeakOrderer orderer(1);
 PeakQuality peak_quality(1);
 RelativeVolatility volatility(1,100);
-//-----------------inputs
-input bool for_buy=true;
-input int RSI_len=28;
+PeakSimple simple(1);
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
@@ -56,6 +60,9 @@ int OnInit()
    SetIndexStyle(4, DRAW_LINE, STYLE_SOLID, 1, clrOlive);
    SetIndexBuffer(4,Buffer_volatility);
    SetIndexLabel(4 ,"volatility");   
+   SetIndexStyle(5, DRAW_LINE, STYLE_SOLID, 1, clrRed);
+   SetIndexBuffer(5,Buffer_simple);
+   SetIndexLabel(5 ,"simple");   
 //---
    return(INIT_SUCCEEDED);
   }
@@ -103,6 +110,7 @@ int OnCalculate(const int rates_total,
       orderer.take_input(new_peak ,peaks.V0,peaks.V1,peaks.V2,peaks.A0,peaks.A1,peaks.A2);
       volatility.take_input();
       peak_quality.take_input(new_peak ,peaks.V0,peaks.V1,peaks.V2,peaks.A0,peaks.A1,peaks.A2);
+      simple.take_input(new_peak ,peaks.V0,peaks.V1,peaks.V2,peaks.A0,peaks.A1,peaks.A2);
       
 /*      Buffer_digester[i]=parabol.signed_advice(parabol.get_advice(for_buy,i));
       Buffer_parabolic[i]=parabol.signed_advice(parabol.get_advice(for_buy,i));
@@ -115,6 +123,7 @@ int OnCalculate(const int rates_total,
       Buffer_orderer[i]=orderer.signed_advice(orderer.get_advice(for_buy));
       Buffer_volatility[i]=volatility.signed_advice(volatility.get_advice(for_buy));
       Buffer_quality[i]=peak_quality.signed_advice(peak_quality.get_advice(for_buy));
+      Buffer_simple[i]=simple.signed_advice(peak_quality.get_advice(for_buy));
 
    }
 
