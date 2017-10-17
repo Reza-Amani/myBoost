@@ -68,7 +68,7 @@ PeakEaterResult PeakEater::take_sample(double _rsi, double& _new_peak)
    			}
    			break;
    		case STATUS_FALLING:
-   			if(_rsi<=local_max)	//still falling
+   			if(_rsi<=local_min)	//still falling
    			{
    				local_min=_rsi;
    				_new_peak = _rsi;

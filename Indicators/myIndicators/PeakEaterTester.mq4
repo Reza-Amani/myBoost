@@ -70,8 +70,8 @@ int OnCalculate(const int rates_total,
    {
       limit--;  // to avoid the array out of range problem when counted_bars==0
    }
-//   else //--- the indicator has been already calculated, counted_bars>0
-//      limit++;//--- for repeated calls increase limit by 1 to update the indicator values for the last bar
+   else //--- the indicator has been already calculated, counted_bars>0
+      limit++;//--- for repeated calls increase limit by 1 to update the indicator values for the last bar
    
    //--- the main calculation loop
    for (int i=limit; i>=0; i--)

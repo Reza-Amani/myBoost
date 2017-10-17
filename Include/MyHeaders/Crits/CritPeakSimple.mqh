@@ -31,32 +31,26 @@ double PeakSimple::get_advice(bool _for_buy)
 	int desirability = 0;
    if(_for_buy)
    {
-   	if(last_VA>=V0)
+   	if(V0>=V1)
    		desirability ++;
-   	if(last_VA<50)
-   		desirability ++;
-   	if(A0>=80)
+   	if(A0>=70)
    		desirability ++;
    }
    if(!_for_buy)
    {
-   	if(last_VA<=A0)
+   	if(A0<=A1)
    		desirability ++;
-   	if(last_VA>50)
-   		desirability ++;
-   	if(V0<=20)
+   	if(V0<=30)
    		desirability ++;
    }
-   return desirability;
    switch(desirability)
    {
       default:
       case 0:
       case 1:
-      case 2:
          return 0;
          break;
-      case 3:
+      case 2:
          return 1;
          break;
    }
