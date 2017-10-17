@@ -47,15 +47,15 @@ double PeakSimple::get_advice(bool _for_buy)
    	if(V0<=20)
    		desirability ++;
    }
-   
+   return desirability;
    switch(desirability)
    {
       default:
       case 0:
       case 1:
+      case 2:
          return 0;
          break;
-      case 2:
       case 3:
          return 1;
          break;

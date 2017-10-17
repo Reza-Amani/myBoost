@@ -62,20 +62,24 @@ PeakEaterResult PeakEater::take_sample(double _rsi, double& _new_peak)
    			{
    				status = STATUS_FALLING;
    				_new_peak = local_max;
+   				record_A(local_max);	//report and record the new A
+   				local_min = _rsi;
    				return RESULT_CONFIRM_A;
    			}
    			break;
    		case STATUS_FALLING:
    			if(_rsi<=local_max)	//still falling
    			{
-   				local_max=_rsi;
+   				local_min=_rsi;
    				_new_peak = _rsi;
    				return RESULT_CONTINUE;
    			}
    			else		//step down from local_max
    			{
    				status = STATUS_RISING;
-   				_new_peak = local_max;
+   				_new_peak = local_min;
+   				record_V(local_min);	//report and record the new V
+   				local_max = _rsi;
    				return RESULT_CONFIRM_V;
    			}
    			break;

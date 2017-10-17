@@ -118,12 +118,12 @@ int OnCalculate(const int rates_total,
       Buffer_volatility[i]=parabol.signed_advice(parabol.get_advice(for_buy,i));
       Buffer_quality[i]=parabol.signed_advice(parabol.get_advice(for_buy,i));
 */
-      Buffer_digester[i]=digester.signed_advice(digester.get_advice(for_buy));
-      Buffer_parabolic[i]=parabol.signed_advice(parabol.get_advice(for_buy,i));
-      Buffer_orderer[i]=orderer.signed_advice(orderer.get_advice(for_buy));
-      Buffer_volatility[i]=volatility.signed_advice(volatility.get_advice(for_buy));
-      Buffer_quality[i]=peak_quality.signed_advice(peak_quality.get_advice(for_buy));
-      Buffer_simple[i]=simple.signed_advice(peak_quality.get_advice(for_buy));
+      Buffer_digester[i]=0;//digester.signed_advice(digester.get_advice(for_buy));
+      Buffer_parabolic[i]=0;//parabol.signed_advice(parabol.get_advice(for_buy,i));
+      Buffer_orderer[i]=0;//orderer.signed_advice(orderer.get_advice(for_buy));
+      Buffer_volatility[i]=0;//volatility.signed_advice(volatility.get_advice(for_buy));
+      Buffer_quality[i]=0;//peak_quality.signed_advice(peak_quality.get_advice(for_buy));
+      Buffer_simple[i]=/*simple.signed_advice*/(simple.get_advice(for_buy));
 
    }
 
