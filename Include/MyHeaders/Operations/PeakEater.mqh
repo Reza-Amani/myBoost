@@ -31,13 +31,13 @@ class PeakEater
  public:
    double V0,V1,V2,A0,A1,A2;
    PeakEater();
-   PeakEaterResult take_sample(double _rsi, double& _new_peak);
+   PeakEaterResult take_sample(double _rsi);
    string get_report();
 };
 PeakEater::PeakEater():status(STATUS_RISING),V0(-1),V1(-1),V2(-1),A0(-1),A1(-1),A2(-1),local_max(0),local_min(100),prev_sample(50)
 {
 }
-PeakEaterResult PeakEater::take_sample(double _rsi, double& _new_peak)
+PeakEaterResult PeakEater::take_sample(double _rsi)
 {
    double rsi1=prev_sample;
    prev_sample=_rsi;
@@ -47,13 +47,11 @@ PeakEaterResult PeakEater::take_sample(double _rsi, double& _new_peak)
 			if(_rsi>=local_max)	//still rising
 			{
 				local_max=_rsi;
-				_new_peak = _rsi;
 				return RESULT_CONTINUE;
 			}
 			else		//step down from local_max
 			{
 				status = STATUS_FALLING;
-				_new_peak = local_max;
 				record_A(local_max);	//report and record the new A
 				local_min = _rsi;
 				return RESULT_CONFIRM_A;
@@ -63,13 +61,11 @@ PeakEaterResult PeakEater::take_sample(double _rsi, double& _new_peak)
 			if(_rsi<=local_min)	//still falling
 			{
 				local_min=_rsi;
-				_new_peak = _rsi;
 				return RESULT_CONTINUE;
 			}
 			else		//step down from local_max
 			{
 				status = STATUS_RISING;
-				_new_peak = local_min;
 				record_V(local_min);	//report and record the new V
 				local_max = _rsi;
 				return RESULT_CONFIRM_V;
