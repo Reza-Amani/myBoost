@@ -113,13 +113,6 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1)
    
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void trailing_sl(bool _for_buy)
-{
-   double new_sl=stop_loss.get_sl(_for_buy,Close[0]);
-   if(new_sl>0)
-      trade.edit_sl(new_sl);
-}
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void  check_for_close()
 {  //returns 1 if closes the trade to return to base state
    //0 if the position remains still
@@ -200,7 +193,12 @@ void OnTick()
       
       if(trade.have_open_trade())
       {
-         trailing_sl(trade.is_buy_trade());  
+         double new_sl=stop_loss.get_sl(trade.is_buy_trade(),Close[0]);
+         double new_tp=take_profit.get_tp(trade.is_buy_trade(),new_sl,Close[0]);
+         if(new_sl>0)
+            trade.edit_sl(new_sl);
+         if(new_tp>0)
+            trade.edit_tp(new_tp);
          check_for_close();
       }
       if(!trade.have_open_trade())
