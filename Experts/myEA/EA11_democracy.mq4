@@ -13,6 +13,7 @@
 #include <MyHeaders\Tools\Tools.mqh>
 #include <MyHeaders\Operations\MoneyManagement.mqh>
 #include <MyHeaders\Operations\StopLoss.mqh>
+#include <MyHeaders\Operations\TakeProfit.mqh>
 #include <MyHeaders\Operations\TradeControl.mqh>
 #include <MyHeaders\Operations\PeakEater.mqh>
 #include <MyHeaders\Crits\CritParabolicLover.mqh>
@@ -36,6 +37,8 @@ input OpenAlgo    open_algo=OPEN_EARLY;
 input bool use_parabolic_lover=false;
 input bool use_volatility=false;
 input bool use_simpler=true;
+input bool set_sl=true;
+input double tp_factor_sl=2;
 input double   sl_SAR_step=0.01; 
 input double   lots_base = 1;
 //////////////////////////////parameters
@@ -44,6 +47,7 @@ Screen screen;
 MyMath math;
 MoneyManagement money(lots_base);
 StopLoss stop_loss(sl_SAR_step, 0.2);
+TakeProfit take_profit(tp_factor_sl);
 TradeControl trade();
 PeakEater peaks();
 ParabolicLover parabol(1,sl_SAR_step,0.2);
@@ -71,10 +75,16 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1)
                if(total_q>0)
                {
                   double sl = stop_loss.get_sl(false,Bid);
+                  double tp = take_profit.get_tp(false,sl,Bid);
                   double equity=AccountEquity();
                   double lots = total_q;//money.get_lots(lots_base*total_q,Ask,sl,equity);
-                  if(sl>0)
-                     trade.sell(lots,sl,0);
+                  if(set_sl)
+                  {
+                     if(sl>0)
+                        trade.sell(lots,sl,tp);
+                  }
+                  else
+                     trade.sell(lots,0,0);
                }
                break;
             case RESULT_CONFIRM_V:
@@ -85,10 +95,16 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1)
                if(total_q>0)
                {
                   double sl = stop_loss.get_sl(true,Ask);
+                  double tp = take_profit.get_tp(true,sl,Ask);
                   double  equity=AccountEquity();
                   double lots = total_q;//money.get_lots(lots_base*total_q,Ask,sl,equity);
-                  if(sl>0)
-                     trade.buy(lots,sl,0);
+                  if(set_sl)
+                  {
+                     if(sl>0)
+                        trade.buy(lots,sl,tp);
+                  }
+                  else
+                     trade.sell(lots,0,0);
                }
                break;
          }
