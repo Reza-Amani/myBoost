@@ -65,8 +65,6 @@ void PeakDigester::take_input(PeakEaterResult _event, double _peak, double _rsi)
 	switch(_event)
 	{
 	   case RESULT_CONTINUE:
-	   case RESULT_CANDIDATE_V:
-	   case RESULT_CANDIDATE_A:
 	      if(_rsi>40 && _rsi<60)
    		   decay_dishes();
 			break;
@@ -81,13 +79,6 @@ void PeakDigester::take_input(PeakEaterResult _event, double _peak, double _rsi)
 		      take_new_bite_sell(2*(40-_peak));
 		   if(_peak==1)
 		      take_new_bite_buy(0);
-			break;
-		case RESULT_DENY_A:
-		case RESULT_DENY_V:
-		   if(_peak>30)
-   		   take_new_bite_sell(0);
-		   if(_peak<70)
-   		   take_new_bite_buy(0);
 			break;
 	}
 }

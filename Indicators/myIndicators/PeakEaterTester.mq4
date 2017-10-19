@@ -21,9 +21,8 @@ double         Buffer_buy_dish[];
 double         Buffer_sell_dish[];
 //-----------------inputs
 input int RSI_len=28;
-input bool fast_peak=true;
 //-----------------macros
-PeakEater peaks(fast_peak);
+PeakEater peaks();
 PeakDigester digester(1);
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
@@ -90,21 +89,6 @@ int OnCalculate(const int rates_total,
             break;
          case RESULT_CONFIRM_V:
             Buffer_events[i] = 10;
-            break;
-         case RESULT_CANDIDATE_A:
-            Buffer_events[i] = 52;
-            break;
-         case RESULT_CANDIDATE_V:
-            Buffer_events[i] = 48;
-            break;
-         case RESULT_DENY_A:
-            Buffer_events[i] = 60;
-            break;
-         case RESULT_DENY_V:
-            Buffer_events[i] = 40;
-            break;
-         case RESULT_CONTINUE:
-            Buffer_events[i] = 50;
             break;
       }
       Buffer_buy_dish[i] = digester.buy_dish;//10*digester.get_advice(true);

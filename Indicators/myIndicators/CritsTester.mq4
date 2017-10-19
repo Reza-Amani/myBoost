@@ -30,9 +30,8 @@ double         Buffer_simple[];
 //-----------------inputs
 input bool for_buy=true;
 input int RSI_len=28;
-input bool fast_peak=true;
 //-----------------macros
-PeakEater peaks(fast_peak);
+PeakEater peaks();
 PeakDigester digester(1);
 ParabolicLover parabol(1,0.01,0.2);
 PeakOrderer orderer(1);

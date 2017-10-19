@@ -34,7 +34,6 @@ enum CloseAlgo
 ///////////////////////////////inputs
 input int      RSI_len=28;
 input int      filter_len=50;
-input bool fast_peak=true;
 input CloseAlgo   close_algo=CLOSE_EARLY; 
 input OpenAlgo    open_algo=OPEN_EARLY;
 input bool use_parabolic_lover=false;
@@ -52,7 +51,7 @@ MyMath math;
 MoneyManagement money(lots_base);
 StopLoss stop_loss(sl_SAR_step, 0.2);
 TradeControl trade();
-PeakEater peaks(fast_peak);
+PeakEater peaks();
 PeakDigester digester(1);
 ParabolicLover parabol(1,sl_SAR_step,0.2);
 PeakOrderer orderer(1);
@@ -74,7 +73,6 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1, double _new_pea
          switch(_peaks_return)
          {
             case RESULT_CONFIRM_A:
-            case RESULT_CANDIDATE_A:
                order_q = (use_orderer)? orderer.get_advice(false) : 1;
                digest_q = (use_digester)? digester.get_advice(false) : 1;
                SAR_q = (use_parabolic_lover)? parabol.get_advice(false,0) : 1;
@@ -92,7 +90,6 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1, double _new_pea
                }
                break;
             case RESULT_CONFIRM_V:
-            case RESULT_CANDIDATE_V:
                order_q = (use_orderer)? orderer.get_advice(true) : 1;
                digest_q = (use_digester)? digester.get_advice(true) : 1;
                SAR_q = (use_parabolic_lover)?parabol.get_advice(true,0) : 1;
