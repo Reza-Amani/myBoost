@@ -37,6 +37,7 @@ input OpenAlgo    open_algo=OPEN_EARLY;
 input bool use_parabolic_lover=false;
 input bool use_volatility=false;
 input bool use_simpler=true;
+input int  simpler_thresh=18;
 input bool set_sl=true;
 input double tp_factor_sl=2;
 input double   sl_SAR_step=0.01; 
@@ -52,7 +53,7 @@ TradeControl trade();
 PeakEater peaks();
 ParabolicLover parabol(1,sl_SAR_step,0.2);
 RelativeVolatility volatility(1,100);
-PeakSimple simpler(1);
+PeakSimple simpler(simpler_thresh,1);
 //int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
 //int outfilehandle=FileOpen("./tradefiles/data"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+"_"+IntegerToString(pattern_len)+"_"+IntegerToString(correlation_thresh)+".csv",FILE_WRITE|FILE_CSV,',');
 

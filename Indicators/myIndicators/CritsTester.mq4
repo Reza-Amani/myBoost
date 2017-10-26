@@ -28,7 +28,7 @@ input int RSI_len=28;
 PeakEater peaks();
 ParabolicLover parabol(1,0.01,0.2);
 RelativeVolatility volatility(1,100);
-PeakSimple simple(1);
+PeakSimple simple(15,1);
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
