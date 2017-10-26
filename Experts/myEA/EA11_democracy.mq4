@@ -104,7 +104,7 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1)
                         trade.buy(lots,sl,tp);
                   }
                   else
-                     trade.sell(lots,0,0);
+                     trade.buy(lots,0,0);
                }
                break;
          }
