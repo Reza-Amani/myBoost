@@ -13,13 +13,12 @@
 #include <MyHeaders\Tools\Tools.mqh>
 #include <MyHeaders\Operations\MoneyManagement.mqh>
 #include <MyHeaders\Operations\StopLoss.mqh>
+#include <MyHeaders\Operations\TakeProfit.mqh>
 #include <MyHeaders\Operations\TradeControl.mqh>
 #include <MyHeaders\Operations\PeakEater.mqh>
-#include <MyHeaders\Crits\CritPeakDigester.mqh>
 #include <MyHeaders\Crits\CritParabolicLover.mqh>
-#include <MyHeaders\Crits\CritPeakOrderer.mqh>
 #include <MyHeaders\Crits\CritRelativeVolatility.mqh>
-#include <MyHeaders\Crits\CritPeakQuality.mqh>
+#include <MyHeaders\Crits\CritPeakSimple.mqh>
 
 enum OpenAlgo
 {
@@ -36,10 +35,11 @@ input int      filter_len=50;
 input CloseAlgo   close_algo=CLOSE_EARLY; 
 input OpenAlgo    open_algo=OPEN_EARLY;
 input bool use_parabolic_lover=false;
-input bool use_digester=false;
-input bool use_orderer=false;
 input bool use_volatility=false;
-input bool use_peak_q=true;
+input bool use_simpler=true;
+input int  simpler_thresh=30;
+input bool set_sl=true;
+input double tp_factor_sl=2;
 input double   sl_SAR_step=0.01; 
 input double   lots_base = 1;
 //////////////////////////////parameters
@@ -48,70 +48,70 @@ Screen screen;
 MyMath math;
 MoneyManagement money(lots_base);
 StopLoss stop_loss(sl_SAR_step, 0.2);
+TakeProfit take_profit(tp_factor_sl);
 TradeControl trade();
 PeakEater peaks();
-PeakDigester digester(1);
 ParabolicLover parabol(1,sl_SAR_step,0.2);
-PeakOrderer orderer(1);
 RelativeVolatility volatility(1,100);
-PeakQuality peak_quality(1);
+PeakSimple simpler(simpler_thresh,1);
 //int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
 //int outfilehandle=FileOpen("./tradefiles/data"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+"_"+IntegerToString(pattern_len)+"_"+IntegerToString(correlation_thresh)+".csv",FILE_WRITE|FILE_CSV,',');
 
 //+------------------------------------------------------------------+
 //| operation                                                        |
 //+------------------------------------------------------------------+
-void check_for_open(PeakEaterResult _peaks_return, double _rsi1, double _new_peak)
+void check_for_open(PeakEaterResult _peaks_return, double _rsi1)
 {
-   double order_q,digest_q,SAR_q,volatility_q,peak_q,total_q;
+   double SAR_q,volatility_q,simpler_q,total_q;
    switch(open_algo)
    {
       case OPEN_EARLY:
          switch(_peaks_return)
          {
-            case RESULT_CANDIDATE_A:
-               order_q = (use_orderer)? orderer.get_advice(false) : 1;
-               digest_q = (use_digester)? digester.get_advice(false) : 1;
+            case RESULT_CONFIRM_A:
                SAR_q = (use_parabolic_lover)? parabol.get_advice(false,0) : 1;
                volatility_q = (use_volatility)? volatility.get_advice(false) : 1;
-               peak_q = (use_peak_q)? peak_quality.get_advice(false) : 1;
-               total_q = order_q*digest_q*SAR_q*peak_q*volatility_q;
+               simpler_q = (use_simpler)? simpler.get_advice(false) : 1;
+               total_q = simpler_q*SAR_q*volatility_q;
                if(total_q>0)
                {
                   double sl = stop_loss.get_sl(false,Bid);
+                  double tp = take_profit.get_tp(false,sl,Bid);
                   double equity=AccountEquity();
                   double lots = total_q;//money.get_lots(lots_base*total_q,Ask,sl,equity);
-                  if(sl>0)
-                     trade.sell(lots,sl,0);
+                  if(set_sl)
+                  {
+                     if(sl>0)
+                        trade.sell(lots,sl,tp);
+                  }
+                  else
+                     trade.sell(lots,0,0);
                }
                break;
-            case RESULT_CANDIDATE_V:
-               order_q = (use_orderer)? orderer.get_advice(true) : 1;
-               digest_q = (use_digester)? digester.get_advice(true) : 1;
+            case RESULT_CONFIRM_V:
                SAR_q = (use_parabolic_lover)?parabol.get_advice(true,0) : 1;
                volatility_q = (use_volatility)? volatility.get_advice(true) : 1;
-               peak_q = (use_peak_q)? peak_quality.get_advice(false) : 1;
-               total_q = order_q*digest_q*SAR_q*peak_q*volatility_q;
+               simpler_q = (use_simpler)? simpler.get_advice(true) : 1;
+               total_q = simpler_q*SAR_q*volatility_q;
                if(total_q>0)
                {
                   double sl = stop_loss.get_sl(true,Ask);
+                  double tp = take_profit.get_tp(true,sl,Ask);
                   double  equity=AccountEquity();
                   double lots = total_q;//money.get_lots(lots_base*total_q,Ask,sl,equity);
-                  if(sl>0)
-                     trade.buy(lots,sl,0);
+                  if(set_sl)
+                  {
+                     if(sl>0)
+                        trade.buy(lots,sl,tp);
+                  }
+                  else
+                     trade.buy(lots,0,0);
                }
                break;
          }
          break;
    }
    
-}
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void trailing_sl(bool _for_buy)
-{
-   double new_sl=stop_loss.get_sl(_for_buy,Close[0]);
-   if(new_sl>0)
-      trade.edit_sl(new_sl);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void  check_for_close()
@@ -182,27 +182,29 @@ void OnTick()
 
       double rsi1 = iCustom(Symbol(), Period(),"myIndicators/scaledRSI", RSI_len, 0,1); 
       PeakEaterResult peaks_return;
-      double new_peak;
-      peaks_return = peaks.take_sample(rsi1,new_peak);
+      peaks_return = peaks.take_sample(rsi1);
       
       //-----------------------------------------------------------------------------------------------------------------charging Crits
-      digester.take_input(peaks_return,new_peak,rsi1);
       parabol.take_input(0);
-      orderer.take_input(new_peak ,peaks.V0,peaks.V1,peaks.V2,peaks.A0,peaks.A1,peaks.A2);
       volatility.take_input();
-      peak_quality.take_input(new_peak ,peaks.V0,peaks.V1,peaks.V2,peaks.A0,peaks.A1,peaks.A2);
+      simpler.take_input(peaks.V0,peaks.V1,peaks.V2,peaks.A0,peaks.A1,peaks.A2);
       
       screen.clear_L5_comment();
       screen.add_L5_comment(peaks.get_report());
       
       if(trade.have_open_trade())
       {
-         trailing_sl(trade.is_buy_trade());  
+         double new_sl=stop_loss.get_sl(trade.is_buy_trade(),Close[0]);
+         double new_tp=take_profit.get_tp(trade.is_buy_trade(),new_sl,Close[0]);
+         if(new_sl>0)
+            trade.edit_sl(new_sl);
+         if(new_tp>0)
+            trade.edit_tp(new_tp);
          check_for_close();
       }
       if(!trade.have_open_trade())
          if(peaks_return!=RESULT_CONTINUE)
-            check_for_open(peaks_return,rsi1,new_peak);
+            check_for_open(peaks_return,rsi1);
             
       string report=trade.get_report();
       if(report!="")
