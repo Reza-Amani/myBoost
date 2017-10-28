@@ -34,6 +34,8 @@ double PeakSimple::get_advice(bool _for_buy)
    {
    	if(A0>=70)
    		desirability +=1;
+   	if(V0>=20)
+   		desirability +=1;
    	if(A0-V0>accept_thresh)
    		desirability +=1;
    }
@@ -41,10 +43,12 @@ double PeakSimple::get_advice(bool _for_buy)
    {
    	if(V0<=30)
    		desirability +=1;
+   	if(A0<=80)
+   		desirability +=1;
    	if(A0-V0>accept_thresh)
    		desirability +=1;
    }
-   if(desirability>=2)
+   if(desirability>=3)
       return 1;
    else
       return 0;
