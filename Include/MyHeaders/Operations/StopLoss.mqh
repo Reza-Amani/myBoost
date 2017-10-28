@@ -23,7 +23,7 @@ double StopLoss::get_sl(bool _for_buy, double _price)
 {
    double SAR = iSAR(NULL,0, step, maximum, 0);
    if(_for_buy)
-      return (SAR<_price)? SAR : 0;
+      return (SAR<_price)? SAR : 3*_price-2*SAR;
    else
-      return (SAR>_price)? SAR : 0;
+      return (SAR>_price)? SAR : 3*_price-2*SAR;
 }
