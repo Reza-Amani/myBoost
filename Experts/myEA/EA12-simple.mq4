@@ -79,7 +79,7 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1)
                   double sl = stop_loss.get_sl(false,Bid);
                   double tp = take_profit.get_tp(false,sl,Bid);
                   double equity=AccountEquity();
-                  double lots = total_q;//money.get_lots(lots_base*total_q,Ask,sl,equity);
+                  double lots = money.get_lots(lots_base*total_q,Bid,sl,equity);
                   if(set_sl)
                   {
                      if(sl>0)
@@ -99,7 +99,7 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1)
                   double sl = stop_loss.get_sl(true,Ask);
                   double tp = take_profit.get_tp(true,sl,Ask);
                   double  equity=AccountEquity();
-                  double lots = total_q;//money.get_lots(lots_base*total_q,Ask,sl,equity);
+                  double lots = money.get_lots(lots_base*total_q,Ask,sl,equity);
                   if(set_sl)
                   {
                      if(sl>0)
