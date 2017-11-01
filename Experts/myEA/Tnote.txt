@@ -1,4 +1,3 @@
-consitent SL; higher SAR checked
 max of RSI over a period can overwrite A0
 ECN account sopprt
 check for real trade sopprt branches 
