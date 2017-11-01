@@ -42,6 +42,7 @@ input bool set_sl=true;
 input double tp_factor_sl=2;
 input double   sl_SAR_step=0.01; 
 input double   lots_base = 1;
+input bool ECN = false;
 //////////////////////////////parameters
 //////////////////////////////objects
 Screen screen;
@@ -49,7 +50,7 @@ MyMath math;
 MoneyManagement money(lots_base);
 StopLoss stop_loss(sl_SAR_step, 0.2);
 TakeProfit take_profit(tp_factor_sl);
-TradeControl trade();
+TradeControl trade(ECN);
 PeakEater peaks();
 ParabolicLover parabol(1,sl_SAR_step,0.2);
 RelativeVolatility volatility(1,100);
