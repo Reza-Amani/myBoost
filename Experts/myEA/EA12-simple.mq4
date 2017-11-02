@@ -80,14 +80,18 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1)
                   double tp = take_profit.get_tp(false,sl,Bid);
                   double equity=AccountEquity();
                   double lots = money.get_lots(lots_base*total_q,Bid,sl,equity);
+                  screen.clear_L3_comment();
+                  screen.add_L3_comment("sell? ");
                   if(set_sl)
                   {
+                     screen.add_L3_comment("sl:"+DoubleToString(sl));
                      if(sl>0)
                         trade.sell(lots,sl,tp);
                   }
                   else
                      trade.sell(lots,0,0);
                }
+               screen.add_L3_comment("-");
                break;
             case RESULT_CONFIRM_V:
                SAR_q = (use_parabolic_lover)?parabol.get_advice(true,0) : 1;
@@ -100,14 +104,21 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1)
                   double tp = take_profit.get_tp(true,sl,Ask);
                   double  equity=AccountEquity();
                   double lots = money.get_lots(lots_base*total_q,Ask,sl,equity);
+                  screen.clear_L3_comment();
+                  screen.add_L3_comment("sell? ");
                   if(set_sl)
                   {
+                     screen.add_L3_comment("sl:"+DoubleToString(sl));
                      if(sl>0)
                         trade.buy(lots,sl,tp);
                   }
                   else
                      trade.buy(lots,0,0);
                }
+               screen.add_L3_comment("-");
+               break;
+            default:
+               screen.add_L3_comment(".");
                break;
          }
          break;
