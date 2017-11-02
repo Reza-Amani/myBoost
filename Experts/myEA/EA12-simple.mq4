@@ -215,7 +215,7 @@ void OnTick()
          check_for_close();
       }
       if(!trade.have_open_trade())
-         if(peaks_return!=RESULT_CONTINUE)
+//!!         if(peaks_return!=RESULT_CONTINUE)
             check_for_open(peaks_return,rsi1);
             
       string report=trade.get_report();
