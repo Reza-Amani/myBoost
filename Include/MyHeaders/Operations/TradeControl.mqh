@@ -67,14 +67,33 @@ bool TradeControl::sell(double _lots, double _sl, double _tp)
    if(have_open_trade())
       return false;  //return error, cause there is already a ticket opened by me
       
-   open_ticket=OrderSend(Symbol(),OP_SELL, _lots, Bid, 0,_sl,_tp,"sell",++trade_id,0,clrOrangeRed); //returns ticket n assigned by server, or -1 for error
-   if(open_ticket!=-1)
-      return true;
+   if(!ECN_account)   
+   {
+      open_ticket=OrderSend(Symbol(),OP_SELL, _lots, Bid, 0,_sl,_tp,"sell",++trade_id,0,clrOrangeRed); //returns ticket n assigned by server, or -1 for error
+      if(open_ticket!=-1)
+         return true;
+      else
+      {
+         open_ticket = 0;
+         return false;
+      }
+   }
    else
    {
-      open_ticket = 0;
-      return false;
+      open_ticket=OrderSend(Symbol(),OP_SELL, _lots, Bid, 0,0,0,"sell",++trade_id,0,clrOrangeRed); //in ECN acounts you have to open the order first and then set the sl and tp
+      if(open_ticket==-1)
+      {
+         open_ticket = 0;
+         return false;
+      }
+      else
+      {
+         edit_sl(_sl);
+         edit_tp(_tp);
+         return true;
+      }
    }
+
 }
 bool TradeControl::have_open_trade()
 {
