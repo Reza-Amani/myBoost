@@ -154,12 +154,26 @@ void  check_for_close()
          break;
    }
 }
+//--------------------------------------------------------------------
+void process_past_peaks()
+{
+   int past_bars = (int)math.min(Bars,70);
+   for(int i=past_bars; i>0; i--)
+   {
+      double rsi1 = iCustom(Symbol(), Period(),"myIndicators/scaledRSI", RSI_len, 0,i); 
+      peaks.take_sample(rsi1);
+   }
+   screen.add_L1_comment("past_bars="+IntegerToString(past_bars));
+   screen.clear_L5_comment();
+   screen.add_L5_comment("past:"+peaks.get_report());
+}
 //+------------------------------------------------------------------+
 //| standard function                                                |
 //+------------------------------------------------------------------+
 int OnInit()
 {
    screen.add_L1_comment("EA started-");
+      process_past_peaks();
 /*   if(file<0 || outfilehandle<0)
    {
       screen.add_L1_comment("file error");
@@ -218,13 +232,13 @@ void OnTick()
 //!!         if(peaks_return!=RESULT_CONTINUE)
             check_for_open(peaks_return,rsi1);
             
-      string report=trade.get_report();
-      if(report!="")
+      string trade_report=trade.get_report();
+      if(trade_report!="")
       {
          trade.clear_report();
          screen.clear_L2_comment();
-         screen.add_L2_comment(report);
-         Print(report);
+         screen.add_L2_comment(trade_report);
+         Print(trade_report);
       }
    }
 }
