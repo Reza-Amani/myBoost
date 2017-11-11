@@ -25,7 +25,7 @@ class Screen
 };
 void Screen::clear_L1_comment(void)
 {
-   L1_str=" Prog: ";
+   L1_str="Prog: ";
    show_it();
 }
 void Screen::add_L1_comment(string str)
@@ -45,7 +45,7 @@ void Screen::add_L2_comment(string str)
 }
 void Screen::clear_L3_comment(void)
 {
-   L3_str=" Algo: ";
+   L3_str="Algo: ";
    show_it();
 }
 void Screen::add_L3_comment(string str)
@@ -65,7 +65,7 @@ void Screen::add_L4_comment(string str)
 }
 void Screen::clear_L5_comment(void)
 {
-   L5_str="";
+   L5_str="Dbg: ";
    show_it();
 }
 void Screen::add_L5_comment(string str)

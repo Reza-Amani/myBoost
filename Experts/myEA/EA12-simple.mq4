@@ -196,6 +196,7 @@ void OnTick()
 {
    if(IsTradeAllowed()==false)
       return;
+   static int bars=0;
    //just wait for new bar
    static datetime Time0=0;
    if (Time0 == Time[0])
@@ -205,7 +206,8 @@ void OnTick()
    else
    {  //new bar; main process
       Time0 = Time[0];
-
+      bars++;
+      
       double rsi1 = iCustom(Symbol(), Period(),"myIndicators/scaledRSI", RSI_len, 0,1); 
       PeakEaterResult peaks_return;
       peaks_return = peaks.take_sample(rsi1);
@@ -217,6 +219,9 @@ void OnTick()
       
       screen.clear_L5_comment();
       screen.add_L5_comment(peaks.get_report());
+      
+      screen.clear_L1_comment();
+      screen.add_L1_comment("bars:"+IntegerToString(bars));
       
       if(trade.have_open_trade())
       {
