@@ -23,7 +23,7 @@ input int RSI_len=14;
 int OnInit()
   {
 //--- indicator buffers mapping
-   SetIndexStyle(0, DRAW_LINE, STYLE_SOLID, 1, clrBrown);
+   SetIndexStyle(0, DRAW_LINE, STYLE_SOLID, 1, clrYellowGreen);
    SetIndexBuffer(0,Buffer_schmittRSI);
    SetIndexLabel(0 ,"schmittRSI");   
 //---
@@ -71,18 +71,15 @@ int OnCalculate(const int rates_total,
       double scaledRSI = 50+ scale*(rsi0-50);
       if(scaledRSI >= Buffer_schmittRSI[i+1]+5)
          Buffer_schmittRSI[i] = round(scaledRSI/5)*5;
-         //Buffer_schmittRSI[i] = Buffer_schmittRSI[i+1] + 5;
       else if(scaledRSI <= Buffer_schmittRSI[i+1]-5)
          Buffer_schmittRSI[i] = round(scaledRSI/5)*5;
-         //Buffer_schmittRSI[i] = Buffer_schmittRSI[i+1] - 5;
       else
          Buffer_schmittRSI[i] = Buffer_schmittRSI[i+1];
          
-//      result = round(result/2)*2;
-//      if(result>99)
-//         result=99;
-//      if(result<1)
-//         result=1;
+      if(Buffer_schmittRSI[i]>85)
+         Buffer_schmittRSI[i]=85;
+      if(Buffer_schmittRSI[i]<15)
+         Buffer_schmittRSI[i]=15;
    }
 
 //--- return value of prev_calculated for next call
