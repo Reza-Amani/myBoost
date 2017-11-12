@@ -31,6 +31,7 @@ enum CloseAlgo
 };
 ///////////////////////////////inputs
 input int      RSI_len=28;
+input int      schmitt_threshold=5;
 input int      filter_len=50;
 input CloseAlgo   close_algo=CLOSE_EARLY; 
 input OpenAlgo    open_algo=OPEN_EARLY;
@@ -131,8 +132,8 @@ void  check_for_close()
    //0 if the position remains still
    int return_closed=0;
 
-   double rsi1 = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len ,0,1); 
-   double rsi2 = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len ,0,2); 
+   double rsi1 = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len, schmitt_threshold, 0,1); 
+   double rsi2 = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len, schmitt_threshold, 0,2); 
 
    bool buy_trade=trade.is_buy_trade();
    switch(close_algo)
@@ -153,7 +154,7 @@ void process_past_peaks()
    int past_bars = (int)math.min(Bars,70);
    for(int i=past_bars; i>0; i--)
    {
-      double rsi1 = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len, 0,i); 
+      double rsi1 = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len, schmitt_threshold, 0,i); 
       peaks.take_sample(rsi1);
    }
    screen.add_L1_comment("past_bars="+IntegerToString(past_bars));
@@ -201,7 +202,7 @@ void OnTick()
       Time0 = Time[0];
       bars++;
       
-      double rsi1 = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len, 0,1); 
+      double rsi1 = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len, schmitt_threshold, 0,1); 
       PeakEaterResult peaks_return;
       peaks_return = peaks.take_sample(rsi1);
       

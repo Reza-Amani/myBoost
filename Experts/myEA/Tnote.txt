@@ -1,2 +1,2 @@
-schmitt trigger RSI; scaled RSI (then original RSI), if at 50 goes to 52 if above 53 
+set of 44 4 40 2 is positive over 3 currencies in H1 in 2years
 max of RSI over a period can overwrite A0

@@ -17,6 +17,7 @@ double         Buffer_schmittRSI[];
 //-----------------macros
 //-----------------inputs
 input int RSI_len=14;
+input int schmitt_threshold=5;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
@@ -55,7 +56,7 @@ int OnCalculate(const int rates_total,
    if(counted_bars==0) 
    {  //first run on the chart
       double initial_value = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,Bars-1-RSI_len);
-      initial_value = round(initial_value/5)*5;
+      initial_value = round(initial_value/schmitt_threshold)*schmitt_threshold;
       for(int i=Bars-1;i>Bars-1-RSI_len;i--)
          Buffer_schmittRSI[i] = initial_value; 
       limit=Bars-1-RSI_len;
@@ -69,10 +70,10 @@ int OnCalculate(const int rates_total,
       double rsi0 = iCustom(Symbol(), Period(),"Market/Fast and smooth RSI", RSI_len, MODE_SMMA, PRICE_MEDIAN ,0,i+0); 
       double scale = 1+0.03*(RSI_len-14);
       double scaledRSI = 50+ scale*(rsi0-50);
-      if(scaledRSI >= Buffer_schmittRSI[i+1]+5)
-         Buffer_schmittRSI[i] = round(scaledRSI/5)*5;
-      else if(scaledRSI <= Buffer_schmittRSI[i+1]-5)
-         Buffer_schmittRSI[i] = round(scaledRSI/5)*5;
+      if(scaledRSI >= Buffer_schmittRSI[i+1]+schmitt_threshold)
+         Buffer_schmittRSI[i] = round(scaledRSI/schmitt_threshold)*schmitt_threshold;
+      else if(scaledRSI <= Buffer_schmittRSI[i+1]-schmitt_threshold)
+         Buffer_schmittRSI[i] = round(scaledRSI/schmitt_threshold)*schmitt_threshold;
       else
          Buffer_schmittRSI[i] = Buffer_schmittRSI[i+1];
          
