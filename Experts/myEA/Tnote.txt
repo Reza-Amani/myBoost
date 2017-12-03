@@ -1,6 +1,6 @@
-monitor extra dat, bars processed, ...
-run the algo from the first bar
+set of 44 4 40 2 is positive over 3 currencies in H1 in 2years
 max of RSI over a period can overwrite A0
-find another way of smoothing; it is a real bloody delay
-ECN account sopprt
-check for real trade sopprt branches 
+
+tidying up extras
+investigate on standard vs ECN
+what to do if SAR isn't inline with RSI
