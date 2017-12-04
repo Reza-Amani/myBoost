@@ -70,24 +70,29 @@ bool TradeControl::sell(double _lots, double _sl, double _tp)
    if(!ECN_account)   
    {
       open_ticket=OrderSend(Symbol(),OP_SELL, _lots, Bid, 0,_sl,_tp,"sell",++trade_id,0,clrOrangeRed); //returns ticket n assigned by server, or -1 for error
+      report+="opening the ticket. ";
       if(open_ticket!=-1)
          return true;
       else
       {
          open_ticket = 0;
+         report+="error in opening the ticket ";
          return false;
       }
    }
    else
    {
       open_ticket=OrderSend(Symbol(),OP_SELL, _lots, Bid, 0,0,0,"sell",++trade_id,0,clrOrangeRed); //in ECN acounts you have to open the order first and then set the sl and tp
+      report+="opening the ECN ticket. ";
       if(open_ticket==-1)
       {
          open_ticket = 0;
+         report+="error in opening the ticket ";
          return false;
       }
       else
       {
+         report+="sl/tp... ";
          edit_sl(_sl);
          edit_tp(_tp);
          return true;
