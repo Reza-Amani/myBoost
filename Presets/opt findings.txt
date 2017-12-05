@@ -5,29 +5,39 @@ Vars:
     tp_factor_sl=2;
     sl_SAR_step=0.01; 
 
-schmitt_threshold:
-   EURUSD H1:2016.1.1 to 2017.11.1
-      Higher better
-   NZDUSRD H1:2016.1.1 to 2017.11.1
-      2 is bad, above it neutral
 RSI-len:
    EURUSD H1:2016.1.1 to 2017.11.1
       Higher better strongly, above 30
+   EURUSD H1:2014.1.1 to 2015.11.1
+      only 30 and 33
    NZDUSRD H1:2016.1.1 to 2017.11.1
       above 27 is good
+schmitt_threshold:
+   EURUSD H1:2016.1.1 to 2017.11.1
+      Higher better
+   EURUSD H1:2014.1.1 to 2015.11.1
+      neutral
+   NZDUSRD H1:2016.1.1 to 2017.11.1
+      2 is bad, above it neutral
 simpler-thresh:
    EURUSD H1:2016.1.1 to 2017.11.1
       neutral
+   EURUSD H1:2014.1.1 to 2015.11.1
+      neutral or slightly better with higher values, 40
    NZDUSRD H1:2016.1.1 to 2017.11.1
       neutral
 tp-facotr:
    EURUSD H1:2016.1.1 to 2017.11.1
       1 is slightly better than 2 and 3
+   EURUSD H1:2014.1.1 to 2015.11.1
+      higher better
    NZDUSRD H1:2016.1.1 to 2017.11.1
       1 is bad, 2 and 3 neutral
 SAR-step:
    EURUSD H1:2016.1.1 to 2017.11.1
       0.01 is slightly better than 0.02
+   EURUSD H1:2014.1.1 to 2015.11.1
+      0.02 is slightly better than 0.01
    NZDUSRD H1:2016.1.1 to 2017.11.1
       0.01 is slightly better than 0.02
       

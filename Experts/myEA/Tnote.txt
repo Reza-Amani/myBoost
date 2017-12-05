@@ -1,5 +1,5 @@
 set of 44 4 40 2 is positive over 3 currencies in H1 in 2years
-max of RSI over a period can overwrite A0
+max of RSI over a period can overwrite A0; Not too sure!
 
 =tidying up extras
 =investigate on standard vs ECN
