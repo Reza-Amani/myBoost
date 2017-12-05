@@ -76,7 +76,7 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1)
                total_q = simpler_q*SAR_q*volatility_q;
                if(total_q>0)
                {
-                  double sl = stop_loss.get_sl(false,Bid);
+                  double sl = stop_loss.get_sl(false,Bid, High[1]);
                   double tp = take_profit.get_tp(false,sl,Bid);
                   double equity=AccountEquity();
                   double lots = money.get_lots(lots_base*total_q,Bid,sl,equity);
@@ -100,12 +100,12 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1)
                total_q = simpler_q*SAR_q*volatility_q;
                if(total_q>0)
                {
-                  double sl = stop_loss.get_sl(true,Ask);
+                  double sl = stop_loss.get_sl(true,Ask, Low[1]);
                   double tp = take_profit.get_tp(true,sl,Ask);
                   double  equity=AccountEquity();
                   double lots = money.get_lots(lots_base*total_q,Ask,sl,equity);
                   screen.clear_L3_comment();
-                  screen.add_L3_comment("sell? ");
+                  screen.add_L3_comment("buy? ");
                   if(set_sl)
                   {
                      screen.add_L3_comment("sl:"+DoubleToString(sl));
@@ -218,7 +218,7 @@ void OnTick()
       
       if(trade.have_open_trade())
       {
-         double new_sl=stop_loss.get_sl(trade.is_buy_trade(),Close[0]);
+         double new_sl=stop_loss.get_sl(trade.is_buy_trade(),Close[0], trade.is_buy_trade()?Low[1]:High[1]);
          double new_tp=take_profit.get_tp(trade.is_buy_trade(),new_sl,Close[0]);
          if(new_sl>0)
             trade.edit_sl(new_sl);
@@ -227,8 +227,7 @@ void OnTick()
          check_for_close();
       }
       if(!trade.have_open_trade())
-//!!         if(peaks_return!=RESULT_CONTINUE)
-            check_for_open(peaks_return,rsi1);
+         check_for_open(peaks_return,rsi1);
             
       string trade_report=trade.get_report();
       if(trade_report!="")
