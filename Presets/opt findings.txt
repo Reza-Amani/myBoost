@@ -40,4 +40,9 @@ SAR-step:
       0.02 is slightly better than 0.01
    NZDUSRD H1:2016.1.1 to 2017.11.1
       0.01 is slightly better than 0.02
-      
+twin-peaks:
+   makes positive combinations more positive and gives more of them. negatives worse
+   EURUSD H1:2017.1.1 to 2017.11.1
+      good
+   NZDUSRD H1:2017.1.1 to 2017.11.1
+      not good on total. slightly good on positive combinations

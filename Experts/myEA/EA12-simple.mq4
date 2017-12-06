@@ -32,12 +32,13 @@ enum CloseAlgo
 ///////////////////////////////inputs
 input double   lots_base = 1;
 input bool ECN = false;
-input int      RSI_len=28;
-input int      schmitt_threshold=5;
+input int      RSI_len=30;
+input int      schmitt_threshold=4;
 input int  simpler_thresh=30;
 input bool set_sl=true;
 input double tp_factor_sl=2;
 input double   sl_SAR_step=0.01; 
+input bool twin_peaks=true;
 input CloseAlgo   close_algo=CLOSE_EARLY; 
 input OpenAlgo    open_algo=OPEN_EARLY;
 input bool use_parabolic_lover=false;
@@ -54,7 +55,7 @@ TradeControl trade(ECN);
 PeakEater peaks();
 ParabolicLover parabol(1,sl_SAR_step,0.2);
 RelativeVolatility volatility(1,100);
-PeakSimple simpler(simpler_thresh,1);
+PeakSimple simpler(simpler_thresh,1,twin_peaks);
 //int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
 //int outfilehandle=FileOpen("./tradefiles/data"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+"_"+IntegerToString(pattern_len)+"_"+IntegerToString(correlation_thresh)+".csv",FILE_WRITE|FILE_CSV,',');
 
