@@ -73,7 +73,7 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1)
             case RESULT_CONFIRM_A:
                SAR_q = (use_parabolic_lover)? parabol.get_advice(false,0) : 1;
                volatility_q = (use_volatility)? volatility.get_advice(false) : 1;
-               simpler_q = (use_simpler)? simpler.get_advice(false) : 1;
+               simpler_q = (use_simpler)? simpler.get_advice(false,_rsi1) : 1;
                total_q = simpler_q*SAR_q*volatility_q;
                if(total_q>0)
                {
@@ -97,7 +97,7 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1)
             case RESULT_CONFIRM_V:
                SAR_q = (use_parabolic_lover)?parabol.get_advice(true,0) : 1;
                volatility_q = (use_volatility)? volatility.get_advice(true) : 1;
-               simpler_q = (use_simpler)? simpler.get_advice(true) : 1;
+               simpler_q = (use_simpler)? simpler.get_advice(true,_rsi1) : 1;
                total_q = simpler_q*SAR_q*volatility_q;
                if(total_q>0)
                {
