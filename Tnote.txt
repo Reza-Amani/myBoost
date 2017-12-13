@@ -1,3 +1,11 @@
+Adaptive RSI len: 
+	25 35 50
+	on ind, quality bars, updated just after detecting and recording the peak
+	quality: avregae of swing on 3 (var) peak pairs
+	in EA, for close, check rsi1-rsi2 rather than rsi1-peak
+	check the best RSI len and apply on the same tick
+	what if only one of RSI's has updated?
+
 set of 44 4 40 2 is positive over 3 currencies in H1 in 2years
 =max of RSI over a period can overwrite A0; Not too sure!
 
