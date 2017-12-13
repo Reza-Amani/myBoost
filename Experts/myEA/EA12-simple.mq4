@@ -30,20 +30,20 @@ enum CloseAlgo
    CLOSE_EARLY
 };
 ///////////////////////////////inputs
-input int      RSI_len=28;
-input int      schmitt_threshold=5;
-input int      filter_len=50;
+input double   lots_base = 1;
+input bool ECN = false;
+input int      RSI_len=30;
+input int      schmitt_threshold=4;
+input int  simpler_thresh=30;
+input bool set_sl=true;
+input double tp_factor_sl=2;
+input double   sl_SAR_step=0.01; 
+input bool twin_peaks=true;
 input CloseAlgo   close_algo=CLOSE_EARLY; 
 input OpenAlgo    open_algo=OPEN_EARLY;
 input bool use_parabolic_lover=false;
 input bool use_volatility=false;
 input bool use_simpler=true;
-input int  simpler_thresh=30;
-input bool set_sl=true;
-input double tp_factor_sl=2;
-input double   sl_SAR_step=0.01; 
-input double   lots_base = 1;
-input bool ECN = false;
 //////////////////////////////parameters
 //////////////////////////////objects
 Screen screen;
@@ -55,7 +55,7 @@ TradeControl trade(ECN);
 PeakEater peaks();
 ParabolicLover parabol(1,sl_SAR_step,0.2);
 RelativeVolatility volatility(1,100);
-PeakSimple simpler(simpler_thresh,1);
+PeakSimple simpler(simpler_thresh,1,twin_peaks);
 //int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
 //int outfilehandle=FileOpen("./tradefiles/data"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+"_"+IntegerToString(pattern_len)+"_"+IntegerToString(correlation_thresh)+".csv",FILE_WRITE|FILE_CSV,',');
 
@@ -73,11 +73,11 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1)
             case RESULT_CONFIRM_A:
                SAR_q = (use_parabolic_lover)? parabol.get_advice(false,0) : 1;
                volatility_q = (use_volatility)? volatility.get_advice(false) : 1;
-               simpler_q = (use_simpler)? simpler.get_advice(false) : 1;
+               simpler_q = (use_simpler)? simpler.get_advice(false,_rsi1) : 1;
                total_q = simpler_q*SAR_q*volatility_q;
                if(total_q>0)
                {
-                  double sl = stop_loss.get_sl(false,Bid);
+                  double sl = stop_loss.get_sl(false,Bid, High[1]);
                   double tp = take_profit.get_tp(false,sl,Bid);
                   double equity=AccountEquity();
                   double lots = money.get_lots(lots_base*total_q,Bid,sl,equity);
@@ -97,16 +97,16 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1)
             case RESULT_CONFIRM_V:
                SAR_q = (use_parabolic_lover)?parabol.get_advice(true,0) : 1;
                volatility_q = (use_volatility)? volatility.get_advice(true) : 1;
-               simpler_q = (use_simpler)? simpler.get_advice(true) : 1;
+               simpler_q = (use_simpler)? simpler.get_advice(true,_rsi1) : 1;
                total_q = simpler_q*SAR_q*volatility_q;
                if(total_q>0)
                {
-                  double sl = stop_loss.get_sl(true,Ask);
+                  double sl = stop_loss.get_sl(true,Ask, Low[1]);
                   double tp = take_profit.get_tp(true,sl,Ask);
                   double  equity=AccountEquity();
                   double lots = money.get_lots(lots_base*total_q,Ask,sl,equity);
                   screen.clear_L3_comment();
-                  screen.add_L3_comment("sell? ");
+                  screen.add_L3_comment("buy? ");
                   if(set_sl)
                   {
                      screen.add_L3_comment("sl:"+DoubleToString(sl));
@@ -219,7 +219,7 @@ void OnTick()
       
       if(trade.have_open_trade())
       {
-         double new_sl=stop_loss.get_sl(trade.is_buy_trade(),Close[0]);
+         double new_sl=stop_loss.get_sl(trade.is_buy_trade(),Close[0], trade.is_buy_trade()?Low[1]:High[1]);
          double new_tp=take_profit.get_tp(trade.is_buy_trade(),new_sl,Close[0]);
          if(new_sl>0)
             trade.edit_sl(new_sl);
@@ -228,8 +228,7 @@ void OnTick()
          check_for_close();
       }
       if(!trade.have_open_trade())
-//!!         if(peaks_return!=RESULT_CONTINUE)
-            check_for_open(peaks_return,rsi1);
+         check_for_open(peaks_return,rsi1);
             
       string trade_report=trade.get_report();
       if(trade_report!="")
