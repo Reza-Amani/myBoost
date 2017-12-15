@@ -33,9 +33,14 @@ class PeakEater
    PeakEater();
    PeakEaterResult take_sample(double _rsi);
    string get_report();
+   bool is_rising();
 };
 PeakEater::PeakEater():status(STATUS_RISING),V0(-1),V1(-1),V2(-1),A0(-1),A1(-1),A2(-1),local_max(0),local_min(100),prev_sample(50)
 {
+}
+bool PeakEater::is_rising()
+{
+   return status==STATUS_RISING;
 }
 PeakEaterResult PeakEater::take_sample(double _rsi)
 {

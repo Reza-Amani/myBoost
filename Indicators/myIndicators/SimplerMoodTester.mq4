@@ -38,25 +38,25 @@ MyMath math;
 int OnInit()
   {
 //--- indicator buffers mapping
-   SetIndexStyle(0, DRAW_LINE, STYLE_SOLID, 1, clrRed);
-   SetIndexBuffer(0,Buffer_RSI_0);
-   SetIndexLabel(0 ,"simple0");   
-   SetIndexStyle(1, DRAW_LINE, STYLE_SOLID, 1, clrOrange);
-   SetIndexBuffer(1,Buffer_RSI_1);
-   SetIndexLabel(1 ,"simple1");   
-   SetIndexStyle(2, DRAW_LINE, STYLE_SOLID, 1, clrYellow);
-   SetIndexBuffer(2,Buffer_RSI_2);
-   SetIndexLabel(2 ,"simple2");   
-   SetIndexStyle(3, DRAW_HISTOGRAM, STYLE_DASH, 5, clrRed);
-   SetIndexBuffer(3,Buffer_mood_0);
-   SetIndexLabel(3 ,"mood0");   
-   SetIndexStyle(4, DRAW_HISTOGRAM, STYLE_DASHDOT, 3, clrOrange);
-   SetIndexBuffer(4,Buffer_mood_1);
-   SetIndexLabel(4 ,"mood1");   
-   SetIndexStyle(5, DRAW_HISTOGRAM, STYLE_DASHDOTDOT, 1, clrYellow);
-   SetIndexBuffer(5,Buffer_mood_2);
-   SetIndexLabel(5 ,"mood2");   
+   SetIndexStyle(0, DRAW_HISTOGRAM, STYLE_DASH, 5, clrRed);
+   SetIndexBuffer(0,Buffer_mood_0);
+   SetIndexLabel(0 ,"mood0");   
+   SetIndexStyle(1, DRAW_HISTOGRAM, STYLE_DASHDOT, 3, clrOrange);
+   SetIndexBuffer(1,Buffer_mood_1);
+   SetIndexLabel(1 ,"mood1");   
+   SetIndexStyle(2, DRAW_HISTOGRAM, STYLE_DASHDOTDOT, 1, clrYellow);
+   SetIndexBuffer(2,Buffer_mood_2);
+   SetIndexLabel(2 ,"mood2");   
 
+   SetIndexStyle(3, DRAW_LINE, STYLE_SOLID, 1, clrRed);
+   SetIndexBuffer(3,Buffer_RSI_0);
+   SetIndexLabel(3 ,"simple0");   
+   SetIndexStyle(4, DRAW_LINE, STYLE_SOLID, 1, clrOrange);
+   SetIndexBuffer(4,Buffer_RSI_1);
+   SetIndexLabel(4 ,"simple1");   
+   SetIndexStyle(5, DRAW_LINE, STYLE_SOLID, 1, clrYellow);
+   SetIndexBuffer(5,Buffer_RSI_2);
+   SetIndexLabel(5 ,"simple2");   
 //---
    return(INIT_SUCCEEDED);
   }
@@ -109,9 +109,9 @@ int OnCalculate(const int rates_total,
       Buffer_RSI_1[i]=rsi_1_1;
       Buffer_RSI_2[i]=rsi_2_1;
       
-      Buffer_mood_0[i]=5;
-      Buffer_mood_1[i]=10;
-      Buffer_mood_2[i]=15;
+      Buffer_mood_0[i]=simple_0.get_mood(rsi_0_1,peaks_0.is_rising());
+      Buffer_mood_1[i]=simple_1.get_mood(rsi_1_1,peaks_1.is_rising());
+      Buffer_mood_2[i]=simple_2.get_mood(rsi_2_1,peaks_2.is_rising());
    }
 
 //--- return value of prev_calculated for next call
