@@ -41,7 +41,7 @@ int OnInit()
    SetIndexStyle(0, DRAW_HISTOGRAM, STYLE_DASH, 5, clrRed);
    SetIndexBuffer(0,Buffer_mood_0);
    SetIndexLabel(0 ,"mood0");   
-   SetIndexStyle(1, DRAW_HISTOGRAM, STYLE_DASHDOT, 3, clrOrange);
+   SetIndexStyle(1, DRAW_HISTOGRAM, STYLE_DASHDOT, 2, clrDarkOrange);
    SetIndexBuffer(1,Buffer_mood_1);
    SetIndexLabel(1 ,"mood1");   
    SetIndexStyle(2, DRAW_HISTOGRAM, STYLE_DASHDOTDOT, 1, clrYellow);
@@ -51,7 +51,7 @@ int OnInit()
    SetIndexStyle(3, DRAW_LINE, STYLE_SOLID, 1, clrRed);
    SetIndexBuffer(3,Buffer_RSI_0);
    SetIndexLabel(3 ,"simple0");   
-   SetIndexStyle(4, DRAW_LINE, STYLE_SOLID, 1, clrOrange);
+   SetIndexStyle(4, DRAW_LINE, STYLE_SOLID, 1, clrDarkOrange);
    SetIndexBuffer(4,Buffer_RSI_1);
    SetIndexLabel(4 ,"simple1");   
    SetIndexStyle(5, DRAW_LINE, STYLE_SOLID, 1, clrYellow);
