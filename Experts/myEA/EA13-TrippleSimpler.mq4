@@ -107,10 +107,10 @@ void process_past_peaks()
 {
    int past_bars = (int)math.min(Bars,70);
    for(int i=past_bars; i>0; i--)
-      for( i=0; i<SARS;i++)
+      for( int j=0; j<SARS;j++)
       {
-         double rsi1 = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len[i], schmitt_threshold, 0,i); 
-         peaks[i].take_sample(rsi1);
+         double rsi1 = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len[j], schmitt_threshold, 0,i); 
+         peaks[j].take_sample(rsi1);
       }
    screen.add_L1_comment("past_bars="+IntegerToString(past_bars));
    screen.clear_L5_comment();
@@ -195,12 +195,15 @@ void OnTick()
       
       if(trade.have_open_trade())
       {
-         double new_sl=stop_loss.get_sl(trade.is_buy_trade(),Close[0], trade.is_buy_trade()?Low[1]:High[1]);
-         double new_tp=take_profit.get_tp(trade.is_buy_trade(),new_sl,Close[0]);
-         if(new_sl>0)
-            trade.edit_sl(new_sl);
-         if(new_tp>0)
-            trade.edit_tp(new_tp);
+         if(set_sl)
+         {
+            double new_sl=stop_loss.get_sl(trade.is_buy_trade(),Close[0], trade.is_buy_trade()?Low[1]:High[1]);
+            double new_tp=take_profit.get_tp(trade.is_buy_trade(),new_sl,Close[0]);
+            if(new_sl>0)
+               trade.edit_sl(new_sl);
+            if(new_tp>0)
+               trade.edit_tp(new_tp);
+         }
          check_for_close(rsi1[best_index],iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len[best_index], schmitt_threshold, 0,2));
       }
       if(!trade.have_open_trade())
