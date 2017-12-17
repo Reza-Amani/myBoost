@@ -28,6 +28,7 @@ input bool set_sl=true;
 input double tp_factor_sl=2;
 input double   sl_SAR_step=0.01; 
 //////////////////////////////parameters
+int i;
 //////////////////////////////objects
 Screen screen;
 MyMath math;
@@ -36,9 +37,11 @@ StopLoss stop_loss(sl_SAR_step, 0.2);
 TakeProfit take_profit(tp_factor_sl);
 TradeControl trade(ECN);
 PeakEater peaks_0(),peaks_1(),peaks_2();
-PeakSimple simple_0(simpler_thresh,1,true,ave_len);
-PeakSimple simple_1(simpler_thresh,1,true,ave_len);
-PeakSimple simple_2(simpler_thresh,1,true,ave_len);
+PeakSimple * simple[3];
+//PeakSimple simple[3]={
+  // {simpler_thresh,1,true,ave_len},
+  // {simpler_thresh,1,true,ave_len},
+  // {simpler_thresh,1,true,ave_len}};
 //int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
 //int outfilehandle=FileOpen("./tradefiles/data"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+"_"+IntegerToString(pattern_len)+"_"+IntegerToString(correlation_thresh)+".csv",FILE_WRITE|FILE_CSV,',');
 
@@ -132,6 +135,11 @@ void  check_for_close()
    }
 }
 //--------------------------------------------------------------------
+int determine_best_index()
+{
+   
+}
+//--------------------------------------------------------------------
 void process_past_peaks()
 {
    int past_bars = (int)math.min(Bars,70);
@@ -149,8 +157,10 @@ void process_past_peaks()
 //+------------------------------------------------------------------+
 int OnInit()
 {
+   for( i=0; i<no_of_sars;i++)
+      simple[i] = new PeakSimple(simpler_thresh,1,true,ave_len);
    screen.add_L1_comment("EA started-");
-      process_past_peaks();
+   process_past_peaks();
 /*   if(file<0 || outfilehandle<0)
    {
       screen.add_L1_comment("file error");
@@ -173,7 +183,7 @@ void OnTick()
 {
    if(IsTradeAllowed()==false)
       return;
-   static int bars=0;
+   static int bars=0, best_index=0;
    //just wait for new bar
    static datetime Time0=0;
    if (Time0 == Time[0])
@@ -185,13 +195,14 @@ void OnTick()
       Time0 = Time[0];
       bars++;
       
-      double rsi_0_1 = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", 25, schmitt_threshold, 0,1); 
-      double rsi_1_1 = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", 35, schmitt_threshold, 0,1); 
-      double rsi_2_1 = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", 50, schmitt_threshold, 0,1); 
+      double rsi1[3];
+      rsi1[0] = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", 25, schmitt_threshold, 0,1); 
+      rsi1[1] = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", 35, schmitt_threshold, 0,1); 
+      rsi1[2] = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", 50, schmitt_threshold, 0,1); 
       
-      peaks_0.take_sample(rsi_0_1);
-      peaks_1.take_sample(rsi_1_1);
-      peaks_2.take_sample(rsi_2_1);
+      peaks_0.take_sample(rsi1[0]);
+      peaks_1.take_sample(rsi1[0]);
+      peaks_2.take_sample(rsi1[0]);
       
       simple_0.take_input(peaks_0.V0,peaks_0.V1,peaks_0.V2,peaks_0.A0,peaks_0.A1,peaks_0.A2);
       simple_1.take_input(peaks_1.V0,peaks_1.V1,peaks_1.V2,peaks_1.A0,peaks_1.A1,peaks_1.A2);
@@ -203,6 +214,7 @@ void OnTick()
       screen.clear_L1_comment();
       screen.add_L1_comment("bars:"+IntegerToString(bars));
       
+      best_index = determine_best_index();
       if(trade.have_open_trade())
       {
          double new_sl=stop_loss.get_sl(trade.is_buy_trade(),Close[0], trade.is_buy_trade()?Low[1]:High[1]);
