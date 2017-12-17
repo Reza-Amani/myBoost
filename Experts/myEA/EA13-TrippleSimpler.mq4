@@ -19,7 +19,7 @@
 #include <MyHeaders\Crits\CritPeakSimple.mqh>
 
 ///////////////////////////////inputs
-input double   lots_base = 1;
+input double   lots_base = 0.1;
 input bool ECN = false;
 input int      schmitt_threshold=4;
 input int  simpler_thresh=30;
@@ -29,7 +29,6 @@ input double tp_factor_sl=2;
 input double   sl_SAR_step=0.01; 
 //////////////////////////////parameters
 #define SARS   3
-int i;
 int RSI_len[6]={20,28,40,56,80,112};
 //////////////////////////////objects
 Screen screen;
@@ -50,15 +49,15 @@ PeakSimple * simple_crit[SARS];
 //+------------------------------------------------------------------+
 //| operation                                                        |
 //+------------------------------------------------------------------+
-void check_for_open( double _rsi1, double _rsi2, double _rsi3)
+void check_for_open(int _best_index, double _rsi1, double _rsi2, double _rsi3)
 {
-   int advice = simpler.get_advice(_rsi1, _rsi2, _rsi3);
+   double advice = simple_crit[_best_index].get_advice(_rsi1, _rsi2, _rsi3);
    if(advice==-1)
    {
       double sl = stop_loss.get_sl(false,Bid, High[1]);
       double tp = take_profit.get_tp(false,sl,Bid);
       double equity=AccountEquity();
-      double lots = money.get_lots(lots_base*total_q,Bid,sl,equity);
+      double lots = money.get_lots(lots_base,Bid,sl,equity);
       screen.clear_L3_comment();
       screen.add_L3_comment("sell? ");
       if(set_sl)
@@ -70,13 +69,12 @@ void check_for_open( double _rsi1, double _rsi2, double _rsi3)
       else
          trade.sell(lots,0,0);
    }
-//   screen.add_L3_comment("-");
-   if(advice==1)
+   else if(advice==1)
    {
       double sl = stop_loss.get_sl(true,Ask, Low[1]);
       double tp = take_profit.get_tp(true,sl,Ask);
       double  equity=AccountEquity();
-      double lots = money.get_lots(lots_base*total_q,Ask,sl,equity);
+      double lots = money.get_lots(lots_base,Ask,sl,equity);
       screen.clear_L3_comment();
       screen.add_L3_comment("buy? ");
       if(set_sl)
@@ -88,7 +86,10 @@ void check_for_open( double _rsi1, double _rsi2, double _rsi3)
       else
          trade.buy(lots,0,0);
    }
-//no peak               screen.add_L3_comment(".");
+   else if(advice==0.1)
+      screen.add_L3_comment(",");
+   else if(advice==-0.1)
+      screen.add_L3_comment("'");
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void  check_for_close(double rsi1, double rsi2)
@@ -106,19 +107,21 @@ void process_past_peaks()
 {
    int past_bars = (int)math.min(Bars,70);
    for(int i=past_bars; i>0; i--)
-   {
-      double rsi1 = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len, schmitt_threshold, 0,i); 
-      peaks.take_sample(rsi1);
-   }
+      for( i=0; i<SARS;i++)
+      {
+         double rsi1 = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len[i], schmitt_threshold, 0,i); 
+         peaks[i].take_sample(rsi1);
+      }
    screen.add_L1_comment("past_bars="+IntegerToString(past_bars));
    screen.clear_L5_comment();
-   screen.add_L5_comment("past:"+peaks.get_report());
+   screen.add_L5_comment("past:"+peaks[0].get_report());
 }
 //+------------------------------------------------------------------+
 //| standard function                                                |
 //+------------------------------------------------------------------+
 int OnInit()
 {
+   int i;
    for( i=0; i<SARS;i++)
       simple_crit[i] = new PeakSimple(simpler_thresh,1,true,ave_len);
    for( i=0; i<SARS;i++)
@@ -146,9 +149,10 @@ void OnDeinit(const int reason)
 }
 void OnTick()
 {
+   int i;
    if(IsTradeAllowed()==false)
       return;
-   static int bars=0, best_index=0;
+   static int bars=0;
    //just wait for new bar
    static datetime Time0=0;
    if (Time0 == Time[0])
@@ -171,7 +175,7 @@ void OnTick()
          simple_crit[i].take_input(peaks[i].V0,peaks[i].V1,peaks[i].V2,peaks[i].A0,peaks[i].A1,peaks[i].A2);
       
       screen.clear_L5_comment();
-      screen.add_L5_comment(peaks.get_report());
+      screen.add_L5_comment(peaks[0].get_report());
       
       screen.clear_L1_comment();
       screen.add_L1_comment("bars:"+IntegerToString(bars));
@@ -197,11 +201,12 @@ void OnTick()
             trade.edit_sl(new_sl);
          if(new_tp>0)
             trade.edit_tp(new_tp);
-         check_for_close(rsi1[best_index],iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len[best_index], schmitt_threshold, 0,2);
+         check_for_close(rsi1[best_index],iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len[best_index], schmitt_threshold, 0,2));
       }
       if(!trade.have_open_trade())
-         check_for_open(best_index,rsi1[best_index]);
-            
+         check_for_open(best_index, rsi1[best_index]
+            ,iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len[best_index], schmitt_threshold, 0,2)
+            ,iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len[best_index], schmitt_threshold, 0,3));
       string trade_report=trade.get_report();
       if(trade_report!="")
       {
