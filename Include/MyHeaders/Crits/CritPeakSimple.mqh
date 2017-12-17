@@ -20,7 +20,7 @@ class PeakSimple : public CriteriaBase
 	MyMath math;
  public:
    PeakSimple(int _thresh, int _base_weight, bool _twin_peaks, int _ave_len);
-   virtual double get_advice(bool _for_buy, double _rsi1);	//virtual, 0(veto), 0.1,0.2,0.4,1(neutral),2,4,8
+   virtual double get_advice(double _rsi1, double _rsi2, double _rsi3);
    virtual void take_input(double _V0,double _V1, double _V2,double _A0 ,double _A1,double _A2);
    double get_mood(double _current_RSI, bool _rising);
 };
@@ -42,29 +42,35 @@ void PeakSimple::take_input(double _V0,double _V1, double _V2,double _A0 ,double
 {
    V0=_V0; V1=_V1; V2=_V2; A0=_A0; A1=_A1; A2=_A2;
 }
-double PeakSimple::get_advice(bool _for_buy, double _rsi1)
-{	//virtual, 0(veto), 0.1,0.2,0.4,1(neutral),2,4,8
+double PeakSimple::get_advice(double _rsi1, double _rsi2, double _rsi3)
+{	//0 none, 1 buy, -1 sell
 	int desirability = 0;
-   if(_for_buy)
+   int dir=0;
+   if(_rsi2==V0 && _rsi1>V0)
+      dir=1;
+   else if(_rsi2==A0 && _rsi1<A0)
+      dir=-1;   
+   else if(_rsi3==V0 && _rsi1>V0)
+      dir=1;
+   else if(_rsi3==A0 && _rsi1<A0)
+      dir=-1;   
+      
+   if(dir==0)
+      return 0;
+      
+   if(dir==1)
    {
    	if(A0>=70 || (twin_peaks && (A1>=70)))
-   		desirability +=1;
-   	if(V0>15)
-   		desirability +=1;
-   	if(A0-_rsi1>accept_thresh)
-   		desirability +=1;
+      	if(V0>15)
+         	if(A0-_rsi1>accept_thresh)
+               return 1;
    }
-   if(!_for_buy)
+   if(dir==-1)
    {
    	if(V0<=30 || (twin_peaks && (V1<=30)))
-   		desirability +=1;
-   	if(A0<85)
-   		desirability +=1;
-   	if(_rsi1-V0>accept_thresh)
-   		desirability +=1;
+      	if(A0<85)
+         	if(_rsi1-V0>accept_thresh)
+               return -1;
    }
-   if(desirability>=3)
-      return 1;
-   else
-      return 0;
+   return 0;
 }

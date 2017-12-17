@@ -50,69 +50,45 @@ PeakSimple * simple_crit[SARS];
 //+------------------------------------------------------------------+
 //| operation                                                        |
 //+------------------------------------------------------------------+
-void check_for_open(PeakEaterResult _peaks_return, double _rsi1)
+void check_for_open( double _rsi1, double _rsi2, double _rsi3)
 {
-   double SAR_q,volatility_q,simpler_q,total_q;
-   switch(open_algo)
+   int advice = simpler.get_advice(_rsi1, _rsi2, _rsi3);
+   if(advice==-1)
    {
-      case OPEN_EARLY:
-         switch(_peaks_return)
-         {
-            case RESULT_CONFIRM_A:
-               SAR_q = (use_parabolic_lover)? parabol.get_advice(false,0) : 1;
-               volatility_q = (use_volatility)? volatility.get_advice(false) : 1;
-               simpler_q = (use_simpler)? simpler.get_advice(false,_rsi1) : 1;
-               total_q = simpler_q*SAR_q*volatility_q;
-               if(total_q>0)
-               {
-                  double sl = stop_loss.get_sl(false,Bid, High[1]);
-                  double tp = take_profit.get_tp(false,sl,Bid);
-                  double equity=AccountEquity();
-                  double lots = money.get_lots(lots_base*total_q,Bid,sl,equity);
-                  screen.clear_L3_comment();
-                  screen.add_L3_comment("sell? ");
-                  if(set_sl)
-                  {
-                     screen.add_L3_comment("sl:"+DoubleToString(sl));
-                     if(sl>0)
-                        trade.sell(lots,sl,tp);
-                  }
-                  else
-                     trade.sell(lots,0,0);
-               }
-               screen.add_L3_comment("-");
-               break;
-            case RESULT_CONFIRM_V:
-               SAR_q = (use_parabolic_lover)?parabol.get_advice(true,0) : 1;
-               volatility_q = (use_volatility)? volatility.get_advice(true) : 1;
-               simpler_q = (use_simpler)? simpler.get_advice(true,_rsi1) : 1;
-               total_q = simpler_q*SAR_q*volatility_q;
-               if(total_q>0)
-               {
-                  double sl = stop_loss.get_sl(true,Ask, Low[1]);
-                  double tp = take_profit.get_tp(true,sl,Ask);
-                  double  equity=AccountEquity();
-                  double lots = money.get_lots(lots_base*total_q,Ask,sl,equity);
-                  screen.clear_L3_comment();
-                  screen.add_L3_comment("buy? ");
-                  if(set_sl)
-                  {
-                     screen.add_L3_comment("sl:"+DoubleToString(sl));
-                     if(sl>0)
-                        trade.buy(lots,sl,tp);
-                  }
-                  else
-                     trade.buy(lots,0,0);
-               }
-               screen.add_L3_comment("-");
-               break;
-            default:
-               screen.add_L3_comment(".");
-               break;
-         }
-         break;
+      double sl = stop_loss.get_sl(false,Bid, High[1]);
+      double tp = take_profit.get_tp(false,sl,Bid);
+      double equity=AccountEquity();
+      double lots = money.get_lots(lots_base*total_q,Bid,sl,equity);
+      screen.clear_L3_comment();
+      screen.add_L3_comment("sell? ");
+      if(set_sl)
+      {
+         screen.add_L3_comment("sl:"+DoubleToString(sl));
+         if(sl>0)
+            trade.sell(lots,sl,tp);
+      }
+      else
+         trade.sell(lots,0,0);
    }
-   
+//   screen.add_L3_comment("-");
+   if(advice==1)
+   {
+      double sl = stop_loss.get_sl(true,Ask, Low[1]);
+      double tp = take_profit.get_tp(true,sl,Ask);
+      double  equity=AccountEquity();
+      double lots = money.get_lots(lots_base*total_q,Ask,sl,equity);
+      screen.clear_L3_comment();
+      screen.add_L3_comment("buy? ");
+      if(set_sl)
+      {
+         screen.add_L3_comment("sl:"+DoubleToString(sl));
+         if(sl>0)
+            trade.buy(lots,sl,tp);
+      }
+      else
+         trade.buy(lots,0,0);
+   }
+//no peak               screen.add_L3_comment(".");
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void  check_for_close(double rsi1, double rsi2)
