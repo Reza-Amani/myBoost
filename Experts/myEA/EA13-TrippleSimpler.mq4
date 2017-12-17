@@ -28,8 +28,9 @@ input bool set_sl=true;
 input double tp_factor_sl=2;
 input double   sl_SAR_step=0.01; 
 //////////////////////////////parameters
-#define SARS   3
+#define SARS   6
 int RSI_len[6]={20,28,40,56,80,112};
+//int RSI_len[6]={20,28,40,56,80,112};
 //////////////////////////////objects
 Screen screen;
 MyMath math;
