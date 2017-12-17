@@ -28,7 +28,9 @@ input bool set_sl=true;
 input double tp_factor_sl=2;
 input double   sl_SAR_step=0.01; 
 //////////////////////////////parameters
+#define SARS   3
 int i;
+int RSI_len[6]={20,28,40,56,80,112};
 //////////////////////////////objects
 Screen screen;
 MyMath math;
@@ -36,8 +38,8 @@ MoneyManagement money(lots_base);
 StopLoss stop_loss(sl_SAR_step, 0.2);
 TakeProfit take_profit(tp_factor_sl);
 TradeControl trade(ECN);
-PeakEater peaks_0(),peaks_1(),peaks_2();
-PeakSimple * simple[3];
+PeakEater * peaks[SARS];
+PeakSimple * simple_crit[SARS];
 //PeakSimple simple[3]={
   // {simpler_thresh,1,true,ave_len},
   // {simpler_thresh,1,true,ave_len},
@@ -113,31 +115,15 @@ void check_for_open(PeakEaterResult _peaks_return, double _rsi1)
    
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void  check_for_close()
-{  //returns 1 if closes the trade to return to base state
-   //0 if the position remains still
-   int return_closed=0;
-
-   double rsi1 = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len, schmitt_threshold, 0,1); 
-   double rsi2 = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len, schmitt_threshold, 0,2); 
-
-   bool buy_trade=trade.is_buy_trade();
-   switch(close_algo)
-   {
-      case CLOSE_EARLY:
-         if(buy_trade)
-            if(rsi1<rsi2)
-               trade.close();
-         if(!buy_trade)
-            if(rsi1>rsi2)
-               trade.close();
-         break;
-   }
-}
-//--------------------------------------------------------------------
-int determine_best_index()
+void  check_for_close(double rsi1, double rsi2)
 {
-   
+   bool buy_trade=trade.is_buy_trade();
+   if(buy_trade)
+      if(rsi1<rsi2)
+         trade.close();
+   if(!buy_trade)
+      if(rsi1>rsi2)
+         trade.close();
 }
 //--------------------------------------------------------------------
 void process_past_peaks()
@@ -157,8 +143,11 @@ void process_past_peaks()
 //+------------------------------------------------------------------+
 int OnInit()
 {
-   for( i=0; i<no_of_sars;i++)
-      simple[i] = new PeakSimple(simpler_thresh,1,true,ave_len);
+   for( i=0; i<SARS;i++)
+      simple_crit[i] = new PeakSimple(simpler_thresh,1,true,ave_len);
+   for( i=0; i<SARS;i++)
+      peaks[i] = new PeakEater();
+      
    screen.add_L1_comment("EA started-");
    process_past_peaks();
 /*   if(file<0 || outfilehandle<0)
@@ -195,18 +184,15 @@ void OnTick()
       Time0 = Time[0];
       bars++;
       
-      double rsi1[3];
-      rsi1[0] = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", 25, schmitt_threshold, 0,1); 
-      rsi1[1] = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", 35, schmitt_threshold, 0,1); 
-      rsi1[2] = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", 50, schmitt_threshold, 0,1); 
+      double rsi1[SARS];
+      for( i=0; i<SARS;i++)
+         rsi1[i] = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len[i], schmitt_threshold, 0,1); 
       
-      peaks_0.take_sample(rsi1[0]);
-      peaks_1.take_sample(rsi1[0]);
-      peaks_2.take_sample(rsi1[0]);
+      for( i=0; i<SARS;i++)
+         peaks[i].take_sample(rsi1[i]);
       
-      simple_0.take_input(peaks_0.V0,peaks_0.V1,peaks_0.V2,peaks_0.A0,peaks_0.A1,peaks_0.A2);
-      simple_1.take_input(peaks_1.V0,peaks_1.V1,peaks_1.V2,peaks_1.A0,peaks_1.A1,peaks_1.A2);
-      simple_2.take_input(peaks_2.V0,peaks_2.V1,peaks_2.V2,peaks_2.A0,peaks_2.A1,peaks_2.A2);
+      for( i=0; i<SARS;i++)
+         simple_crit[i].take_input(peaks[i].V0,peaks[i].V1,peaks[i].V2,peaks[i].A0,peaks[i].A1,peaks[i].A2);
       
       screen.clear_L5_comment();
       screen.add_L5_comment(peaks.get_report());
@@ -214,7 +200,19 @@ void OnTick()
       screen.clear_L1_comment();
       screen.add_L1_comment("bars:"+IntegerToString(bars));
       
-      best_index = determine_best_index();
+      //determining the best SAR len
+      int best_index=0;
+      double best_mood=0;
+      for( i=0; i<SARS;i++)
+      {
+         double moodi = simple_crit[i].get_mood(rsi1[i],peaks[i].is_rising());
+         if(moodi > best_mood)
+         {
+            best_mood = moodi;
+            best_index = i;
+         }
+      }
+      
       if(trade.have_open_trade())
       {
          double new_sl=stop_loss.get_sl(trade.is_buy_trade(),Close[0], trade.is_buy_trade()?Low[1]:High[1]);
@@ -223,10 +221,10 @@ void OnTick()
             trade.edit_sl(new_sl);
          if(new_tp>0)
             trade.edit_tp(new_tp);
-         check_for_close();
+         check_for_close(rsi1[best_index],iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len[best_index], schmitt_threshold, 0,2);
       }
       if(!trade.have_open_trade())
-         check_for_open(peaks_return,rsi1);
+         check_for_open(best_index,rsi1[best_index]);
             
       string trade_report=trade.get_report();
       if(trade_report!="")
