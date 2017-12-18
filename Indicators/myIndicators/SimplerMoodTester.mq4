@@ -24,12 +24,15 @@ double         Buffer_mood_1[];
 double         Buffer_mood_2[];
 //-----------------inputs
 input int ave_len=2;
+input int schmitt_threshold=4;
 input int  simpler_thresh=30;
 //-----------------macros
-PeakEater peaks_0(),peaks_1(),peaks_2();
-PeakSimple simple_0(simpler_thresh,1,true,ave_len);
-PeakSimple simple_1(simpler_thresh,1,true,ave_len);
-PeakSimple simple_2(simpler_thresh,1,true,ave_len);
+#define SARS   3
+int RSI_len[6]={20,28,40,56,80,112};
+
+PeakEater * peaks[SARS];
+PeakSimple * simple_crit[SARS];
+
 MyMath math;
 
 //+------------------------------------------------------------------+
@@ -57,7 +60,12 @@ int OnInit()
    SetIndexStyle(5, DRAW_LINE, STYLE_SOLID, 1, clrYellow);
    SetIndexBuffer(5,Buffer_RSI_2);
    SetIndexLabel(5 ,"simple2");   
-//---
+
+   for(int i=0; i<SARS;i++)
+      simple_crit[i] = new PeakSimple(simpler_thresh,1,true,ave_len);
+   for(int i=0; i<SARS;i++)
+      peaks[i] = new PeakEater();
+
    return(INIT_SUCCEEDED);
   }
 //+------------------------------------------------------------------+
@@ -93,25 +101,23 @@ int OnCalculate(const int rates_total,
    //--- the main calculation loop
    for (int i=limit; i>=0; i--)
    {
-      double rsi_0_1 = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", 25, 4, 0,i+0); 
-      double rsi_1_1 = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", 35, 4, 0,i+0); 
-      double rsi_2_1 = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", 50, 4, 0,i+0); 
-      peaks_0.take_sample(rsi_0_1);
-      peaks_1.take_sample(rsi_1_1);
-      peaks_2.take_sample(rsi_2_1);
+      double rsi1[SARS];
+      for(int j=0; j<SARS;j++)
+         rsi1[j] = iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len[j], schmitt_threshold, 0,i+0); 
       
-      //-----------------------------------------------------------------------------------------------------------------charging Crits
-      simple_0.take_input(peaks_0.V0,peaks_0.V1,peaks_0.V2,peaks_0.A0,peaks_0.A1,peaks_0.A2);
-      simple_1.take_input(peaks_1.V0,peaks_1.V1,peaks_1.V2,peaks_1.A0,peaks_1.A1,peaks_1.A2);
-      simple_2.take_input(peaks_2.V0,peaks_2.V1,peaks_2.V2,peaks_2.A0,peaks_2.A1,peaks_2.A2);
+      for(int j=0; j<SARS;j++)
+         peaks[j].take_sample(rsi1[j]);
       
-      Buffer_RSI_0[i]=rsi_0_1;
-      Buffer_RSI_1[i]=rsi_1_1;
-      Buffer_RSI_2[i]=rsi_2_1;
+      for(int j=0; j<SARS;j++)
+         simple_crit[j].take_input(peaks[j].V0,peaks[j].V1,peaks[j].V2,peaks[j].A0,peaks[j].A1,peaks[j].A2);
       
-      Buffer_mood_0[i]=simple_0.get_mood(rsi_0_1,peaks_0.is_rising());
-      Buffer_mood_1[i]=simple_1.get_mood(rsi_1_1,peaks_1.is_rising());
-      Buffer_mood_2[i]=simple_2.get_mood(rsi_2_1,peaks_2.is_rising());
+      Buffer_RSI_0[i]=rsi1[0];
+      Buffer_RSI_1[i]=rsi1[1];
+      Buffer_RSI_2[i]=rsi1[2];
+      
+      Buffer_mood_0[i]=simple_crit[0].get_mood(rsi1[0],peaks[0].is_rising());
+      Buffer_mood_1[i]=simple_crit[1].get_mood(rsi1[1],peaks[1].is_rising());
+      Buffer_mood_2[i]=simple_crit[2].get_mood(rsi1[2],peaks[2].is_rising());
    }
 
 //--- return value of prev_calculated for next call

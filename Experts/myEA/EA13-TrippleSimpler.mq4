@@ -28,7 +28,7 @@ input bool set_sl=true;
 input double tp_factor_sl=2;
 input double   sl_SAR_step=0.01; 
 //////////////////////////////parameters
-#define SARS   6
+#define SARS   3
 int RSI_len[6]={20,28,40,56,80,112};
 //int RSI_len[6]={20,28,40,56,80,112};
 //////////////////////////////objects
@@ -40,10 +40,6 @@ TakeProfit take_profit(tp_factor_sl);
 TradeControl trade(ECN);
 PeakEater * peaks[SARS];
 PeakSimple * simple_crit[SARS];
-//PeakSimple simple[3]={
-  // {simpler_thresh,1,true,ave_len},
-  // {simpler_thresh,1,true,ave_len},
-  // {simpler_thresh,1,true,ave_len}};
 //int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
 //int outfilehandle=FileOpen("./tradefiles/data"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+"_"+IntegerToString(pattern_len)+"_"+IntegerToString(correlation_thresh)+".csv",FILE_WRITE|FILE_CSV,',');
 
