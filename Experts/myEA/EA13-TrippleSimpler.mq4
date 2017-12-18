@@ -24,11 +24,12 @@ input bool ECN = false;
 input int      schmitt_threshold=4;
 input int  simpler_thresh=30;
 input int ave_len=3;
+input int mood_threshold=40;
 input bool set_sl=true;
 input double tp_factor_sl=2;
 input double   sl_SAR_step=0.01; 
 //////////////////////////////parameters
-#define SARS   3
+#define SARS   6
 int RSI_len[6]={20,28,40,56,80,112};
 //int RSI_len[6]={20,28,40,56,80,112};
 //////////////////////////////objects
@@ -203,10 +204,11 @@ void OnTick()
          }
          check_for_close(rsi1[best_index],iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len[best_index], schmitt_threshold, 0,2));
       }
-      if(!trade.have_open_trade())
-         check_for_open(best_index, rsi1[best_index]
-            ,iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len[best_index], schmitt_threshold, 0,2)
-            ,iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len[best_index], schmitt_threshold, 0,3));
+      if(best_mood > mood_threshold)
+         if(!trade.have_open_trade())
+            check_for_open(best_index, rsi1[best_index]
+               ,iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len[best_index], schmitt_threshold, 0,2)
+               ,iCustom(Symbol(), Period(),"myIndicators/schmittRSI", RSI_len[best_index], schmitt_threshold, 0,3));
       string trade_report=trade.get_report();
       if(trade_report!="")
       {
