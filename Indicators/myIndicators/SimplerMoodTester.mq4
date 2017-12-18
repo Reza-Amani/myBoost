@@ -7,8 +7,8 @@
 #property strict
 #property indicator_separate_window
 #property indicator_level1 15
-#property indicator_buffers 6
-#property indicator_plots   6
+#property indicator_buffers 7
+#property indicator_plots   7
 #property indicator_maximum 100
 #property indicator_minimum 0
 
@@ -22,6 +22,7 @@ double         Buffer_RSI_2[];
 double         Buffer_mood_0[];
 double         Buffer_mood_1[];
 double         Buffer_mood_2[];
+double         Buffer_RSI_best[];
 //-----------------inputs
 input int ave_len=2;
 input int schmitt_threshold=4;
@@ -60,6 +61,9 @@ int OnInit()
    SetIndexStyle(5, DRAW_LINE, STYLE_SOLID, 1, clrYellow);
    SetIndexBuffer(5,Buffer_RSI_2);
    SetIndexLabel(5 ,"simple2");   
+   SetIndexStyle(6, DRAW_LINE, STYLE_DOT, 1, clrWhite);
+   SetIndexBuffer(6,Buffer_RSI_best);
+   SetIndexLabel(6 ,"best");   
 
    for(int i=0; i<SARS;i++)
       simple_crit[i] = new PeakSimple(simpler_thresh,1,true,ave_len);
@@ -118,6 +122,12 @@ int OnCalculate(const int rates_total,
       Buffer_mood_0[i]=simple_crit[0].get_mood(rsi1[0],peaks[0].is_rising());
       Buffer_mood_1[i]=simple_crit[1].get_mood(rsi1[1],peaks[1].is_rising());
       Buffer_mood_2[i]=simple_crit[2].get_mood(rsi1[2],peaks[2].is_rising());
+      
+      Buffer_RSI_best[i]=rsi1[0];
+      if(Buffer_mood_1[i]>Buffer_mood_0[i])
+         Buffer_RSI_best[i]=rsi1[1];
+      if(Buffer_mood_2[i]>Buffer_mood_0[i] && Buffer_mood_2[i]>Buffer_mood_1[i])
+         Buffer_RSI_best[i]=rsi1[2];
    }
 
 //--- return value of prev_calculated for next call
