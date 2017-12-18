@@ -28,6 +28,8 @@ input int mood_threshold=40;
 input bool set_sl=true;
 input double tp_factor_sl=2;
 input double   sl_SAR_step=0.01; 
+input bool use_single_len=false;
+input int single_len=40;
 //////////////////////////////parameters
 #define SARS   6
 int RSI_len[6]={20,28,40,56,80,112};
@@ -120,6 +122,9 @@ void process_past_peaks()
 int OnInit()
 {
    int i;
+   if(use_single_len)
+      for( i=0; i<SARS;i++)
+         RSI_len[i]=single_len;
    for( i=0; i<SARS;i++)
       simple_crit[i] = new PeakSimple(simpler_thresh,1,true,ave_len);
    for( i=0; i<SARS;i++)
