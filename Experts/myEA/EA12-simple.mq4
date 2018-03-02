@@ -55,7 +55,7 @@ TradeControl trade(ECN);
 PeakEater peaks();
 ParabolicLover parabol(1,sl_SAR_step,0.2);
 RelativeVolatility volatility(1,100);
-PeakSimple simpler(simpler_thresh,1,twin_peaks);
+PeakSimple simpler(simpler_thresh,1,twin_peaks,3);
 //int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
 //int outfilehandle=FileOpen("./tradefiles/data"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+"_"+IntegerToString(pattern_len)+"_"+IntegerToString(correlation_thresh)+".csv",FILE_WRITE|FILE_CSV,',');
 

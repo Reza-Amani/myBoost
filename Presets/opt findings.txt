@@ -1,3 +1,5 @@
+in H1, By doubling RSI len, you can basically got to same RSI shape in H2; SO, if the period of waves is too low, increase the RSI-len; Another idea may be working in M30 and using high RSI lens
+
 Vars:
     RSI_len=28;
     schmitt_threshold=5;

@@ -17,7 +17,7 @@ double         Buffer_schmittRSI[];
 //-----------------macros
 //-----------------inputs
 input int RSI_len=14;
-input int schmitt_threshold=5;
+input int schmitt_threshold=4;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
