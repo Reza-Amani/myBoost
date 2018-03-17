@@ -88,8 +88,8 @@ int OnCalculate (const int rates_total,
    }
 //--- macd counted in the 1-st buffer
    for(i=0; i<limit; i++)
-      ExtMacdBuffer[i]=iMA(NULL,0,InpFastEMA,0,MODE_EMA,PRICE_CLOSE,i)-
-                    iMA(NULL,0,InpSlowEMA,0,MODE_EMA,PRICE_CLOSE,i);
+      ExtMacdBuffer[i]=(iMA(NULL,0,InpFastEMA,0,MODE_EMA,PRICE_CLOSE,i)-
+                    iMA(NULL,0,InpSlowEMA,0,MODE_EMA,PRICE_CLOSE,i))/iMA(NULL,0,InpSlowEMA,0,MODE_EMA,PRICE_CLOSE,i)*100;
 //--- signal line counted in the 2-nd buffer
    SimpleMAOnBuffer(rates_total,prev_calculated,0,InpSignalSMA,ExtMacdBuffer,ExtSignalBuffer);
    for(i=limit-1; i>=0; i--)
