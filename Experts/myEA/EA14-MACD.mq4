@@ -74,9 +74,9 @@ PeakSimple simpler(simpler_thresh,1,twin_peaks,3);
 //+------------------------------------------------------------------+
 void check_for_open()
 {
-   if(macd_macd>0 && macd_force>0 && macd_dforce>0)
+   if(/*macd_macd>0 &&*/ macd_force>0 && macd_dforce>0)
       trade.buy(lots,0,0);
-   if(macd_macd<0 && macd_force<0 && macd_dforce<0)
+   if(/*macd_macd<0 &&*/ macd_force<0 && macd_dforce<0)
       trade.sell(lots,0,0);
 
 /*   switch(open_algo)
