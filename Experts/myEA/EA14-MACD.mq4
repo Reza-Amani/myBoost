@@ -35,10 +35,10 @@ input int MACD_len=13;
 input int MACD_ma=9;
 input bool ECN = false;
 
-      double macd_macd; 
-      double macd_sig_ma; 
-      double macd_force; 
-      double macd_dforce; 
+      double macd_macd=0; 
+      double macd_sig_ma=0; 
+      double macd_force=0; 
+      double macd_dforce=0; 
 double lots =  lots_base;
 /*input int      RSI_len=30;
 input int      schmitt_threshold=4;
@@ -74,9 +74,9 @@ PeakSimple simpler(simpler_thresh,1,twin_peaks,3);
 //+------------------------------------------------------------------+
 void check_for_open()
 {
-   if(macd_force>0)
+   if(macd_macd>0 && macd_force>0 && macd_dforce>0)
       trade.buy(lots,0,0);
-   if(macd_force<0)
+   if(macd_macd<0 && macd_force<0 && macd_dforce<0)
       trade.sell(lots,0,0);
 
 /*   switch(open_algo)
@@ -149,10 +149,10 @@ void  check_for_close()
    {
 //      case CLOSE_EARLY:
          if(buy_trade)
-            if(macd_force<0 )
+            if(macd_dforce<0 )
                trade.close();
          if(!buy_trade)
-            if(macd_force>0)
+            if(macd_dforce>0)
                trade.close();
 //         break;
    }
@@ -211,7 +211,7 @@ void OnTick()
       simpler.take_input(peaks.V0,peaks.V1,peaks.V2,peaks.A0,peaks.A1,peaks.A2);
 */      
       screen.clear_L5_comment();
-      screen.add_L5_comment("macd "+DoubleToString(macd_macd)+"macd "+DoubleToString(macd_macd)+"sig "+DoubleToString(macd_sig_ma)+"force "+DoubleToString(macd_dforce));
+      screen.add_L5_comment("macd "+DoubleToString(macd_macd)+"sig "+DoubleToString(macd_sig_ma)+"force "+DoubleToString(macd_force)+"dforce "+DoubleToString(macd_dforce));
       
       screen.clear_L1_comment();
       screen.add_L1_comment("bars:"+IntegerToString(bars));

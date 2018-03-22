@@ -95,7 +95,7 @@ int OnCalculate (const int rates_total,
    for(i=limit-1; i>=0; i--)
    {
       forceBuffer[i]=ExtMacdBuffer[i]-ExtSignalBuffer[i];
-      if(i!=limit-1)
+      if(prev_calculated>0 || i!=limit-1)
          dforceBuffer[i]=forceBuffer[i]-forceBuffer[i+1];
       else
          dforceBuffer[i]=0;
