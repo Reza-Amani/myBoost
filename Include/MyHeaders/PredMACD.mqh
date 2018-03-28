@@ -17,9 +17,9 @@ class PredMACD
    double GetTrialPred(int _FastEMA, int _SignalSMA);
    double GetPastPred();
    double GetPastTrialPred(int _FastEMA, int _SignalSMA);
-   double FastEMA,SignalSMA;
+   int FastEMA,SignalSMA;
    PredMACD(int _FastEMA, int _SignalSMA);
-   UpdatePars(int _FastEMA, int _SignalSMA);
+   void UpdatePars(int _FastEMA, int _SignalSMA);
   
 };
 
@@ -30,33 +30,33 @@ PredMACD::PredMACD(int _FastEMA, int _SignalSMA):DefaultFastEMA(_FastEMA),Defaul
 void PredMACD::UpdatePars(int _FastEMA,int _SignalSMA)
 {
    FastEMA = _FastEMA;
-   SignalSMA = _SignalSMA
+   SignalSMA = _SignalSMA;
 }
 
-PredMACD::GetPred(void)
+double PredMACD::GetPred(void)
 {
-   return CalcPred(FastEMA, SignalEMA, 2*FastEMA, false);
+   return CalcPred(FastEMA, SignalSMA, 2*FastEMA, false);
 }
-PredMACD::GetTrialPred(int _FastEMA,int _SignalSMA)
+double PredMACD::GetTrialPred(int _FastEMA,int _SignalSMA)
 {
-   return CalcPred(_FastEMA, _SignalEMA, 2*_FastEMA, false);
+   return CalcPred(_FastEMA, _SignalSMA, 2*_FastEMA, false);
 }
-PredMACD::GetPastPred(void)
+double PredMACD::GetPastPred(void)
 {
-   return CalcPred(FastEMA, SignalEMA, 2*FastEMA, true);
+   return CalcPred(FastEMA, SignalSMA, 2*FastEMA, true);
 }
-PredMACD::GetPastTrialPred(int _FastEMA,int _SignalSMA)
+double PredMACD::GetPastTrialPred(int _FastEMA,int _SignalSMA)
 {
-   return CalcPred(_FastEMA, _SignalEMA, 2*_FastEMA, true);
+   return CalcPred(_FastEMA, _SignalSMA, 2*_FastEMA, true);
 }
-PredMACD::CalcPred(int _FastEMA,int _SignalSMA,int _SlowEMA, bool _past_bar)
+double PredMACD::CalcPred(int _FastEMA,int _SignalSMA,int _SlowEMA, bool _past_bar)
 {
    int delay = (_past_bar)?2:1;
-   double   macd_macd = iCustom(Symbol(), Period(),"myIndicators/myMACD", MACD_len, MACD_ma, 0,delay); 
-   double   macd_sig_ma = iCustom(Symbol(), Period(),"myIndicators/myMACD", MACD_len, MACD_ma, 1,delay); 
-   double   macd_force = iCustom(Symbol(), Period(),"myIndicators/myMACD", MACD_len, MACD_ma, 2,delay); 
-   double   macd_dforce = iCustom(Symbol(), Period(),"myIndicators/myMACD", MACD_len, MACD_ma, 3,delay); 
-   return macd_macd;
+   double   macd_macd = iCustom(Symbol(), Period(),"myIndicators/myMACD", FastEMA, SignalSMA, 0,delay); 
+   double   macd_sig_ma = iCustom(Symbol(), Period(),"myIndicators/myMACD", FastEMA, SignalSMA, 1,delay); 
+   double   macd_force = iCustom(Symbol(), Period(),"myIndicators/myMACD", FastEMA, SignalSMA, 2,delay); 
+   double   macd_dforce = iCustom(Symbol(), Period(),"myIndicators/myMACD", FastEMA, SignalSMA, 3,delay); 
+   return 7;//macd_macd;
 }
 
 /*double StopLoss::get_sl(bool _for_buy, double _price, double _last_lowhigh)
