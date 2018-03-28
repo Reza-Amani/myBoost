@@ -107,7 +107,7 @@ int OnCalculate (const int rates_total,
       if(prev_calculated>0 || i!=limit-1)
       {
          dforceBuffer[i]=forceBuffer[i]-forceBuffer[i+1];
-         predBuffer[i]=pred.GetPred();//Pred(InpFastEMA,InpSignalSMA,InpSlowEMA,false);
+         predBuffer[i]=pred.GetTrialPred(InpFastEMA,InpSignalSMA,i);//Pred(InpFastEMA,InpSignalSMA,InpSlowEMA,false);
       }
       else
       {
