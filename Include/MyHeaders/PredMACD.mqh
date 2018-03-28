@@ -1,5 +1,5 @@
 //+------------------------------------------------------------------+
-//|                                             money_management.mqh |
+//|                                             PredMACD.mqh |
 //|                                                             Reza |
 //|                                              http://www.mql4.com |
 //+------------------------------------------------------------------+
@@ -11,10 +11,12 @@
 class PredMACD
 {
    double DefaultFastEMA,DefaultSignalSMA;
-   double CalcPred(int _FastEMA, int _SignalSMA, int _SlowEMA);
+   double CalcPred(int _FastEMA, int _SignalSMA, int _SlowEMA, bool _past_bar);
  public:
    double GetPred();
    double GetTrialPred(int _FastEMA, int _SignalSMA);
+   double GetPastPred();
+   double GetPastTrialPred(int _FastEMA, int _SignalSMA);
    double FastEMA,SignalSMA;
    PredMACD(int _FastEMA, int _SignalSMA);
    UpdatePars(int _FastEMA, int _SignalSMA);
@@ -33,18 +35,27 @@ void PredMACD::UpdatePars(int _FastEMA,int _SignalSMA)
 
 PredMACD::GetPred(void)
 {
-   return CalcPred(FastEMA, SignalEMA, 2*FastEMA);
+   return CalcPred(FastEMA, SignalEMA, 2*FastEMA, false);
 }
 PredMACD::GetTrialPred(int _FastEMA,int _SignalSMA)
 {
-   return CalcPred(_FastEMA, _SignalEMA, 2*_FastEMA);
+   return CalcPred(_FastEMA, _SignalEMA, 2*_FastEMA, false);
 }
-PredMACD::CalcPred(int _FastEMA,int _SignalSMA,int _SlowEMA)
+PredMACD::GetPastPred(void)
 {
-   double   macd_macd = iCustom(Symbol(), Period(),"myIndicators/myMACD", MACD_len, MACD_ma, 0,1); 
-   double   macd_sig_ma = iCustom(Symbol(), Period(),"myIndicators/myMACD", MACD_len, MACD_ma, 1,1); 
-   double   macd_force = iCustom(Symbol(), Period(),"myIndicators/myMACD", MACD_len, MACD_ma, 2,1); 
-   double   macd_dforce = iCustom(Symbol(), Period(),"myIndicators/myMACD", MACD_len, MACD_ma, 3,1); 
+   return CalcPred(FastEMA, SignalEMA, 2*FastEMA, true);
+}
+PredMACD::GetPastTrialPred(int _FastEMA,int _SignalSMA)
+{
+   return CalcPred(_FastEMA, _SignalEMA, 2*_FastEMA, true);
+}
+PredMACD::CalcPred(int _FastEMA,int _SignalSMA,int _SlowEMA, bool _past_bar)
+{
+   int delay = (_past_bar)?2:1;
+   double   macd_macd = iCustom(Symbol(), Period(),"myIndicators/myMACD", MACD_len, MACD_ma, 0,delay); 
+   double   macd_sig_ma = iCustom(Symbol(), Period(),"myIndicators/myMACD", MACD_len, MACD_ma, 1,delay); 
+   double   macd_force = iCustom(Symbol(), Period(),"myIndicators/myMACD", MACD_len, MACD_ma, 2,delay); 
+   double   macd_dforce = iCustom(Symbol(), Period(),"myIndicators/myMACD", MACD_len, MACD_ma, 3,delay); 
    return macd_macd;
 }
 
