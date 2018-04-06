@@ -47,13 +47,13 @@ void OnStart()
    BarProfiler bar(Open[0]);
    
    int output_counter=0;
-   FileWrite(file_handle,"Bar","cprice","dir","Nchange");
-   for(int _ref=1;_ref<bars_to_search;_ref++)
+      FileWrite(file_handle,"Bar","cprice","dir",                 "history",       "Nchange");
+   for(int _ref=1;_ref<bars_to_search-2;_ref++)
    {
       bar.UpdateData(Open[_ref], Close[_ref], High[_ref], Low[_ref]);
-
+      bar.UpdatePrevData( (Close[_ref+1]>Open[_ref+1])?1:-1, (Close[_ref+2]>Open[_ref+2])?1:-1 );
       
-      FileWrite(file_handle,_ref,Close[_ref],bar.GetDirection(),Close[_ref-1]-Open[_ref-1]);
+      FileWrite(file_handle,_ref,Close[_ref],bar.GetDirection(), bar.GetHistory(), Close[_ref-1]-Open[_ref-1]);
 //      cont;
 
       screen.clear_L2_comment();
