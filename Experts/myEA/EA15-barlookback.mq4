@@ -18,6 +18,7 @@
 #include <MyHeaders\BarProfiler.mqh>
 
 ///////////////////////////////inputs
+input BarPredRule rule;
 input int filter=100;
 input bool use_quality=true;
 input double   lots_base = 1;
@@ -35,7 +36,7 @@ StopLoss stop_loss(sl_SAR_step, 0.2);
 TakeProfit take_profit(tp_factor_sl);
 */
 int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
-int file_handle=FileOpen("./tradefiles/F"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+".csv",FILE_WRITE|FILE_CSV,',');
+int file_handle=FileOpen("./tradefiles/F"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+"_rule"+EnumToString(rule)+".csv",FILE_WRITE|FILE_CSV,',');
 #define cont    FileSeek(file_handle,-2,SEEK_CUR)
 
 //+------------------------------------------------------------------+
@@ -44,14 +45,14 @@ int file_handle=FileOpen("./tradefiles/F"+Symbol()+EnumToString(ENUM_TIMEFRAMES(
 void check_for_open()
 {
    if(use_quality)
-      if(bar.quality[0]<0)
-         lots=lots_base/10;
+      if(bar.quality[(int)rule]<0)
+         lots=lots_base*0.5;
       else
-         lots=lots_base;
+         lots=lots_base*1.5;
       
-   if(bar.GetPred(Pred_OnlyDir)==1)
+   if(bar.GetPred(rule)==1)
       trade.buy(lots,0,0);
-   if(bar.GetPred(Pred_OnlyDir)==-1)
+   if(bar.GetPred(rule)==-1)
       trade.sell(lots,0,0);
 }
 
@@ -109,7 +110,7 @@ void OnTick()
 
       bar.UpdateResult((Close[1]>Open[1])?1:-1);   //update the results for the last bar; don't renew bar data before this
       cont;      
-      FileWrite(file_handle,"", Close[1]-Open[1], bar.quality[Pred_OnlyDir]);
+      FileWrite(file_handle,"", Close[1]-Open[1], bar.quality[rule]);
 
       bar.UpdateData(Open[1], Close[1], High[1], Low[1]);
       bar.UpdatePrevData( (Close[2]>Open[2])?1:-1, (Close[3]>Open[3])?1:-1 );

@@ -10,7 +10,16 @@
 //+------------------------------------------------------------------+
 enum BarPredRule
 {
-   Pred_OnlyDir,
+   Pred_OnlyDir_N,
+   Pred_OnlyDir_P,
+   Pred_History0_N,
+   Pred_History0_P,
+   Pred_History1_N,
+   Pred_History1_P,
+   Pred_History2_N,
+   Pred_History2_P,
+   Pred_History3_N,
+   Pred_History3_P,
    Pred_size
 };
 class BarProfiler
@@ -77,8 +86,52 @@ int BarProfiler::GetPred(BarPredRule _rule)
 {
    switch(_rule)
    {
-      case Pred_OnlyDir:
+      case Pred_OnlyDir_N:
          return -direction;
+      case Pred_OnlyDir_P:
+         return +direction;
+      case Pred_History0_N:
+         if(GetHistory()==0)
+            return -direction;
+         else
+            return 0;
+      case Pred_History0_P:
+         if(GetHistory()==0)
+            return +direction;
+         else
+            return 0;
+      case Pred_History1_N:
+         if(GetHistory()==1)
+            return -direction;
+         else
+            return 0;
+      case Pred_History1_P:
+         if(GetHistory()==1)
+            return +direction;
+         else
+            return 0;
+      case Pred_History2_N:
+         if(GetHistory()==2)
+            return -direction;
+         else
+            return 0;
+      case Pred_History2_P:
+         if(GetHistory()==2)
+            return +direction;
+         else
+            return 0;
+      case Pred_History3_N:
+         if(GetHistory()==3)
+            return -direction;
+         else
+            return 0;
+      case Pred_History3_P:
+         if(GetHistory()==3)
+            return +direction;
+         else
+            return 0;
+
+         
       default:
          return 0;
    }

@@ -1,3 +1,18 @@
+AUDCAD 2017: 
+All N rules are >1 All P rules <1
+rule 0 and 2 are neutral, 1 and 3 are >1.11
+2016 almost the same
+AUDNZD 2017:
+""
+1 & 2 neutral, 0 & 3 good
+2016 2& 3 good
+
+EURCAD 2016:
+1,2(best) and 3 good
+filter 5 made rule 0 1.05 (from 0.95)
+
+
+
 Adaptive RSI len: 
 	25 35 50
 	on ind, quality bars, updated just after detecting and recording the peak
