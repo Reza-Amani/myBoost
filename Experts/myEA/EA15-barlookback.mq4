@@ -18,13 +18,15 @@
 #include <MyHeaders\BarProfiler.mqh>
 
 ///////////////////////////////inputs
+input int filter=100;
+input bool use_quality=true;
 input double   lots_base = 1;
 input bool ECN = false;
 
 double lots =  lots_base;
 //////////////////////////////parameters
 //////////////////////////////objects
-BarProfiler bar(Open[0]);
+BarProfiler bar(Open[0],filter);
 Screen screen;
 TradeControl trade(ECN);
 /*MyMath math;
@@ -32,14 +34,21 @@ MoneyManagement money(lots_base);
 StopLoss stop_loss(sl_SAR_step, 0.2);
 TakeProfit take_profit(tp_factor_sl);
 */
-//int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
-//int outfilehandle=FileOpen("./tradefiles/data"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+"_"+IntegerToString(pattern_len)+"_"+IntegerToString(correlation_thresh)+".csv",FILE_WRITE|FILE_CSV,',');
+int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
+int file_handle=FileOpen("./tradefiles/F"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+".csv",FILE_WRITE|FILE_CSV,',');
+#define cont    FileSeek(file_handle,-2,SEEK_CUR)
 
 //+------------------------------------------------------------------+
 //| operation                                                        |
 //+------------------------------------------------------------------+
 void check_for_open()
 {
+   if(use_quality)
+      if(bar.quality[0]<0)
+         lots=lots_base/10;
+      else
+         lots=lots_base;
+      
    if(bar.GetPred(Pred_OnlyDir)==1)
       trade.buy(lots,0,0);
    if(bar.GetPred(Pred_OnlyDir)==-1)
@@ -61,7 +70,7 @@ int OnInit()
 {
    screen.add_L1_comment("EA started-");
 //      process_past_peaks();
-/*   if(file<0 || outfilehandle<0)
+   if(file<0 || file_handle<0)
    {
       screen.add_L1_comment("file error");
       Print("Failed to open the file");
@@ -69,7 +78,10 @@ int OnInit()
       return(INIT_FAILED);
    }
    screen.add_L1_comment("file ok-");
-*/   return(INIT_SUCCEEDED);
+   
+   FileWrite(file_handle,"Bar","cprice","dir",                 "history",       "Nchange"," quality");
+
+   return(INIT_SUCCEEDED);
 }
 double OnTester()
 {
@@ -96,10 +108,14 @@ void OnTick()
       bars++;
 
       bar.UpdateResult((Close[1]>Open[1])?1:-1);   //update the results for the last bar; don't renew bar data before this
-      
+      cont;      
+      FileWrite(file_handle,"", Close[1]-Open[1], bar.quality[Pred_OnlyDir]);
+
       bar.UpdateData(Open[1], Close[1], High[1], Low[1]);
       bar.UpdatePrevData( (Close[2]>Open[2])?1:-1, (Close[3]>Open[3])?1:-1 );
    
+      FileWrite(file_handle,bars,Close[1],bar.GetDirection(), bar.GetHistory());
+
 //      screen.clear_L5_comment();
 //      screen.add_L5_comment("macd "+DoubleToString(macd_macd)+"sig "+DoubleToString(macd_sig_ma)+"force "+DoubleToString(macd_force)+"dforce "+DoubleToString(macd_dforce));
       

@@ -44,7 +44,7 @@ void OnStart()
    }
    screen.add_L1_comment("-for "+IntegerToString(bars_to_search));
 
-   BarProfiler bar(Open[0]);
+   BarProfiler bar(Open[0],15);
    
    int output_counter=0;
       FileWrite(file_handle,"Bar","cprice","dir",                 "history",       "Nchange");
