@@ -50,6 +50,7 @@ void OnStart()
       FileWrite(file_handle,"Bar","cprice","dir",                 "history",       "Nchange");
    for(int _ref=1;_ref<bars_to_search-2;_ref++)
    {
+   
       bar.UpdateData(Open[_ref], Close[_ref], High[_ref], Low[_ref]);
       bar.UpdatePrevData( (Close[_ref+1]>Open[_ref+1])?1:-1, (Close[_ref+2]>Open[_ref+2])?1:-1 );
       

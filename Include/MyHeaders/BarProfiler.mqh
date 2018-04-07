@@ -8,6 +8,10 @@
 #property strict
 
 //+------------------------------------------------------------------+
+enum BarPredRule
+{
+   Pred_OnlyDir
+};
 class BarProfiler
 {
    double open,close,high,low,ave,mid_oc,size;
@@ -15,8 +19,11 @@ class BarProfiler
  public:
    int GetDirection();
    int GetHistory();
+   void UpdateResult(int _result_dir);
    void UpdateData(double open,double close,double high,double low);
    void UpdatePrevData(int prevdir, int prevprevdir);
+   
+   int GetPred(BarPredRule _rule);
 
    BarProfiler(double _sample);
 };
@@ -51,4 +58,17 @@ void BarProfiler::UpdatePrevData(int _prevdir, int _prevprevdir)
 {
    prev_direction=_prevdir;
    prev_prev_direction=_prevprevdir;
+}
+void BarProfiler::UpdateResult(int _result_dir)
+{
+}
+int BarProfiler::GetPred(BarPredRule _rule)
+{
+   switch(_rule)
+   {
+      case Pred_OnlyDir:
+         return -direction;
+      default:
+         return 0;
+   }
 }
