@@ -36,6 +36,7 @@ class BarProfiler
    void UpdatePrevData(int prevdir, int prevprevdir);
    
    int GetPred(BarPredRule _rule);
+   BarPredRule GetBestRule();
 
    BarProfiler(double _sample, int _filter);
 };
@@ -135,4 +136,18 @@ int BarProfiler::GetPred(BarPredRule _rule)
       default:
          return 0;
    }
+}
+BarPredRule BarProfiler::GetBestRule()
+{
+   int maxi=0;
+   double maxPred=-1;;
+   for(int i=0; i<Pred_size; i++)
+   {
+      if(quality[i]>maxPred)
+      {
+         maxPred=quality[i];
+         maxi=i;
+      }
+   }
+   return (BarPredRule)maxi;
 }

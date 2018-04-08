@@ -20,7 +20,8 @@
 ///////////////////////////////inputs
 input BarPredRule rule;
 input int filter=100;
-input bool use_quality=true;
+input bool use_quality=false;
+input bool use_maxer=true;
 input double   lots_base = 1;
 input bool ECN = false;
 
@@ -44,15 +45,25 @@ int file_handle=FileOpen("./tradefiles/F"+Symbol()+EnumToString(ENUM_TIMEFRAMES(
 //+------------------------------------------------------------------+
 void check_for_open()
 {
+   BarPredRule active_rule=0;
+   if(use_maxer)
+      active_rule=bar.GetBestRule();
+   else 
+      active_rule=rule;
+      
+   lots=lots_base*(1+(int)active_rule*0.1);      
    if(use_quality)
+      if(bar.quality[(int)active_rule]<0)
+         lots=lots-lots_base+0.1;
+/*   if(use_quality)
       if(bar.quality[(int)rule]<0)
          lots=lots_base*0.5;
       else
-         lots=lots_base*1.5;
-      
-   if(bar.GetPred(rule)==1)
+         lots=lots_base*1;
+*/
+   if(bar.GetPred(active_rule)==1)
       trade.buy(lots,0,0);
-   if(bar.GetPred(rule)==-1)
+   if(bar.GetPred(active_rule)==-1)
       trade.sell(lots,0,0);
 }
 

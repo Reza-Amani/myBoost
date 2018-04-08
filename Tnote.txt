@@ -11,6 +11,10 @@ EURCAD 2016:
 1,2(best) and 3 good
 filter 5 made rule 0 1.05 (from 0.95)
 
+EURUSD 2016 
+0P and 1N good!
+
+
 
 
 Adaptive RSI len: 
