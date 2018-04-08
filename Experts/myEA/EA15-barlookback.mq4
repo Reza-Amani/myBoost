@@ -17,11 +17,17 @@
 #include <MyHeaders\Operations\TradeControl.mqh>
 #include <MyHeaders\BarProfiler.mqh>
 
+enum RuleSelector
+{
+   RuleSelectorSingle,
+   RuleSelectorMaxer,
+   RuleSelectorFirstGood
+};
 ///////////////////////////////inputs
 input BarPredRule rule;
 input int filter=100;
 input bool use_quality=false;
-input bool use_maxer=true;
+input RuleSelector rule_selector=RuleSelectorFirstGood;
 input double   lots_base = 1;
 input bool ECN = false;
 
@@ -46,15 +52,24 @@ int file_handle=FileOpen("./tradefiles/F"+Symbol()+EnumToString(ENUM_TIMEFRAMES(
 void check_for_open()
 {
    BarPredRule active_rule=0;
-   if(use_maxer)
-      active_rule=bar.GetBestRule();
-   else 
-      active_rule=rule;
-      
+   switch(rule_selector)
+   {
+      case RuleSelectorSingle:
+         active_rule=rule;
+         break;
+      case RuleSelectorMaxer:
+         active_rule=bar.GetBestRule();
+         break;
+      case RuleSelectorFirstGood:
+         active_rule= bar.GetFirstGood();
+         break;      
+   }
+   if(active_rule==Pred_size)
+      return;
    lots=lots_base*(1+(int)active_rule*0.1);      
    if(use_quality)
       if(bar.quality[(int)active_rule]<0)
-         lots=lots-lots_base+0.1;
+         lots=lots/2;
 /*   if(use_quality)
       if(bar.quality[(int)rule]<0)
          lots=lots_base*0.5;

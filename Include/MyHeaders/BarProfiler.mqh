@@ -10,15 +10,15 @@
 //+------------------------------------------------------------------+
 enum BarPredRule
 {
+   Pred_History3_N,
+   Pred_History2_N,
+   Pred_History1_N,
+   Pred_History0_N,
    Pred_OnlyDir_N,
    Pred_OnlyDir_P,
-   Pred_History0_N,
    Pred_History0_P,
-   Pred_History1_N,
    Pred_History1_P,
-   Pred_History2_N,
    Pred_History2_P,
-   Pred_History3_N,
    Pred_History3_P,
    Pred_size
 };
@@ -37,6 +37,7 @@ class BarProfiler
    
    int GetPred(BarPredRule _rule);
    BarPredRule GetBestRule();
+   BarPredRule GetFirstGood();
 
    BarProfiler(double _sample, int _filter);
 };
@@ -150,4 +151,14 @@ BarPredRule BarProfiler::GetBestRule()
       }
    }
    return (BarPredRule)maxi;
+}
+BarPredRule BarProfiler::GetFirstGood()
+{
+   int i;
+   for(i=0; i<Pred_size; i++)
+   {
+      if(quality[i]>0)
+         return (BarPredRule)i;
+   }
+   return Pred_size;
 }
