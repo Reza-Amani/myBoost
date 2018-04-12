@@ -36,6 +36,7 @@ class BarProfiler
    void UpdatePrevData(int prevdir, int prevprevdir);
    
    int GetPred(BarPredRule _rule);
+   double GetPredWaightedDemocracy();
    BarPredRule GetBestRule();
    BarPredRule GetFirstGood();
 
@@ -81,7 +82,8 @@ void BarProfiler::UpdateResult(int _result_dir)
    for(int i=0; i<Pred_size; i++)
    {
       int outcome = GetPred((BarPredRule)i)*_result_dir;
-      quality[i] = (quality[i]*filter_size + outcome)/(filter_size+1);
+      if(outcome!=0)
+         quality[i] = (quality[i]*filter_size + outcome)/(filter_size+1);
    }
 }
 int BarProfiler::GetPred(BarPredRule _rule)
@@ -161,4 +163,12 @@ BarPredRule BarProfiler::GetFirstGood()
          return (BarPredRule)i;
    }
    return Pred_size;
+}
+double BarProfiler::GetPredWaightedDemocracy()
+{
+   int i;
+   double accumulated_preds=0;
+   for(i=0; i<Pred_size; i++)
+      accumulated_preds += quality[i] * GetPred((BarPredRule)i);
+   return accumulated_preds;
 }
