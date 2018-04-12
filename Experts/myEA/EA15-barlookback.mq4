@@ -21,7 +21,8 @@ enum RuleSelector
 {
    RuleSelectorSingle,
    RuleSelectorMaxer,
-   RuleSelectorFirstGood
+   RuleSelectorFirstGood,
+   RuleSelectorDemocracy
 };
 ///////////////////////////////inputs
 input BarPredRule rule;
@@ -56,32 +57,47 @@ void check_for_open()
    {
       case RuleSelectorSingle:
          active_rule=rule;
+         lots = lot_manager(lots_base, use_quality, (bar.quality[(int)active_rule]>0)?1:0.5, (double)active_rule);
+         if(bar.GetPred(active_rule)>0)
+            trade.buy(lots,0,0);
+         if(bar.GetPred(active_rule)<0)
+            trade.sell(lots,0,0);
          break;
       case RuleSelectorMaxer:
          active_rule=bar.GetBestRule();
+         lots = lot_manager(lots_base, use_quality, (bar.quality[(int)active_rule]>0)?1:0.5, (double)active_rule);
+         if(bar.GetPred(active_rule)>0)
+            trade.buy(lots,0,0);
+         if(bar.GetPred(active_rule)<0)
+            trade.sell(lots,0,0);
          break;
       case RuleSelectorFirstGood:
          active_rule= bar.GetFirstGood();
+         lots = lot_manager(lots_base, use_quality, (bar.quality[(int)active_rule]>0)?1:0.5, (double)active_rule);
+         if(bar.GetPred(active_rule)>0)
+            trade.buy(lots,0,0);
+         if(bar.GetPred(active_rule)<0)
+            trade.sell(lots,0,0);
          break;      
+      case RuleSelectorDemocracy:
+         double vote = bar.GetPredWaightedDemocracy();
+         lots = lot_manager(lots_base, use_quality, vote, 1);
+         if(vote>0)
+            trade.buy(lots,0,0);
+         if(vote<0)
+            trade.sell(lots,0,0);
+         break;
    }
-   if(active_rule==Pred_size)
-      return;
-   lots=lots_base*(1+(int)active_rule*0.1);      
-   if(use_quality)
-      if(bar.quality[(int)active_rule]<0)
-         lots=lots/2;
-/*   if(use_quality)
-      if(bar.quality[(int)rule]<0)
-         lots=lots_base*0.5;
-      else
-         lots=lots_base*1;
-*/
-   if(bar.GetPred(active_rule)==1)
-      trade.buy(lots,0,0);
-   if(bar.GetPred(active_rule)==-1)
-      trade.sell(lots,0,0);
 }
 
+double lot_manager(double _lot_base, bool _use_quality, double _hope, double _magic_no)
+{
+   double lot_result=0;
+   lot_result = _lot_base*(1+_magic_no*0.1);
+   if(_use_quality)
+      lot_result *= math.abs(_hope);
+   return lot_result;
+}
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void  check_for_close()
 {  //returns 1 if closes the trade to return to base state
