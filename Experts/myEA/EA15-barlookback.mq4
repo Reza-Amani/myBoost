@@ -152,7 +152,7 @@ void OnTick()
       Time0 = Time[0];
       bars++;
 
-      bar.UpdateResult((Close[1]>Open[1])?1:-1);   //update the results for the last bar; don't renew bar data before this
+      bar.UpdateResult((Close[1]>Open[1])?1: ((Close[1]<Open[1])?-1:0) );   //update the results for the last bar; don't renew bar data before this
       cont;      
       FileWrite(file_handle,"", Close[1]-Open[1], bar.quality[rule]);
 

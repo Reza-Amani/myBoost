@@ -85,17 +85,6 @@ void BarProfiler::UpdateResult(int _result_dir)
       int outcome = GetPred((BarPredRule)i)*_result_dir;
       if(outcome!=0)
          quality[i] = (quality[i]*filter_size + outcome)/(filter_size+1);
-
-
-
-
-
-
-
-
-
-
-
    }
 }
 int BarProfiler::GetPred(BarPredRule _rule)
