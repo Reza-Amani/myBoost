@@ -16,7 +16,9 @@ class TradeControl
  public:
    TradeControl(bool _ECN_account);
    bool buy(double _lots, double _sl, double _tp);
+   bool buy_if_no_trade(double _lots, double _sl, double _tp);
    bool sell(double _lots, double _sl, double _tp);
+   bool sell_if_no_trade(double _lots, double _sl, double _tp);
    bool edit_sl( double _sl);
    bool edit_tp( double _tp);
    bool have_open_trade();
@@ -29,6 +31,40 @@ class TradeControl
 };
 TradeControl::TradeControl(bool _ECN_account):ECN_account(_ECN_account),open_ticket(0),trade_id(0),report("")
 {
+}
+bool TradeControl::buy_if_no_trade(double _lots, double _sl, double _tp)
+{
+   if(!have_open_trade())
+      return buy(_lots,_sl,_tp);  //simply buy, if no trade is there
+   else
+      if(is_buy_trade())
+      {
+         edit_sl(_sl);     // if there was a compatible position, just update sl and tp
+         edit_tp(_tp);
+         return false;
+      }
+      else
+      {
+         close();
+         return buy(_lots,_sl,_tp);  //if the existing position was in the opposit way, close and open a new one
+      }
+}
+bool TradeControl::sell_if_no_trade(double _lots, double _sl, double _tp)
+{
+   if(!have_open_trade())
+      return sell(_lots,_sl,_tp);  //simply sell, if no trade is there
+   else
+      if(!is_buy_trade())
+      {
+         edit_sl(_sl);     // if there was a compatible position, just update sl and tp
+         edit_tp(_tp);
+         return false;
+      }
+      else
+      {
+         close();
+         return sell(_lots,_sl,_tp);  //if the existing position was in the opposit way, close and open a new one
+      }
 }
 bool TradeControl::buy(double _lots, double _sl, double _tp)
 {

@@ -61,33 +61,33 @@ void check_for_open()
          active_rule=rule;
          lots = lot_manager(lots_base, use_quality, (bar.quality[(int)active_rule]>0)?1:0.1, (double)active_rule);
          if(bar.GetPred(active_rule)>0)
-            trade.buy(lots,0,0);
+            trade.buy_if_no_trade(lots,0,0);
          if(bar.GetPred(active_rule)<0)
-            trade.sell(lots,0,0);
+            trade.sell_if_no_trade(lots,0,0);
          break;
       case RuleSelectorMaxer:
          active_rule=bar.GetBestRule();
          lots = lot_manager(lots_base, use_quality, (bar.quality[(int)active_rule]>0)?1:0.1, (double)active_rule);
          if(bar.GetPred(active_rule)>0)
-            trade.buy(lots,0,0);
+            trade.buy_if_no_trade(lots,0,0);
          if(bar.GetPred(active_rule)<0)
-            trade.sell(lots,0,0);
+            trade.sell_if_no_trade(lots,0,0);
          break;
       case RuleSelectorFirstGood:
          active_rule= bar.GetFirstGood();
          lots = lot_manager(lots_base, use_quality, (bar.quality[(int)active_rule]>0)?1:0.5, (double)active_rule);
          if(bar.GetPred(active_rule)>0)
-            trade.buy(lots,0,0);
+            trade.buy_if_no_trade(lots,0,0);
          if(bar.GetPred(active_rule)<0)
-            trade.sell(lots,0,0);
+            trade.sell_if_no_trade(lots,0,0);
          break;      
       case RuleSelectorDemocracy:
          vote = bar.GetPredWaightedDemocracy();
          lots = lot_manager(lots_base, use_quality, vote, 1);
          if(vote>0)
-            trade.buy(lots,0,0);
+            trade.buy_if_no_trade(lots,0,0);
          if(vote<0)
-            trade.sell(lots,0,0);
+            trade.sell_if_no_trade(lots,0,0);
          break;
    }
 }
@@ -101,6 +101,7 @@ double lot_manager(double _lot_base, bool _use_quality, double _hope, double _ma
    return lot_result;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/*
 void  check_for_close()
 {  //returns 1 if closes the trade to return to base state
    //0 if the position remains still
@@ -108,6 +109,7 @@ void  check_for_close()
                trade.close();
    
 }
+*/
 //+------------------------------------------------------------------+
 //| standard function                                                |
 //+------------------------------------------------------------------+
@@ -167,19 +169,20 @@ void OnTick()
 //      screen.clear_L1_comment();
 //      screen.add_L1_comment("bars:"+IntegerToString(bars));
             
-      if(trade.have_open_trade())
-      {
+//      if(trade.have_open_trade())
+//      {
 /*         double new_sl=stop_loss.get_sl(trade.is_buy_trade(),Close[0], trade.is_buy_trade()?Low[1]:High[1]);
          double new_tp=take_profit.get_tp(trade.is_buy_trade(),new_sl,Close[0]);
          if(new_sl>0)
             trade.edit_sl(new_sl);
          if(new_tp>0)
             trade.edit_tp(new_tp);
-*/         check_for_close();
-      }
-      if(!trade.have_open_trade())
-         check_for_open();
-            
+*/
+//         check_for_close();
+//      }
+//      if(!trade.have_open_trade())
+//         check_for_open();
+      check_for_open();            
       string trade_report=trade.get_report();
       if(trade_report!="")
       {
