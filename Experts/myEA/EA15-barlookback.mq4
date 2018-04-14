@@ -8,7 +8,7 @@
 #property version   "1.00"
 #property strict
 
-//#include <MyHeaders\Tools\MyMath.mqh>
+#include <MyHeaders\Tools\MyMath.mqh>
 #include <MyHeaders\Tools\Screen.mqh>
 //#include <MyHeaders\Tools\Tools.mqh>
 //#include <MyHeaders\Operations\MoneyManagement.mqh>
@@ -38,7 +38,8 @@ double lots =  lots_base;
 BarProfiler bar(Open[0],filter);
 Screen screen;
 TradeControl trade(ECN);
-/*MyMath math;
+MyMath math;
+/*
 MoneyManagement money(lots_base);
 StopLoss stop_loss(sl_SAR_step, 0.2);
 TakeProfit take_profit(tp_factor_sl);
@@ -52,12 +53,13 @@ int file_handle=FileOpen("./tradefiles/F"+Symbol()+EnumToString(ENUM_TIMEFRAMES(
 //+------------------------------------------------------------------+
 void check_for_open()
 {
+   double vote;
    BarPredRule active_rule=0;
    switch(rule_selector)
    {
       case RuleSelectorSingle:
          active_rule=rule;
-         lots = lot_manager(lots_base, use_quality, (bar.quality[(int)active_rule]>0)?1:0.5, (double)active_rule);
+         lots = lot_manager(lots_base, use_quality, (bar.quality[(int)active_rule]>0)?1:0.1, (double)active_rule);
          if(bar.GetPred(active_rule)>0)
             trade.buy(lots,0,0);
          if(bar.GetPred(active_rule)<0)
@@ -65,7 +67,7 @@ void check_for_open()
          break;
       case RuleSelectorMaxer:
          active_rule=bar.GetBestRule();
-         lots = lot_manager(lots_base, use_quality, (bar.quality[(int)active_rule]>0)?1:0.5, (double)active_rule);
+         lots = lot_manager(lots_base, use_quality, (bar.quality[(int)active_rule]>0)?1:0.1, (double)active_rule);
          if(bar.GetPred(active_rule)>0)
             trade.buy(lots,0,0);
          if(bar.GetPred(active_rule)<0)
@@ -80,7 +82,7 @@ void check_for_open()
             trade.sell(lots,0,0);
          break;      
       case RuleSelectorDemocracy:
-         double vote = bar.GetPredWaightedDemocracy();
+         vote = bar.GetPredWaightedDemocracy();
          lots = lot_manager(lots_base, use_quality, vote, 1);
          if(vote>0)
             trade.buy(lots,0,0);

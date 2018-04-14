@@ -11,16 +11,17 @@
 enum BarPredRule
 {
    Pred_History3_N,
+   Pred_size,
    Pred_History2_N,
    Pred_History1_N,
    Pred_History0_N,
+
    Pred_OnlyDir_N,
    Pred_OnlyDir_P,
    Pred_History0_P,
    Pred_History1_P,
    Pred_History2_P,
-   Pred_History3_P,
-   Pred_size
+   Pred_History3_P
 };
 class BarProfiler
 {
@@ -84,6 +85,17 @@ void BarProfiler::UpdateResult(int _result_dir)
       int outcome = GetPred((BarPredRule)i)*_result_dir;
       if(outcome!=0)
          quality[i] = (quality[i]*filter_size + outcome)/(filter_size+1);
+
+
+
+
+
+
+
+
+
+
+
    }
 }
 int BarProfiler::GetPred(BarPredRule _rule)
@@ -134,7 +146,8 @@ int BarProfiler::GetPred(BarPredRule _rule)
             return +direction;
          else
             return 0;
-
+      case Pred_size:
+         return 0;
          
       default:
          return 0;
@@ -143,7 +156,7 @@ int BarProfiler::GetPred(BarPredRule _rule)
 BarPredRule BarProfiler::GetBestRule()
 {
    int maxi=0;
-   double maxPred=-1;;
+   double maxPred=-1;
    for(int i=0; i<Pred_size; i++)
    {
       if(quality[i]>maxPred)
@@ -162,13 +175,13 @@ BarPredRule BarProfiler::GetFirstGood()
       if(quality[i]>0)
          return (BarPredRule)i;
    }
-   return Pred_size;
+   return (BarPredRule)Pred_size;
 }
 double BarProfiler::GetPredWaightedDemocracy()
 {
    int i;
    double accumulated_preds=0;
    for(i=0; i<Pred_size; i++)
-      accumulated_preds += quality[i] * GetPred((BarPredRule)i);
+      accumulated_preds += ( (quality[i]>0)? (quality[i] * GetPred((BarPredRule)i)) : 0 );
    return accumulated_preds;
 }
