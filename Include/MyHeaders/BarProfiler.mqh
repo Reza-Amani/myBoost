@@ -23,6 +23,7 @@ enum BarPredRule
    Pred_History3_P,
    Pred_size
 };
+#define _barsize_filter 10
 class BarProfiler
 {
    double open,close,high,low,ave,mid_oc,size;
@@ -30,6 +31,7 @@ class BarProfiler
    int filter_size;
  public:
    double quality[Pred_size];
+   double ave_barsize;
    int GetDirection();
    int GetHistory();
    void UpdateResult(int _result_dir);
@@ -41,16 +43,17 @@ class BarProfiler
    BarPredRule GetBestRule();
    BarPredRule GetFirstGood();
 
-   BarProfiler(double _sample, int _filter);
+   BarProfiler(double _High, double _low, int _filter);
 };
 
-BarProfiler::BarProfiler(double _sample, int _filter)
+BarProfiler::BarProfiler(double _High, double _low, int _filter)
 {
    prev_direction=0;prev_prev_direction=0;
-   open=_sample;close=_sample;high=_sample;low=_sample;ave=_sample;mid_oc=_sample;
+   open=_High;close=_High;high=_High;low=_low;ave=_High;mid_oc=_High;
    for(int i=0; i<Pred_size; i++)
       quality[i]=0;
    filter_size = _filter;
+   ave_barsize=_High-_low;
 }
 int BarProfiler::GetHistory()
 {
@@ -72,6 +75,7 @@ void BarProfiler::UpdateData(double _open,double _close,double _high,double _low
    mid_oc=(open+close)/2;
    size=high-low;
    direction=(open>close)?-1:1;
+   ave_barsize=(ave_barsize*_barsize_filter+size)/(_barsize_filter+1);
 }
 void BarProfiler::UpdatePrevData(int _prevdir, int _prevprevdir)
 {

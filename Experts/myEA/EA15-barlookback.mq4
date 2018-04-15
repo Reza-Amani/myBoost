@@ -37,7 +37,7 @@ input bool ECN = false;
 double lots =  lots_base;
 //////////////////////////////parameters
 //////////////////////////////objects
-BarProfiler bar(Open[0],filter);
+BarProfiler bar(High[1],Low[1],filter);
 Screen screen;
 TradeControl trade(ECN);
 MyMath math;
