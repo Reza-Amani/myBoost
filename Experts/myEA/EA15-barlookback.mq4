@@ -76,11 +76,14 @@ void check_for_open()
          break;
       case RuleSelectorFirstGood:
          active_rule= bar.GetFirstGood();
-         lots = lot_manager(lots_base, use_quality, (bar.quality[(int)active_rule]>0)?1:0.5, (double)active_rule);
-         if(bar.GetPred(active_rule)>0)
-            trade.buy_if_no_trade(lots,0,0,keep_losing_position);
-         if(bar.GetPred(active_rule)<0)
-            trade.sell_if_no_trade(lots,0,0,keep_losing_position);
+         if(active_rule!=Pred_size)
+         {
+            lots = lot_manager(lots_base, use_quality, (bar.quality[(int)active_rule]>0)?1:0.5, (double)active_rule);
+            if(bar.GetPred(active_rule)>0)
+               trade.buy_if_no_trade(lots,0,0,keep_losing_position);
+            if(bar.GetPred(active_rule)<0)
+               trade.sell_if_no_trade(lots,0,0,keep_losing_position);
+         }
          break;      
       case RuleSelectorDemocracy:
          vote = bar.GetPredWaightedDemocracy();

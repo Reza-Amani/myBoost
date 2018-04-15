@@ -10,18 +10,18 @@
 //+------------------------------------------------------------------+
 enum BarPredRule
 {
-   Pred_OnlyDir_N,
-   Pred_size,
    Pred_History3_N,
    Pred_History2_N,
    Pred_History1_N,
    Pred_History0_N,
 
+   Pred_OnlyDir_N,
    Pred_OnlyDir_P,
    Pred_History0_P,
    Pred_History1_P,
    Pred_History2_P,
-   Pred_History3_P
+   Pred_History3_P,
+   Pred_size
 };
 class BarProfiler
 {
