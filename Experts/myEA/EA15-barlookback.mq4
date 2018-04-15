@@ -30,6 +30,7 @@ input int filter=100;
 input bool use_quality=false;
 input bool keep_losing_position=false;
 input RuleSelector rule_selector=RuleSelectorFirstGood;
+input bool use_history=true;
 input double   lots_base = 1;
 input bool ECN = false;
 
@@ -131,6 +132,21 @@ int OnInit()
    screen.add_L1_comment("file ok-");
    
    FileWrite(file_handle,"Bar","cprice","dir",                 "history",       "Nchange"," quality");
+
+   int history_bars = math.min(Bars, 1000) - 3 -10; //-10 is just in case, as a marging for future development
+   if(use_history && history_bars>10)
+   {
+      for(int i=history_bars; i>0; i--)
+      {
+         bar.UpdateResult((Close[i]>Open[i])?1: ((Close[i]<Open[i])?-1:0) );
+            
+         bar.UpdateData(Open[i], Close[i], High[i], Low[i]);
+         bar.UpdatePrevData( (Close[i+1]>Open[i+1])?1:-1, (Close[i+2]>Open[i+2])?1:-1 );
+      }
+      screen.add_L1_comment("history("+IntegerToString(history_bars)+")processed-");
+   }
+   else
+      screen.add_L1_comment("no history processed-");
 
    return(INIT_SUCCEEDED);
 }
