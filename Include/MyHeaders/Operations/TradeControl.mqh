@@ -16,12 +16,13 @@ class TradeControl
  public:
    TradeControl(bool _ECN_account);
    bool buy(double _lots, double _sl, double _tp);
-   bool buy_if_no_trade(double _lots, double _sl, double _tp);
+   bool buy_if_no_trade(double _lots, double _sl, double _tp, bool _keep_losing_position);
    bool sell(double _lots, double _sl, double _tp);
-   bool sell_if_no_trade(double _lots, double _sl, double _tp);
+   bool sell_if_no_trade(double _lots, double _sl, double _tp, bool _keep_losing_position);
    bool edit_sl( double _sl);
    bool edit_tp( double _tp);
    bool have_open_trade();
+   bool is_in_profit();
    bool is_buy_trade();
    bool close();
    string get_report();
@@ -32,16 +33,24 @@ class TradeControl
 TradeControl::TradeControl(bool _ECN_account):ECN_account(_ECN_account),open_ticket(0),trade_id(0),report("")
 {
 }
-bool TradeControl::buy_if_no_trade(double _lots, double _sl, double _tp)
+bool TradeControl::buy_if_no_trade(double _lots, double _sl, double _tp, bool _keep_losing_position)
 {
    if(!have_open_trade())
       return buy(_lots,_sl,_tp);  //simply buy, if no trade is there
    else
       if(is_buy_trade())
-      {
-         edit_sl(_sl);     // if there was a compatible position, just update sl and tp
-         edit_tp(_tp);
-         return false;
+      {  // if there was a compatible position
+         if(_keep_losing_position || is_in_profit())
+         {  //either keeping losing position is allowed or the position is profittable
+            edit_sl(_sl);     //just update sl and tp
+            edit_tp(_tp);
+            return false;
+         }
+         else
+         {
+            close();
+            return false;
+         }
       }
       else
       {
@@ -49,16 +58,24 @@ bool TradeControl::buy_if_no_trade(double _lots, double _sl, double _tp)
          return buy(_lots,_sl,_tp);  //if the existing position was in the opposit way, close and open a new one
       }
 }
-bool TradeControl::sell_if_no_trade(double _lots, double _sl, double _tp)
+bool TradeControl::sell_if_no_trade(double _lots, double _sl, double _tp, bool _keep_losing_position)
 {
    if(!have_open_trade())
       return sell(_lots,_sl,_tp);  //simply sell, if no trade is there
    else
       if(!is_buy_trade())
-      {
-         edit_sl(_sl);     // if there was a compatible position, just update sl and tp
-         edit_tp(_tp);
-         return false;
+      {  // if there was a compatible position
+         if(_keep_losing_position || is_in_profit())
+         {  //either keeping losing position is allowed or the position is profittable
+            edit_sl(_sl);     //just update sl and tp
+            edit_tp(_tp);
+            return false;
+         }
+         else
+         {
+            close();
+            return false;
+         }
       }
       else
       {
@@ -147,6 +164,16 @@ bool TradeControl::have_open_trade()
    }
    else
       return false;
+}
+bool TradeControl::is_in_profit()
+{
+   if(OrderSelect(open_ticket,SELECT_BY_TICKET)) 
+      return (OrderProfit()>0);
+   else  //no open ticket
+   {
+      report+="error in selecting the ticket p";
+      return false;
+   }
 }
 bool TradeControl::is_buy_trade()
 {

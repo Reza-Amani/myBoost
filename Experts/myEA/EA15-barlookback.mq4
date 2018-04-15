@@ -28,6 +28,7 @@ enum RuleSelector
 input BarPredRule rule;
 input int filter=100;
 input bool use_quality=false;
+input bool keep_losing_position=false;
 input RuleSelector rule_selector=RuleSelectorFirstGood;
 input double   lots_base = 1;
 input bool ECN = false;
@@ -61,33 +62,33 @@ void check_for_open()
          active_rule=rule;
          lots = lot_manager(lots_base, use_quality, (bar.quality[(int)active_rule]>0)?1:0.1, (double)active_rule);
          if(bar.GetPred(active_rule)>0)
-            trade.buy_if_no_trade(lots,0,0);
+            trade.buy_if_no_trade(lots,0,0,keep_losing_position);
          if(bar.GetPred(active_rule)<0)
-            trade.sell_if_no_trade(lots,0,0);
+            trade.sell_if_no_trade(lots,0,0,keep_losing_position);
          break;
       case RuleSelectorMaxer:
          active_rule=bar.GetBestRule();
          lots = lot_manager(lots_base, use_quality, (bar.quality[(int)active_rule]>0)?1:0.1, (double)active_rule);
          if(bar.GetPred(active_rule)>0)
-            trade.buy_if_no_trade(lots,0,0);
+            trade.buy_if_no_trade(lots,0,0,keep_losing_position);
          if(bar.GetPred(active_rule)<0)
-            trade.sell_if_no_trade(lots,0,0);
+            trade.sell_if_no_trade(lots,0,0,keep_losing_position);
          break;
       case RuleSelectorFirstGood:
          active_rule= bar.GetFirstGood();
          lots = lot_manager(lots_base, use_quality, (bar.quality[(int)active_rule]>0)?1:0.5, (double)active_rule);
          if(bar.GetPred(active_rule)>0)
-            trade.buy_if_no_trade(lots,0,0);
+            trade.buy_if_no_trade(lots,0,0,keep_losing_position);
          if(bar.GetPred(active_rule)<0)
-            trade.sell_if_no_trade(lots,0,0);
+            trade.sell_if_no_trade(lots,0,0,keep_losing_position);
          break;      
       case RuleSelectorDemocracy:
          vote = bar.GetPredWaightedDemocracy();
          lots = lot_manager(lots_base, use_quality, vote, 1);
          if(vote>0)
-            trade.buy_if_no_trade(lots,0,0);
+            trade.buy_if_no_trade(lots,0,0,keep_losing_position);
          if(vote<0)
-            trade.sell_if_no_trade(lots,0,0);
+            trade.sell_if_no_trade(lots,0,0,keep_losing_position);
          break;
    }
 }
