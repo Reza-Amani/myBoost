@@ -12,7 +12,7 @@
 #include <MyHeaders\Tools\Screen.mqh>
 //#include <MyHeaders\Tools\Tools.mqh>
 //#include <MyHeaders\Operations\MoneyManagement.mqh>
-//#include <MyHeaders\Operations\StopLoss.mqh>
+#include <MyHeaders\Operations\StopLoss.mqh>
 //#include <MyHeaders\Operations\TakeProfit.mqh>
 #include <MyHeaders\Operations\TradeControl.mqh>
 #include <MyHeaders\BarProfiler.mqh>
@@ -31,6 +31,9 @@ input bool use_quality=false;
 input bool keep_losing_position=false;
 input RuleSelector rule_selector=RuleSelectorFirstGood;
 input bool use_history=true;
+input bool use_sl_tp=true;
+input double sl_factor=2;
+input double tp_factor=2;
 input double   lots_base = 1;
 input bool ECN = false;
 
@@ -41,9 +44,9 @@ BarProfiler bar(High[1],Low[1],filter);
 Screen screen;
 TradeControl trade(ECN);
 MyMath math;
+StopLoss sl((use_sl_tp)?SL_BARSIZE:SL_NONE, sl_factor, 0);
 /*
 MoneyManagement money(lots_base);
-StopLoss stop_loss(sl_SAR_step, 0.2);
 TakeProfit take_profit(tp_factor_sl);
 */
 int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
@@ -57,23 +60,25 @@ void check_for_open()
 {
    double vote;
    BarPredRule active_rule=0;
+   double sl_buy=sl.get_sl(true, Open[0], bar.ave_barsize, 0);
+   double sl_sell=sl.get_sl(false, Open[0], bar.ave_barsize, 0);
    switch(rule_selector)
    {
       case RuleSelectorSingle:
          active_rule=rule;
          lots = lot_manager(lots_base, use_quality, (bar.quality[(int)active_rule]>0)?1:0.1, (double)active_rule);
          if(bar.GetPred(active_rule)>0)
-            trade.buy_if_no_trade(lots,0,0,keep_losing_position);
+            trade.buy_if_no_trade(lots,sl_buy,0,keep_losing_position);
          if(bar.GetPred(active_rule)<0)
-            trade.sell_if_no_trade(lots,0,0,keep_losing_position);
+            trade.sell_if_no_trade(lots,sl_sell,0,keep_losing_position);
          break;
       case RuleSelectorMaxer:
          active_rule=bar.GetBestRule();
          lots = lot_manager(lots_base, use_quality, (bar.quality[(int)active_rule]>0)?1:0.1, (double)active_rule);
          if(bar.GetPred(active_rule)>0)
-            trade.buy_if_no_trade(lots,0,0,keep_losing_position);
+            trade.buy_if_no_trade(lots,sl_buy,0,keep_losing_position);
          if(bar.GetPred(active_rule)<0)
-            trade.sell_if_no_trade(lots,0,0,keep_losing_position);
+            trade.sell_if_no_trade(lots,sl_sell,0,keep_losing_position);
          break;
       case RuleSelectorFirstGood:
          active_rule= bar.GetFirstGood();
@@ -81,18 +86,18 @@ void check_for_open()
          {
             lots = lot_manager(lots_base, use_quality, (bar.quality[(int)active_rule]>0)?1:0.5, (double)active_rule);
             if(bar.GetPred(active_rule)>0)
-               trade.buy_if_no_trade(lots,0,0,keep_losing_position);
+               trade.buy_if_no_trade(lots,sl_buy,0,keep_losing_position);
             if(bar.GetPred(active_rule)<0)
-               trade.sell_if_no_trade(lots,0,0,keep_losing_position);
+               trade.sell_if_no_trade(lots,sl_sell,0,keep_losing_position);
          }
          break;      
       case RuleSelectorDemocracy:
          vote = bar.GetPredWaightedDemocracy();
          lots = lot_manager(lots_base, use_quality, vote, 1);
          if(vote>0)
-            trade.buy_if_no_trade(lots,0,0,keep_losing_position);
+            trade.buy_if_no_trade(lots,sl_buy,0,keep_losing_position);
          if(vote<0)
-            trade.sell_if_no_trade(lots,0,0,keep_losing_position);
+            trade.sell_if_no_trade(lots,sl_sell,0,keep_losing_position);
          break;
    }
 }
