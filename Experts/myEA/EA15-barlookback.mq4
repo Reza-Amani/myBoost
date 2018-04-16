@@ -217,6 +217,10 @@ void OnTick()
       }
       screen.clear_L3_comment();
       screen.add_L3_comment("spread(5-digit,MT4)= "+IntegerToString((Ask-Bid)*100000));
+      screen.add_L3_comment(" filters: ");
+      for(int i=0; i<Pred_size; i++)
+         screen.add_L3_comment(" "+IntegerToString(i)+"="+DoubleToString(bar.quality[i],2));
+        
 
    }
 }
