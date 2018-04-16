@@ -1,0 +1,50 @@
+in H1, By doubling RSI len, you can basically got to same RSI shape in H2; SO, if the period of waves is too low, increase the RSI-len; Another idea may be working in M30 and using high RSI lens
+
+Vars:
+    RSI_len=28;
+    schmitt_threshold=5;
+    simpler_thresh=30;
+    tp_factor_sl=2;
+    sl_SAR_step=0.01; 
+
+RSI-len:
+   EURUSD H1:2016.1.1 to 2017.11.1
+      Higher better strongly, above 30
+   EURUSD H1:2014.1.1 to 2015.11.1
+      only 30 and 33
+   NZDUSRD H1:2016.1.1 to 2017.11.1
+      above 27 is good
+schmitt_threshold:
+   EURUSD H1:2016.1.1 to 2017.11.1
+      Higher better
+   EURUSD H1:2014.1.1 to 2015.11.1
+      neutral
+   NZDUSRD H1:2016.1.1 to 2017.11.1
+      2 is bad, above it neutral
+simpler-thresh:
+   EURUSD H1:2016.1.1 to 2017.11.1
+      neutral
+   EURUSD H1:2014.1.1 to 2015.11.1
+      neutral or slightly better with higher values, 40
+   NZDUSRD H1:2016.1.1 to 2017.11.1
+      neutral
+tp-facotr:
+   EURUSD H1:2016.1.1 to 2017.11.1
+      1 is slightly better than 2 and 3
+   EURUSD H1:2014.1.1 to 2015.11.1
+      higher better
+   NZDUSRD H1:2016.1.1 to 2017.11.1
+      1 is bad, 2 and 3 neutral
+SAR-step:
+   EURUSD H1:2016.1.1 to 2017.11.1
+      0.01 is slightly better than 0.02
+   EURUSD H1:2014.1.1 to 2015.11.1
+      0.02 is slightly better than 0.01
+   NZDUSRD H1:2016.1.1 to 2017.11.1
+      0.01 is slightly better than 0.02
+twin-peaks:
+   makes positive combinations more positive and gives more of them. negatives worse
+   EURUSD H1:2017.1.1 to 2017.11.1
+      good
+   NZDUSRD H1:2017.1.1 to 2017.11.1
+      not good on total. slightly good on positive combinations

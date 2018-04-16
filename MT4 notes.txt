@@ -1,0 +1,12 @@
+For Demo.Standard.MT4 accounts, you must select the “ForexTimeFXTM-Standard-demo” server. If it is not listed, try to manually enter one of the following server addresses:
+
+dc1.mt4standard-demo.forextime.com
+dc2.mt4standard-demo.forextime.com
+dca1.mt4standard-demo.forextime.com:444
+
+
+For Standard.MT4 accounts, you must select the “ForexTimeFXTM-Standard” server. If it is not listed, try to manually enter one of the following server addresses:
+
+dc1.mt4standard.forextime.com
+dc2.mt4standard.forextime.com
+dca1.mt4standard.forextime.com:444
