@@ -1,4 +1,7 @@
 SAR: higher step, sharper rise of sl toward the price; the sl for the first price remains still unchanged
-1.14120 to 1.14130 is one pip
+1.14120 to 1.14130 is one pip, in general. FXTM reports the spread in that scale too.
+But, MT4 means pips (in spread at tester) as 0.00001. So, spread of 20 in MT4 is 0.00020, as a typical value in FXTM
+You can see Ask by enabling it at chart properties
+Spread=Ask-Bid is in order of bar size in M5 or M15 sometimes
 in yen: 77.73 to 77.740 is one pip
 lot size=100,000

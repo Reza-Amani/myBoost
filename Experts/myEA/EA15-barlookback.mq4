@@ -49,7 +49,6 @@ StopLoss sl((use_sl_tp)?SL_BARSIZE:SL_NONE, sl_factor, 0);
 MoneyManagement money(lots_base);
 TakeProfit take_profit(tp_factor_sl);
 */
-int file=FileOpen("./tradefiles/EAlog.csv",FILE_WRITE|FILE_CSV,',');
 int file_handle=FileOpen("./tradefiles/F"+Symbol()+EnumToString(ENUM_TIMEFRAMES(_Period))+"_rule"+EnumToString(rule)+".csv",FILE_WRITE|FILE_CSV,',');
 #define cont    FileSeek(file_handle,-2,SEEK_CUR)
 
@@ -125,16 +124,17 @@ void  check_for_close()
 //+------------------------------------------------------------------+
 int OnInit()
 {
+   screen.clear_L1_comment();
    screen.add_L1_comment("EA started-");
-//      process_past_peaks();
-   if(file<0 || file_handle<0)
+   if(file_handle<0)
    {
       screen.add_L1_comment("file error");
       Print("Failed to open the file");
       Print("Error code ",GetLastError());
       return(INIT_FAILED);
    }
-   screen.add_L1_comment("file ok-");
+   else
+      screen.add_L1_comment("file ok-");
    
    FileWrite(file_handle,"Bar","cprice","dir",                 "history",       "Nchange"," quality");
 
@@ -152,7 +152,6 @@ int OnInit()
    }
    else
       screen.add_L1_comment("no history processed-");
-
    return(INIT_SUCCEEDED);
 }
 double OnTester()
@@ -216,6 +215,9 @@ void OnTick()
          screen.add_L2_comment(trade_report);
          Print(trade_report);
       }
+      screen.clear_L3_comment();
+      screen.add_L3_comment("spread(5-digit,MT4)= "+IntegerToString((Ask-Bid)*100000));
+
    }
 }
 //+------------------------------------------------------------------+
