@@ -1,0 +1,17 @@
+No of consecutive bars [1..5]
+(last) bar size [2]
+bar shape[2]
+
+long and short filters for any of [5][2][2]
+
+move bar history to bar class, just pass current bar parameters
+
+Display:
+Ave1          Ave2...
+L/S[1][0][0]
+L/S[1][0][1]
+.
+.
+L/S[1][2][2]
+
+A threshold (+/-) is needed for filters, not 0
