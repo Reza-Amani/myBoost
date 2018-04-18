@@ -67,6 +67,7 @@ void BarTrain::ShiftBarDirHistory(int _new_dir)
 {
    for(int i=TrainDepth-1; i>0; i--)
       prev_bar_direction[i] = prev_bar_direction[i-1];
+   prev_bar_direction[0]=_new_dir;
 }
 
 void BarTrain::NewData(double _open,double _close,double _high,double _low)

@@ -153,15 +153,17 @@ void OnTick()
          Print(trade_report);
       }
       screen.clear_L3_comment();
-      screen.add_L3_comment("spread(5-digit,MT4)= "+IntegerToString((Ask-Bid)*100000));
+      screen.add_L3_comment("spread= "+IntegerToString((Ask-Bid)*100000));
       screen.add_L3_comment(" filters: ");
       for(int i=0; i<TrainDepth; i++)
-         screen.add_L3_comment("        "+IntegerToString(i));
+         screen.add_L3_comment("              "+IntegerToString(i));
       screen.clear_L4_comment();
-      screen.add_L4_comment("p=0,z=0,F/S= ");
+      screen.add_L4_comment("p=0,z=0,SH/LO=       ");
       for(int i=0; i<TrainDepth; i++)
-         screen.add_L4_comment("        "+DoubleToString(bar.long_stat[i][0][0]));
-        
+      {
+         screen.add_L4_comment("  "+DoubleToString(bar.short_stat[i][0][0],2));
+         screen.add_L4_comment("/"+DoubleToString(bar.long_stat[i][0][0],2));
+      }
 
    }
 }
