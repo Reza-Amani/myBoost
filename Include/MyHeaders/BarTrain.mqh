@@ -7,21 +7,23 @@
 #property link      "http://www.mql4.com"
 #property strict
 
+#include <MyHeaders/Tools/MyMath.mqh>
 //+------------------------------------------------------------------+
 #define BarSizeFilter 10
 #define TrainDepth 5
-static MyMath math;
 enum ConflictAlgo
 {
    AlgoConservative
 };
 class BarTrain
 {
+   MyMath math;
    int long_filter_size,short_filter_size;
    ConflictAlgo algo;
+   double threshold;
    int prev_bar_direction[TrainDepth];
    int CalculateTrainLen();
-   int ShiftBarDirHistory(int _new_dir);
+   void ShiftBarDirHistory(int _new_dir);
  public:
    double long_stat[TrainDepth][2][2],short_stat[TrainDepth][2][2];
    double ave_barsize;
@@ -30,19 +32,18 @@ class BarTrain
    int GetSignal(int _min_train, int _max_train,  double &weight);
    void NewData(double open,double close,double high,double low);
    
-   BarTrain(int _long_filter_size, int _short_filter_size, ConflictAlgo _algo);
+   BarTrain(int _long_filter_size, int _short_filter_size, ConflictAlgo _algo, double _thresh);
 };
 
-BarTrain::BarTrain(int _long_filter_size, int _short_filter_size, ConflictAlgo _algo)
+BarTrain::BarTrain(int _long_filter_size, int _short_filter_size, ConflictAlgo _algo, double _thresh)
 {
    long_filter_size=_long_filter_size;
    short_filter_size=_short_filter_size;
-   algo=_algo;
-   open=_High;close=_High;high=_High;low=_low;ave=_High;mid_oc=_High;
+   algo=_algo; threshold=_thresh;
    for(int i=0; i<TrainDepth; i++)
       prev_bar_direction[i]=0;
    for(int d=0; d<TrainDepth; d++)
-      for(int p=0; p<2; z++)
+      for(int p=0; p<2; p++)
          for(int z=0; z<2; z++)
          {
             long_stat[d][p][z]=0;
@@ -62,7 +63,7 @@ int BarTrain::CalculateTrainLen()
    return len;
 }
 
-int BarTrain::ShiftBarDirHistory(int _new_dir)
+void BarTrain::ShiftBarDirHistory(int _new_dir)
 {
    for(int i=TrainDepth-1; i>0; i--)
       prev_bar_direction[i] = prev_bar_direction[i-1];
@@ -83,17 +84,40 @@ void BarTrain::NewData(double _open,double _close,double _high,double _low)
    long_stat[train_len][new_bar_shape][new_bar_size] = (long_stat[train_len][new_bar_shape][new_bar_size] * long_filter_size + continue_or_reversed) / (long_filter_size+1);
    short_stat[train_len][new_bar_shape][new_bar_size] = (short_stat[train_len][new_bar_shape][new_bar_size] * short_filter_size + continue_or_reversed) / (short_filter_size+1);
 
+   ave_barsize = (ave_barsize*BarSizeFilter + _high-_low) / (BarSizeFilter+1);
    ShiftBarDirHistory(new_bar_direction);
 }
 
-double BarTrain::GetAveShortStat(int train)
+double BarTrain::GetAveShortStat(int _train)
 {
+   double ave=0;
+   for(int p=0; p<2; p++)
+      for(int z=0; z<2; z++)
+         ave+=short_stat[_train][p][z];
+   ave=ave/4;
+   return ave;
 }
 
-double BarTrain::GetAveLongStat(int train)
+double BarTrain::GetAveLongStat(int _train)
 {
+   double ave=0;
+   for(int p=0; p<2; p++)
+      for(int z=0; z<2; z++)
+         ave+=long_stat[_train][p][z];
+   ave=ave/4;
+   return ave;
 }
 
 int BarTrain::GetSignal(int _min_train, int _max_train,  double &weight)
 {
+   switch(algo)
+   {
+      case AlgoConservative:
+         if(GetAveLongStat(0)>threshold && GetAveShortStat(0)>threshold)
+         {
+            weight = GetAveLongStat(0);
+            return prev_bar_direction[0];
+         }
+   }
+   return 0;
 }
