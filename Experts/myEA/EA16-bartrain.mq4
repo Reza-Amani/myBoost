@@ -157,12 +157,21 @@ void OnTick()
       screen.add_L3_comment(" filters: ");
       for(int i=0; i<TrainDepth; i++)
          screen.add_L3_comment("              "+IntegerToString(i));
+
       screen.clear_L4_comment();
-      screen.add_L4_comment("p=0,z=0,SH/LO=       ");
+      screen.add_L4_comment("LOtot/LOhit=        ");
       for(int i=0; i<TrainDepth; i++)
       {
-         screen.add_L4_comment("  "+DoubleToString(bar.short_stat[i][0][0],2));
-         screen.add_L4_comment("/"+DoubleToString(bar.long_stat[i][0][0],2));
+         screen.add_L4_comment("  "+DoubleToString(bar.long_stat_total[i]));
+         screen.add_L4_comment("/"+IntToString(bar.long_stat_total_hit[i]));
+      }
+
+      screen.clear_L5_comment();
+      screen.add_L5_comment("p=0,z=0,SH/LO=       ");
+      for(int i=0; i<TrainDepth; i++)
+      {
+         screen.add_L5_comment("  "+DoubleToString(bar.short_stat[i][0][0],2));
+         screen.add_L5_comment("/"+DoubleToString(bar.long_stat[i][0][0],2));
       }
 
    }

@@ -4,14 +4,12 @@ bar shape[2]
 
 long and short filters for any of [5][2][2]
 
-move bar history to bar class, just pass current bar parameters
-
-Display:
-Ave1          Ave2...
-L/S[1][0][0]
-L/S[1][0][1]
-.
-.
-L/S[1][2][2]
-
 A threshold (+/-) is needed for filters, not 0
+
+
+The relation between stat and the destribution of 1's and -1's:
+
+No.of.1's/No.of.-1's = (1+s)/(1-s)
+
+So, 0.1-> 1.22 (22% more, or 55%-45%)
+    0.2-> 1.5  (50% more, or 60%-40%)
