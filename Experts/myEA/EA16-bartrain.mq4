@@ -19,6 +19,8 @@
 
 ///////////////////////////////inputs
 input ConflictAlgo algo;
+input int algo_par0=0;
+input int algo_par1=0;
 input int long_filter=100;
 input int short_filter=10;
 input double threshold=1.2;
@@ -55,7 +57,7 @@ void check_for_open()
    double weight=0;
 
    lots = lot_manager(lots_base, false, 1, 0);
-   int signal = bar.GetSignal(0,TrainDepth,weight);
+   int signal = bar.GetSignal(0,TrainDepth,weight,algo_par0,algo_par1);
    if(signal==1)
       trade.buy(lots,sl_buy,0);
    else if(signal==-1)
