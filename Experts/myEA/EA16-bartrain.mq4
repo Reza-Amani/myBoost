@@ -75,6 +75,59 @@ double lot_manager(double _lot_base, bool _use_quality, double _hope, double _ma
       lot_result *= math.abs(_hope);
    return lot_result;
 }
+void OSD()
+{
+   string trade_report=trade.get_report();
+   if(trade_report!="")
+   {
+      trade.clear_report();
+      screen.clear_L2_comment();
+      screen.add_L2_comment(trade_report);
+      Print(trade_report);
+   }
+   screen.clear_L3_comment();
+   screen.add_L3_comment("spread= "+IntegerToString((Ask-Bid)*100000));
+   screen.add_L3_comment(" filters: ");
+   for(int i=0; i<TrainDepth; i++)
+      screen.add_L3_comment("         "+IntegerToString(i));
+
+   screen.clear_L4_comment();
+   screen.add_L4_comment("SHtot/LOhit=                   ");
+   for(int i=0; i<TrainDepth; i++)
+   {
+      screen.add_L4_comment("  "+IntegerToString(100*bar.short_stat_total[i],2));
+      screen.add_L4_comment("/"+IntegerToString(100*bar.long_stat_total[i],2));
+   }
+   screen.clear_L5_comment();
+   screen.add_L5_comment("p=0,z=0,SH/LO=      ");
+   for(int i=0; i<TrainDepth; i++)
+   {
+      screen.add_L5_comment("  "+IntegerToString(100*bar.short_stat[i][0][0],2));
+      screen.add_L5_comment("/"+IntegerToString(100*bar.long_stat[i][0][0],2));
+   }
+   screen.clear_L6_comment();
+   screen.add_L6_comment("p=0,z=1,SH/LO=      ");
+   for(int i=0; i<TrainDepth; i++)
+   {
+      screen.add_L6_comment("  "+IntegerToString(100*bar.short_stat[i][0][1],2));
+      screen.add_L6_comment("/"+IntegerToString(100*bar.long_stat[i][0][1],2));
+   }
+   screen.clear_L7_comment();
+   screen.add_L7_comment("p=1,z=0,SH/LO=      ");
+   for(int i=0; i<TrainDepth; i++)
+   {
+      screen.add_L7_comment("  "+IntegerToString(100*bar.short_stat[i][1][0],2));
+      screen.add_L7_comment("/"+IntegerToString(100*bar.long_stat[i][1][0],2));
+   }
+   screen.clear_L8_comment();
+   screen.add_L8_comment("p=1,z=1,SH/LO=      ");
+   for(int i=0; i<TrainDepth; i++)
+   {
+      screen.add_L8_comment("  "+IntegerToString(100*bar.short_stat[i][1][1],2));
+      screen.add_L8_comment("/"+IntegerToString(100*bar.long_stat[i][1][1],2));
+   }
+
+}
 //+------------------------------------------------------------------+
 //| standard function                                                |
 //+------------------------------------------------------------------+
@@ -142,38 +195,8 @@ void OnTick()
          //TODO: update sl tp if not closed
       if(!trade.have_open_trade())
          check_for_open();
-
-
-      string trade_report=trade.get_report();
-      if(trade_report!="")
-      {
-         trade.clear_report();
-         screen.clear_L2_comment();
-         screen.add_L2_comment(trade_report);
-         Print(trade_report);
-      }
-      screen.clear_L3_comment();
-      screen.add_L3_comment("spread= "+IntegerToString((Ask-Bid)*100000));
-      screen.add_L3_comment(" filters: ");
-      for(int i=0; i<TrainDepth; i++)
-         screen.add_L3_comment("              "+IntegerToString(i));
-
-      screen.clear_L4_comment();
-      screen.add_L4_comment("LOtot/LOhit=        ");
-      for(int i=0; i<TrainDepth; i++)
-      {
-         screen.add_L4_comment("  "+DoubleToString(bar.long_stat_total[i]));
-         screen.add_L4_comment("/"+IntToString(bar.long_stat_total_hit[i]));
-      }
-
-      screen.clear_L5_comment();
-      screen.add_L5_comment("p=0,z=0,SH/LO=       ");
-      for(int i=0; i<TrainDepth; i++)
-      {
-         screen.add_L5_comment("  "+DoubleToString(bar.short_stat[i][0][0],2));
-         screen.add_L5_comment("/"+DoubleToString(bar.long_stat[i][0][0],2));
-      }
-
+         
+      OSD();
    }
 }
 //+------------------------------------------------------------------+

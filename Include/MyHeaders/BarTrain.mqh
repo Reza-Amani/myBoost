@@ -42,7 +42,6 @@ BarTrain::BarTrain(int _long_filter_size, int _short_filter_size, ConflictAlgo _
    long_filter_size=_long_filter_size;
    short_filter_size=_short_filter_size;
    algo=_algo; threshold=_thresh;
-   long_stat_total=0; short_stat_total_hit=0;
    for(int i=0; i<TrainDepth; i++)
    {
       prev_bar_direction[i]=0;
