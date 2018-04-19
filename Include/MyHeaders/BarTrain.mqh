@@ -84,11 +84,6 @@ void BarTrain::NewData(double _open,double _close,double _high,double _low)
 {
    int new_bar_direction=math.sign(_close-_open);
    int train_len=CalculateTrainLen();
-   new_bar_size = (_high-_low>ave_barsize) ? 1 : 0;
-   if(new_bar_direction==1)
-      new_bar_shape = (_close>=(_high+_low)/2) ? 1 : 0;
-   else
-      new_bar_shape = (_close<=(_high+_low)/2) ? 1 : 0;
 
    int continue_or_reversed = prev_bar_direction[0]*new_bar_direction;
    long_stat[train_len][new_bar_shape][new_bar_size] = (long_stat[train_len][new_bar_shape][new_bar_size] * long_filter_size + continue_or_reversed) / (long_filter_size+1);
@@ -98,7 +93,14 @@ void BarTrain::NewData(double _open,double _close,double _high,double _low)
    long_stat_total[train_len] = (long_stat_total[train_len] * long_filter_size +  continue_or_reversed) / (long_filter_size+1);
    short_stat_total[train_len] = (short_stat_total[train_len] * short_filter_size +  continue_or_reversed) / (short_filter_size+1);
    ave_barsize = (ave_barsize*BarSizeFilter + _high-_low) / (BarSizeFilter+1);
+   
    ShiftBarDirHistory(new_bar_direction);
+
+   new_bar_size = (_high-_low>ave_barsize) ? 1 : 0;
+   if(new_bar_direction==1)
+      new_bar_shape = (_close>=(_high+_low)/2) ? 1 : 0;
+   else
+      new_bar_shape = (_close<=(_high+_low)/2) ? 1 : 0;
 }
 
 double BarTrain::GetAveShortStat(int _train)
