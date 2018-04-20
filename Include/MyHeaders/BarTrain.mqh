@@ -33,7 +33,7 @@ class BarTrain
    double ave_barsize;
    double GetAveShortStat(int train);
    double GetAveLongStat(int train);
-   int GetSignal(int _min_train, int _max_train,  double &weight, int _algo_par0, int _algo_par1);
+   int GetSignal(int _min_train, int _max_train,  double &weight, int _algo_par0, int _algo_par1, int _algo_par2);
    void NewData(double open,double close,double high,double low);
    
    BarTrain(int _long_filter_size, int _short_filter_size, ConflictAlgo _algo, double _thresh);
@@ -123,7 +123,7 @@ double BarTrain::GetAveLongStat(int _train)
    return ave;
 }
 
-int BarTrain::GetSignal(int _min_train, int _max_train,  double &weight, int _algo_par0, int _algo_par1)
+int BarTrain::GetSignal(int _min_train, int _max_train,  double &weight, int _algo_par0, int _algo_par1, int _algo_par2)
 {
    switch(algo)
    {
@@ -136,9 +136,9 @@ int BarTrain::GetSignal(int _min_train, int _max_train,  double &weight, int _al
          break;
       case AlgoTestSingle:
          if(CalculateTrainLen()==_algo_par0)
-            if(new_bar_shape == (_algo_par1&2)>>1)
-               if(new_bar_size == (_algo_par1&1)>>0)
-                  return -prev_bar_direction[0];
+            if(new_bar_shape == _algo_par1)
+               if(new_bar_size == _algo_par2)
+                  return +prev_bar_direction[0];
          break;
    }
    return 0;

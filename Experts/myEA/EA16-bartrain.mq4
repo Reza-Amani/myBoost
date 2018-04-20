@@ -21,6 +21,7 @@
 input ConflictAlgo algo;
 input int algo_par0=0;
 input int algo_par1=0;
+input int algo_par2=0;
 input int long_filter=100;
 input int short_filter=10;
 input double threshold=1.2;
@@ -57,7 +58,7 @@ void check_for_open()
    double weight=0;
 
    lots = lot_manager(lots_base, false, 1, 0);
-   int signal = bar.GetSignal(0,TrainDepth,weight,algo_par0,algo_par1);
+   int signal = bar.GetSignal(0,TrainDepth,weight,algo_par0,algo_par1,algo_par2);
    if(signal==1)
       trade.buy(lots,sl_buy,0);
    else if(signal==-1)
@@ -147,7 +148,11 @@ int OnInit()
    else
       screen.add_L1_comment("file ok-");
    
-   FileWrite(file_handle,"Bar","cprice","dir",                 "history",       "Nchange"," quality");
+   FileWrite(file_handle,"Bar","cprice","S0-00","L0-00","S0-01","L0-01","S0-10","L0-10","S0-11","L0-11",
+      "S1-00","L1-00","S1-01","L1-01","S1-10","L1-10","S1-11","L1-11",
+      "S2-00","L2-00","S2-01","L2-01","S2-10","L2-10","S2-11","L2-11",
+      "S3-00","L3-00","S3-01","L3-01","S3-10","L3-10","S3-11","L3-11",
+      "S4-00","L4-00","S4-01","L4-01","S4-10","L4-10","S4-11","L4-11");
 
    int history_bars = math.min(Bars, 1000) - 3 -10; //-10 is just in case, as a marging for future development
    if(use_history && history_bars>10)
@@ -184,13 +189,22 @@ void OnTick()
       Time0 = Time[0];
       bars++;
 
-      cont;      
-      FileWrite(file_handle,"", Close[1]-Open[1]);
+//      cont;      
+//      FileWrite(file_handle,"", Close[1]-Open[1]);
 
       bar.NewData(Open[1], Close[1], High[1], Low[1]);
    
-      FileWrite(file_handle,bars,Close[1]);
-
+      FileWrite(file_handle,bars,Close[1],"");
+      cont;
+      for(int i=0; i<TrainDepth; i++)
+         for(int p=0; p<2; p++)
+            for(int z=0; z<2; z++)
+            {
+               FileWrite(file_handle, bar.short_stat[i][p][z], bar.long_stat[i][p][z],"");
+               cont;
+            }
+      FileWrite(file_handle, 0);
+      
       if(trade.have_open_trade())
          check_for_close();
       //if(trade.have_open_trade())
