@@ -100,6 +100,9 @@ void OSD()
       screen.add_L4_comment("  "+IntegerToString(100*bar.short_stat_total[i],2));
       screen.add_L4_comment("/"+IntegerToString(100*bar.long_stat_total[i],2));
    }
+   screen.add_L4_comment("  "+IntegerToString(bar.temp_hit));
+   screen.add_L4_comment("  "+IntegerToString(bar.temp_fwd));
+
    screen.clear_L5_comment();
    screen.add_L5_comment("p=0,z=0,SH/LO=      ");
    for(int i=0; i<TrainDepth; i++)
@@ -153,7 +156,7 @@ int OnInit()
    if(use_history && history_bars>10)
    {
       for(int i=history_bars; i>0; i--)
-         bar.NewData(Open[i], Close[i], High[i], Low[i]);
+         bar.NewData(Open[i], Close[i], High[i], Low[i],0,0,0);
       screen.add_L1_comment("history("+IntegerToString(history_bars)+")processed-");
    }
    else
@@ -187,7 +190,7 @@ void OnTick()
       cont;      
       FileWrite(file_handle,"", Close[1]-Open[1]);
 
-      bar.NewData(Open[1], Close[1], High[1], Low[1]);
+      bar.NewData(Open[1], Close[1], High[1], Low[1], algo_par0, (algo_par1&2)>>1, algo_par1&1);
    
       FileWrite(file_handle,bars,Close[1]);
 

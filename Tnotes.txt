@@ -16,7 +16,7 @@ So, 0.1(10)-> 1.22 (22% more, or 55%-45%)
     0.2(20)-> 1.5  (50% more, or 60%-40%)
 
 
-=confirming that on each bar 1 and only 1 combination is updated
+-confirming that on each bar 1 and only 1 combination is updated
 =confirming that stat calculation and the EA match; DBG out the number of stat hits and win on a combination, and compare to EA trades
 =DBG out stats and results to excel to draw the graph of filters, to have an idea about the dynamics, and maybe the correlation of results with the stats
 =implement other algos, double threshold, keeping the position based on the new combination (long+short>0,<0?)

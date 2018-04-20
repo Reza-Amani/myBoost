@@ -34,13 +34,16 @@ class BarTrain
    double GetAveShortStat(int train);
    double GetAveLongStat(int train);
    int GetSignal(int _min_train, int _max_train,  double &weight, int _algo_par0, int _algo_par1);
-   void NewData(double open,double close,double high,double low);
+   void NewData(double open,double close,double high,double low, int temp_depth, int temp_p, int temp_size);
    
    BarTrain(int _long_filter_size, int _short_filter_size, ConflictAlgo _algo, double _thresh);
+   
+   int temp_hit;
+   int temp_fwd;
 };
 
 BarTrain::BarTrain(int _long_filter_size, int _short_filter_size, ConflictAlgo _algo, double _thresh)
-{
+{temp_hit=0;temp_fwd=0;
    long_filter_size=_long_filter_size;
    short_filter_size=_short_filter_size;
    algo=_algo; threshold=_thresh;
@@ -80,7 +83,7 @@ void BarTrain::ShiftBarDirHistory(int _new_dir)
    prev_bar_direction[0]=_new_dir;
 }
 
-void BarTrain::NewData(double _open,double _close,double _high,double _low)
+void BarTrain::NewData(double _open,double _close,double _high,double _low, int temp_depth, int temp_p, int temp_size)
 {
    int new_bar_direction=math.sign(_close-_open);
    int train_len=CalculateTrainLen();
@@ -94,6 +97,12 @@ void BarTrain::NewData(double _open,double _close,double _high,double _low)
    short_stat_total[train_len] = (short_stat_total[train_len] * short_filter_size +  continue_or_reversed) / (short_filter_size+1);
    ave_barsize = (ave_barsize*BarSizeFilter + _high-_low) / (BarSizeFilter+1);
    
+   if(new_bar_shape==temp_p && new_bar_size==temp_size && train_len==temp_depth)
+   {
+      temp_hit++;
+      if(continue_or_reversed==1)
+         temp_fwd++;
+   }
    ShiftBarDirHistory(new_bar_direction);
 
    new_bar_size = (_high-_low>ave_barsize) ? 1 : 0;
