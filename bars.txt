@@ -11,3 +11,35 @@
 2-10 -
 4-10 -
 4-11 - rare
+
+400-20 EURUSD M30 2016:
+1-00 +then-
+1-10 -weak
+1-11 -
+2-00 +
+2-10 -weak
+2-11 -weak
+3-10 -
+4-11 -
+
+
+
+400-20 AUDUSD M30 2016:
+1-11 -
+2-10 -
+3-01 + rare/weak
+3-10 - weak
+4-11 - weak
+
+400-20 AUDUSD H1 2016-2018:
+0-00 +
+0-01 +
+1-10 -
+1-11 -
+2-10 -
+2-11 -
+3-11 - weak
+4-10 - weak
+
+independant from size?
+SHorter short?
