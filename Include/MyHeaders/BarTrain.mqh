@@ -14,11 +14,12 @@
 enum AlgoOpen
 {
    Algo_Conservative,
-   Algo_TestSingle
+   Algo_TestSingle,
+   Algo_CheckedSingle
 };
 enum AlgoClose
 {
-   AlgoClose_No,
+   AlgoClose_Immediate,
    AlgoClose_Conservative,
    AlgoClose_Aggressive
 };
@@ -33,6 +34,7 @@ class BarTrain
    int prev_bar_direction[TrainDepth];
    int CalculateTrainLen();
    void ShiftBarDirHistory(int _new_dir);
+   int GetCombSuggestion(int _depth, int _shape, bool _sum_acceptable);
  public:
    double long_stat[TrainDepth][2],short_stat[TrainDepth][2];
    double ave_barsize;
@@ -95,12 +97,34 @@ void BarTrain::NewData(double _open,double _close,double _high,double _low)
       last_bar_shape = (_close<=(_high+_low)/2) ? 1 : 0;
 }
 
+int BarTrain::GetCombSuggestion(int _depth, int _shape, bool _sum_acceptable)
+{
+   if(_sum_acceptable)
+   {
+      if(math.abs(short_stat[_depth][_shape]+long_stat[_depth][_shape]) > (threshold_long+threshold_short)/2)
+         return prev_bar_direction[0] * math.sign(short_stat[_depth][_shape]+long_stat[_depth][_shape]);
+   }
+   else
+   {
+      if(short_stat[_depth][_shape] > threshold_short && long_stat[_depth][_shape] > threshold_long)
+         return prev_bar_direction[0];
+      if(short_stat[_depth][_shape] < -threshold_short && long_stat[_depth][_shape] < -threshold_long)
+         return -prev_bar_direction[0];
+   }
+   return 0;
+}
+
 int BarTrain::GetSignal(int _min_train, int _max_train,  double &weight, int _algo_par0, int _algo_par1, int _algo_par2)
 {
    switch(algo)
    {
       case Algo_Conservative:
          return 0;
+         break;
+      case Algo_CheckedSingle:
+         if(CalculateTrainLen()==_algo_par0)
+            if(last_bar_shape == _algo_par1)
+               return GetCombSuggestion(CalculateTrainLen(), last_bar_shape, false);
          break;
       case Algo_TestSingle:
          if(CalculateTrainLen()==_algo_par0)
@@ -115,7 +139,7 @@ bool BarTrain::IsKeepable()
 {
    switch(algo_close)
    {
-      case AlgoClose_No:
+      case AlgoClose_Immediate:
          return false;
          break;
       case AlgoClose_Conservative:
