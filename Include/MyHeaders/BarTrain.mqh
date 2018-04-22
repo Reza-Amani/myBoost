@@ -97,7 +97,7 @@ int BarTrain::GetSignal(int _min_train, int _max_train,  double &weight, int _al
       case AlgoTestSingle:
          if(CalculateTrainLen()==_algo_par0)
             if(new_bar_shape == _algo_par1)
-               return +prev_bar_direction[0];
+               return -prev_bar_direction[0];
          break;
    }
    return 0;

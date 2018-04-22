@@ -93,7 +93,7 @@ void OSD()
    screen.add_L3_comment("spread= "+IntegerToString((Ask-Bid)*100000));
    screen.add_L3_comment(" filters: ");
    for(int i=0; i<TrainDepth; i++)
-      screen.add_L3_comment("         "+IntegerToString(i));
+      screen.add_L3_comment(IntegerToString(i)+"         ");
 
    screen.clear_L5_comment();
    screen.add_L5_comment("p=0,SH/LO=      ");
