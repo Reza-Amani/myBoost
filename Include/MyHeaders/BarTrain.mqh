@@ -34,7 +34,7 @@ class BarTrain
    int prev_bar_direction[TrainDepth];
    int CalculateTrainLen();
    void ShiftBarDirHistory(int _new_dir);
-   int GetCombSuggestion(int _depth, int _shape, bool _sum_acceptable);
+   int GetCombSuggestion(int _depth, int _shape, bool _sum_acceptable, double _thresh_for_sum);
  public:
    double long_stat[TrainDepth][2],short_stat[TrainDepth][2];
    double ave_barsize;
@@ -97,11 +97,11 @@ void BarTrain::NewData(double _open,double _close,double _high,double _low)
       last_bar_shape = (_close<=(_high+_low)/2) ? 1 : 0;
 }
 
-int BarTrain::GetCombSuggestion(int _depth, int _shape, bool _sum_acceptable)
+int BarTrain::GetCombSuggestion(int _depth, int _shape, bool _sum_acceptable, double _thresh_for_sum)
 {
    if(_sum_acceptable)
    {
-      if(math.abs(short_stat[_depth][_shape]+long_stat[_depth][_shape]) > (threshold_long+threshold_short)/2)
+      if(math.abs(short_stat[_depth][_shape]+long_stat[_depth][_shape]) > _thresh_for_sum)
          return prev_bar_direction[0] * math.sign(short_stat[_depth][_shape]+long_stat[_depth][_shape]);
    }
    else
@@ -119,12 +119,12 @@ int BarTrain::GetSignal(int _min_train, int _max_train,  double &weight, int _al
    switch(algo)
    {
       case Algo_Conservative:
-         return 0;
+         return GetCombSuggestion(CalculateTrainLen(), last_bar_shape, false, 0);
          break;
       case Algo_CheckedSingle:
          if(CalculateTrainLen()==_algo_par0)
             if(last_bar_shape == _algo_par1)
-               return GetCombSuggestion(CalculateTrainLen(), last_bar_shape, false);
+               return GetCombSuggestion(CalculateTrainLen(), last_bar_shape, false, 0);
          break;
       case Algo_TestSingle:
          if(CalculateTrainLen()==_algo_par0)
