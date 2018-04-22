@@ -18,7 +18,8 @@
 #include <MyHeaders\BarTrain.mqh>
 
 ///////////////////////////////inputs
-input ConflictAlgo algo;
+input AlgoOpen algo;
+input AlgoClose algo_close;
 input int algo_par0=0;
 input int algo_par1=0;
 input int algo_par2=0;
@@ -37,7 +38,7 @@ input bool ECN = false;
 double lots =  lots_base;
 //////////////////////////////parameters
 //////////////////////////////objects
-BarTrain bar(long_filter,short_filter, algo, threshold_short, threshold_long); 
+BarTrain bar(long_filter,short_filter, algo, algo_close, threshold_short, threshold_long); 
 Screen screen;
 TradeControl trade(ECN);
 MyMath math;
@@ -68,7 +69,8 @@ void check_for_open()
 void  check_for_close()
 {  //TODO: check against the current depth stat to keep
    bool buy_trade=trade.is_buy_trade();
-   trade.close();
+   if(!bar.IsKeepable())
+      trade.close();
 }
 
 double lot_manager(double _lot_base, bool _use_quality, double _hope, double _magic_no)
