@@ -14,8 +14,9 @@
 enum AlgoOpen
 {
    Algo_Conservative,
-   Algo_TestSingle,
-   Algo_CheckedSingle
+   Algo_Sum,
+   Algo_SingleConservative,
+   Algo_SingleSum
 };
 enum AlgoClose
 {
@@ -101,8 +102,10 @@ int BarTrain::GetCombSuggestion(int _depth, int _shape, bool _sum_acceptable, do
 {
    if(_sum_acceptable)
    {
-      if(math.abs(short_stat[_depth][_shape]+long_stat[_depth][_shape]) > _thresh_for_sum)
-         return prev_bar_direction[0] * math.sign(short_stat[_depth][_shape]+long_stat[_depth][_shape]);
+      if(short_stat[_depth][_shape]+long_stat[_depth][_shape] > _thresh_for_sum )
+         return prev_bar_direction[0];
+      if(short_stat[_depth][_shape]+long_stat[_depth][_shape] < -_thresh_for_sum )
+         return -prev_bar_direction[0];
    }
    else
    {
@@ -121,15 +124,18 @@ int BarTrain::GetSignal(int _min_train, int _max_train,  double &weight, int _al
       case Algo_Conservative:
          return GetCombSuggestion(CalculateTrainLen(), last_bar_shape, false, 0);
          break;
-      case Algo_CheckedSingle:
+      case Algo_Sum:
+         return GetCombSuggestion(CalculateTrainLen(), last_bar_shape, true, threshold_long);
+         break;
+      case Algo_SingleConservative:
          if(CalculateTrainLen()==_algo_par0)
             if(last_bar_shape == _algo_par1)
                return GetCombSuggestion(CalculateTrainLen(), last_bar_shape, false, 0);
          break;
-      case Algo_TestSingle:
+      case Algo_SingleSum:
          if(CalculateTrainLen()==_algo_par0)
             if(last_bar_shape == _algo_par1)
-               return -prev_bar_direction[0];
+               return GetCombSuggestion(CalculateTrainLen(), last_bar_shape, true, threshold_long);
          break;
    }
    return 0;
