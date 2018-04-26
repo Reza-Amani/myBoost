@@ -1,24 +1,23 @@
-No of consecutive bars [1..5]
-(last) bar size [2]
-bar shape[2]
+1a. Denoising. 3 samples? not too long please
+  1b. Indicator of diff of denoise and price
+     1c. LATER, Extracting next price from denoise if predicted
 
-long and short filters for any of [5][2][2]
+2a. Pred(RSI) as analog
+  2b. Indicator of diff(Pred(RSI)) vs diff(denoise)
+  2c. Identify effective parameters to align those diffs and make a positive correlation
+  2d. narrow them down, and determine the way they effect
+  2e. MOSTAHAB: practice, if RSI is in track
 
-A threshold (+/-) is needed for filters, not 0
+3a. Pred(MACD) as analog
+  3b. Indicator of diff(Pred(MACD)) vs diff(denoise)
+  3c. Identify effective parameters to align those diffs and make a positive correlation
+  3d. narrow them down, and determine the way they effect
+  3e. MOSTAHAB: practice, if MACD is in track
 
-
-The relation between stat and the destribution of 1's and -1's:
-
-No.of.1's/No.of.-1's = (1+s)/(1-s); if there a long-term offset, filter-size doesn't matter
-
-
-So, 0.1(10)-> 1.22 (22% more, or 55%-45%)
-    0.2(20)-> 1.5  (50% more, or 60%-40%)
-
-
-+confirming that on each bar 1 and only 1 combination is updated
-+confirming that stat calculation and the EA match; DBG out the number of stat hits and win on a combination, and compare to EA trades
-=DBG out stats and results to excel to draw the graph of filters, to have an idea about the dynamics, and maybe the correlation of results with the stats
-=implement other algos, double threshold, keeping the position based on the new combination (long+short>0,<0?)
-=Sounds promising? Which combinations work better?
-=finish the details
+4a. Pred(RSI_MACD)
+  4b. Indicator of diff(Pred(RSI_MACD)) vs diff(denoise)
+  4c. Is it in track? try EA with go/nogo approach
+  4c. decide if it is possible to adjust RSI and MACD separately (weights as well), or all should be together
+     4ca. an idea of adjusting: when the peak happens
+  4d. Full adjustment and controller EA
+  
