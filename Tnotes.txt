@@ -1,3 +1,5 @@
+De-route: NRSI is here, TODO: smoothing. return to peak eating? look for adapting ideas or EA ideas?
+
 +1a. Denoising. 3 samples? not too long please
      1.aa. LATER: Smart Denoise, so that in sharp movements in straight direction, follow the last price (or increase its weight) rather than staying behind
      1.ab. My own RSI: some of +diffs / total abs of diffs, for len bars
