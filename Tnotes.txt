@@ -1,4 +1,4 @@
-De-route: NRSI is here, TODO: smoothing. return to peak eating? look for adapting ideas or EA ideas?
+De-route: NRSI is here, TODO: smoothing. 
 
 +1a. Denoising. 3 samples? not too long please
      1.aa. LATER: Smart Denoise, so that in sharp movements in straight direction, follow the last price (or increase its weight) rather than staying behind

@@ -48,14 +48,14 @@ int OnCalculate(const int rates_total,
    if(counted_bars<0) return(-1);
       
    //--- position of the bar from which calculation in the loop starts
-   int limit=Bars-counted_bars;
+   int limit=Bars-counted_bars-1;
 
    //--- if counted_bars=0, reduce the starting position in the loop by 1,   
    if(counted_bars==0) 
       limit-=NRSI_len+1;  // to avoid the array out of range problem when counted_bars==0
 //   else //--- the indicator has been already calculated, counted_bars>0
   //    limit++;//--- for repeated calls increase limit by 1 to update the indicator values for the last bar
-   
+  
    //--- the main calculation loop
    double pos_bars,neg_bars;
    double diff;
@@ -65,7 +65,7 @@ int OnCalculate(const int rates_total,
       neg_bars=DBL_MIN;
       for(int j=0; j<NRSI_len; j++)
       {
-         diff = Open[i+j]-Open[i+j+1];
+         diff = (Open[i+j+1]+Close[i+j+1]+High[i+j+1]+Low[i+j+1])/4-(Open[i+j+2]+Close[i+j+2]+High[i+j+2]+Low[i+j+2])/4;
          if(diff>0)
             pos_bars += diff*(NRSI_len-j);
          else
