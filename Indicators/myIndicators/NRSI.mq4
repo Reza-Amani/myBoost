@@ -7,15 +7,20 @@
 #property strict
 #property indicator_separate_window
 #property indicator_level1 0
-#property indicator_buffers 1
+#property indicator_buffers 4
 #property indicator_plots   1
 #property indicator_maximum 100
 #property indicator_minimum -100
 
 //--- indicator buffers
 double         Buffer_NRSI[];
+double         Buffer_smoothed[];
+double         Buffer_Hthresh[];
+double         Buffer_Lthresh[];
 //-----------------inputs
 input int NRSI_len=10;
+input int t_spread=20;
+input int smooth_factor=3;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
@@ -25,6 +30,15 @@ int OnInit()
    SetIndexStyle(0, DRAW_LINE, STYLE_SOLID, 1, clrGreen);
    SetIndexBuffer(0,Buffer_NRSI);
    SetIndexLabel(0 ,"NRSI");   
+   SetIndexStyle(1, DRAW_LINE, STYLE_SOLID, 1, clrDarkBlue);
+   SetIndexBuffer(1,Buffer_Hthresh);
+   SetIndexLabel(1 ,"H");   
+   SetIndexStyle(2, DRAW_LINE, STYLE_SOLID, 1, clrDarkBlue);
+   SetIndexBuffer(2,Buffer_Lthresh);
+   SetIndexLabel(2 ,"L");   
+   SetIndexStyle(3, DRAW_LINE, STYLE_SOLID, 1, clrYellow);
+   SetIndexBuffer(3,Buffer_smoothed);
+   SetIndexLabel(3 ,"smoothed");   
 //---
    return(INIT_SUCCEEDED);
   }
@@ -52,7 +66,12 @@ int OnCalculate(const int rates_total,
 
    //--- if counted_bars=0, reduce the starting position in the loop by 1,   
    if(counted_bars==0) 
-      limit-=NRSI_len+1;  // to avoid the array out of range problem when counted_bars==0
+   {
+      limit-=NRSI_len+2;  // to avoid the array out of range problem when counted_bars==0
+      Buffer_NRSI[limit+1]=0;
+      Buffer_Hthresh[limit+1]=0;
+      Buffer_Lthresh[limit+1]=0;
+   }
 //   else //--- the indicator has been already calculated, counted_bars>0
   //    limit++;//--- for repeated calls increase limit by 1 to update the indicator values for the last bar
   
@@ -72,6 +91,25 @@ int OnCalculate(const int rates_total,
             neg_bars -= diff*(NRSI_len-j);
       }
       Buffer_NRSI[i] = 100 * (pos_bars-neg_bars) / (pos_bars+neg_bars);
+      double to_be_smoothed= (Buffer_NRSI[i]*smooth_factor+Buffer_NRSI[i+1])/(smooth_factor+1);
+      if(Buffer_NRSI[i]>Buffer_Hthresh[i+1])
+      {
+         Buffer_smoothed[i]=Buffer_NRSI[i];
+         Buffer_Hthresh[i]=Buffer_NRSI[i];
+         Buffer_Lthresh[i]=Buffer_NRSI[i]-t_spread;
+      }
+      else if(Buffer_NRSI[i]<Buffer_Lthresh[i+1])
+      {
+         Buffer_smoothed[i]=Buffer_NRSI[i];
+         Buffer_Hthresh[i]=Buffer_NRSI[i]+t_spread;
+         Buffer_Lthresh[i]=Buffer_NRSI[i];
+      }
+      else
+      {
+         Buffer_Hthresh[i]=Buffer_Hthresh[i+1];
+         Buffer_Lthresh[i]=Buffer_Lthresh[i+1];
+         Buffer_smoothed[i]=Buffer_smoothed[i+1];
+      }
    }
    
    return(rates_total);
