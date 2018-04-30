@@ -92,17 +92,17 @@ int OnCalculate(const int rates_total,
       }
       Buffer_NRSI[i] = 100 * (pos_bars-neg_bars) / (pos_bars+neg_bars);
       double to_be_smoothed= (Buffer_NRSI[i]*smooth_factor+Buffer_NRSI[i+1])/(smooth_factor+1);
-      if(Buffer_NRSI[i]>Buffer_Hthresh[i+1])
+      if(to_be_smoothed>Buffer_Hthresh[i+1])
       {
-         Buffer_smoothed[i]=Buffer_NRSI[i];
-         Buffer_Hthresh[i]=Buffer_NRSI[i];
-         Buffer_Lthresh[i]=Buffer_NRSI[i]-t_spread;
+         Buffer_smoothed[i]=to_be_smoothed;
+         Buffer_Hthresh[i]=to_be_smoothed;
+         Buffer_Lthresh[i]=to_be_smoothed-t_spread;
       }
-      else if(Buffer_NRSI[i]<Buffer_Lthresh[i+1])
+      else if(to_be_smoothed<Buffer_Lthresh[i+1])
       {
-         Buffer_smoothed[i]=Buffer_NRSI[i];
-         Buffer_Hthresh[i]=Buffer_NRSI[i]+t_spread;
-         Buffer_Lthresh[i]=Buffer_NRSI[i];
+         Buffer_smoothed[i]=to_be_smoothed;
+         Buffer_Hthresh[i]=to_be_smoothed+t_spread;
+         Buffer_Lthresh[i]=to_be_smoothed;
       }
       else
       {
