@@ -12,6 +12,8 @@
 #property indicator_maximum 100
 #property indicator_minimum -100
 
+#include <MyHeaders\Tools\MyMath.mqh>
+MyMath math;
 //--- indicator buffers
 double         Buffer_NRSI[];
 double         Buffer_smoothed[];
@@ -20,7 +22,7 @@ double         Buffer_Lthresh[];
 //-----------------inputs
 input int NRSI_len=10;
 input int t_spread=20;
-input int smooth_factor=3;
+input double smooth_factor=0.1;
 //+------------------------------------------------------------------+
 //| Custom indicator initialization function                         |
 //+------------------------------------------------------------------+
@@ -91,7 +93,17 @@ int OnCalculate(const int rates_total,
             neg_bars -= diff*(NRSI_len-j);
       }
       Buffer_NRSI[i] = 100 * (pos_bars-neg_bars) / (pos_bars+neg_bars);
-      double to_be_smoothed= (Buffer_NRSI[i]*smooth_factor+Buffer_NRSI[i+1])/(smooth_factor+1);
+      double p1=0;
+      double p2=0;
+      if(math.sign(Close[i+1]-Open[i+1])*math.sign(Close[i+2]-Open[i+2]) == -1)
+      {
+         p1=2*smooth_factor;
+         p2=smooth_factor;
+      }
+      else if(math.sign(Close[i+1]-Open[i+1])*math.sign(Close[i+3]-Open[i+3]) == -1)
+         p1=smooth_factor;
+
+      double to_be_smoothed= (Buffer_NRSI[i]*1 + Buffer_NRSI[i+1]*p1 +Buffer_NRSI[i+2]*p2)/(1+p1+p2);
       if(to_be_smoothed>Buffer_Hthresh[i+1])
       {
          Buffer_smoothed[i]=to_be_smoothed;
