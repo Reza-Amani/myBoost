@@ -18,6 +18,8 @@
 
 ///////////////////////////////inputs
 input int NRSI_len=13;
+input int t_spread=20;
+input double smooth_factor=0.1;
 input double   lots_base = 1;
 input bool ECN = false;
 
@@ -33,9 +35,9 @@ TradeControl trade(ECN);
 //+------------------------------------------------------------------+
 void check_for_open()
 {
-   if(nrsi2<nrsi1 && nrsi1>nrsi0)
+   if(nrsi2<=nrsi1 && nrsi1>nrsi0)
       trade.sell(lots,0,0);
-   if(nrsi2>nrsi1 && nrsi1<nrsi0)
+   if(nrsi2>=nrsi1 && nrsi1<nrsi0)
       trade.buy(lots,0,0);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -77,9 +79,9 @@ void OnTick()
       Time0 = Time[0];
       bars++;
       
-      nrsi0 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, 0,0); 
-      nrsi1 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, 0,1); 
-      nrsi2 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, 0,2); 
+      nrsi0 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 1,0); 
+      nrsi1 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 1,1); 
+      nrsi2 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 1,2); 
 
 //      screen.clear_L5_comment();
 //      screen.add_L5_comment("macd "+DoubleToString(macd_macd)+"sig "+DoubleToString(macd_sig_ma)+"force "+DoubleToString(macd_force)+"dforce "+DoubleToString(macd_dforce));
