@@ -1,5 +1,4 @@
 //+------------------------------------------------------------------+
-//|                               sig gen for 4-stage plan Evaluation|
 //|                                                             Reza |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
@@ -29,16 +28,21 @@ input double smooth_factor=0.1;
 int OnInit()
   {
 //--- indicator buffers mapping
-   SetIndexStyle(0, DRAW_LINE, STYLE_SOLID, 1, clrGreen);
+   SetIndexStyle(0, DRAW_LINE, STYLE_SOLID, 1, clrDarkBlue);
    SetIndexBuffer(0,Buffer_NRSI);
    SetIndexLabel(0 ,"NRSI");   
-   SetIndexStyle(1, DRAW_LINE, STYLE_SOLID, 1, clrDarkBlue);
+   SetIndexStyle(1, DRAW_LINE, STYLE_SOLID, 1, clrBlack);
    SetIndexBuffer(1,Buffer_Hthresh);
    SetIndexLabel(1 ,"H");   
-   SetIndexStyle(2, DRAW_LINE, STYLE_SOLID, 1, clrDarkBlue);
+   SetIndexStyle(2, DRAW_LINE, STYLE_SOLID, 1, clrBlack);
    SetIndexBuffer(2,Buffer_Lthresh);
-   SetIndexLabel(2 ,"L");   
-   SetIndexStyle(3, DRAW_LINE, STYLE_SOLID, 1, clrYellow);
+   SetIndexLabel(2 ,"L");
+   if(NRSI_len<14)   
+      SetIndexStyle(3, DRAW_LINE, STYLE_SOLID, 1, clrRed);
+   else if(NRSI_len<24)
+      SetIndexStyle(3, DRAW_LINE, STYLE_SOLID, 1, clrYellow);
+   else 
+      SetIndexStyle(3, DRAW_LINE, STYLE_SOLID, 1, clrWhite);
    SetIndexBuffer(3,Buffer_smoothed);
    SetIndexLabel(3 ,"smoothed");   
 //---
@@ -86,7 +90,7 @@ int OnCalculate(const int rates_total,
       neg_bars=DBL_MIN;
       for(int j=0; j<NRSI_len; j++)
       {
-         diff = (Open[i+j+1]+Close[i+j+1]+High[i+j+1]+Low[i+j+1])/4-(Open[i+j+2]+Close[i+j+2]+High[i+j+2]+Low[i+j+2])/4;
+         diff = (Open[i+j]+High[i+j+1]+Low[i+j+1])/3-(Open[i+j+1]+High[i+j+2]+Low[i+j+2])/3;
          if(diff>0)
             pos_bars += diff*(NRSI_len-j);
          else
