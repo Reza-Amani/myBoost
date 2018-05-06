@@ -24,7 +24,7 @@ input double   lots_base = 1;
 input bool ECN = false;
 
 double lots =  lots_base;
-double nrsi0,nrsi1,nrsi2;
+double nrsi0,nrsi1,nrsi2,nrsi3,nrsi4,nrsi5;
 //////////////////////////////parameters
 //////////////////////////////objects
 Screen screen;
@@ -35,17 +35,28 @@ TradeControl trade(ECN);
 //+------------------------------------------------------------------+
 void check_for_open()
 {
-   if(nrsi2<=nrsi1 && nrsi1>nrsi0)
-      trade.sell(lots,0,0);
-   if(nrsi2>=nrsi1 && nrsi1<nrsi0)
-      trade.buy(lots,0,0);
+   if(nrsi2==nrsi1 && nrsi1>nrsi0)
+      if(nrsi3<nrsi2 || (nrsi3==nrsi2 && nrsi4<nrsi2) || (nrsi3==nrsi2 && nrsi4==nrsi2 && nrsi5<nrsi2))
+         trade.sell(lots,0,0);
+   if(nrsi2==nrsi1 && nrsi1<nrsi0)
+      if(nrsi3>nrsi2 || (nrsi3==nrsi2 && nrsi4>nrsi2) || (nrsi3==nrsi2 && nrsi4==nrsi2 && nrsi5>nrsi2))
+         trade.buy(lots,0,0);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void  check_for_close()
 {  //returns 1 if closes the trade to return to base state
    //0 if the position remains still
    bool buy_trade=trade.is_buy_trade();
-               trade.close();
+   if(buy_trade)
+   {
+      if(nrsi1>nrsi0)
+         trade.close();
+   }
+   else
+   {
+      if(nrsi1<nrsi0)
+         trade.close();
+   }
 }
 //+------------------------------------------------------------------+
 //| standard function                                                |
@@ -82,6 +93,9 @@ void OnTick()
       nrsi0 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 1,0); 
       nrsi1 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 1,1); 
       nrsi2 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 1,2); 
+      nrsi3 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 1,3); 
+      nrsi4 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 1,4); 
+      nrsi5 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 1,5); 
 
 //      screen.clear_L5_comment();
 //      screen.add_L5_comment("macd "+DoubleToString(macd_macd)+"sig "+DoubleToString(macd_sig_ma)+"force "+DoubleToString(macd_force)+"dforce "+DoubleToString(macd_dforce));
