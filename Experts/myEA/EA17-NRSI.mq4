@@ -107,12 +107,12 @@ void OnTick()
       Time0 = Time[0];
       bars++;
       
-      nrsi0 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 1,0); 
-      nrsi1 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 1,1); 
-      nrsi2 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 1,2); 
-      nrsi3 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 1,3); 
-      nrsi4 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 1,4); 
-      nrsi5 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 1,5); 
+      nrsi0 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 3,0); 
+      nrsi1 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 3,1); 
+      nrsi2 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 3,2); 
+      nrsi3 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 3,3); 
+      nrsi4 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 3,4); 
+      nrsi5 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 3,5); 
 
       ave_bar_size = (ave_bar_size*_bar_size_filter + High[1]-Low[1])/(_bar_size_filter+1);
 //      screen.clear_L5_comment();
