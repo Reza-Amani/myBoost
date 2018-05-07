@@ -21,6 +21,7 @@
 input int NRSI_len=13;
 input int t_spread=20;
 input double smooth_factor=0.1;
+input int min_clearance=50;
 input double sl_factor=3;
 input double tp_factor=1;
 input double   lots_base = 1;
@@ -33,6 +34,7 @@ double nrsi0,nrsi1,nrsi2,nrsi3,nrsi4,nrsi5;
 Screen screen;
 TradeControl trade(ECN);
 double ave_bar_size=0;
+double last_turn_point=0;
 
 //+------------------------------------------------------------------+
 //| operation                                                        |
@@ -41,10 +43,20 @@ void check_for_open()
 {
    if(nrsi2==nrsi1 && nrsi1>nrsi0)
       if(nrsi3<nrsi2 || (nrsi3==nrsi2 && nrsi4<nrsi2) || (nrsi3==nrsi2 && nrsi4==nrsi2 && nrsi5<nrsi2))
-         trade.sell(lots, Open[0]+sl_factor*ave_bar_size,Open[0]-tp_factor*ave_bar_size);
+         if(nrsi0 > last_turn_point+min_clearance)
+         {
+            trade.sell(lots, Open[0]+sl_factor*ave_bar_size,Open[0]-tp_factor*ave_bar_size);
+            last_turn_point=nrsi0;
+         }
    if(nrsi2==nrsi1 && nrsi1<nrsi0)
       if(nrsi3>nrsi2 || (nrsi3==nrsi2 && nrsi4>nrsi2) || (nrsi3==nrsi2 && nrsi4==nrsi2 && nrsi5>nrsi2))
-         trade.buy(lots,Open[0]-sl_factor*ave_bar_size,Open[0]+tp_factor*ave_bar_size);
+         if(nrsi0 < last_turn_point-min_clearance)
+         {
+            trade.buy(lots,Open[0]-sl_factor*ave_bar_size,Open[0]+tp_factor*ave_bar_size);
+            last_turn_point=nrsi0;
+         }
+   if( (nrsi2<nrsi1 && nrsi1>nrsi0) || (nrsi2>nrsi1 && nrsi1<nrsi0) )
+      last_turn_point=nrsi0;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void  check_for_close()
