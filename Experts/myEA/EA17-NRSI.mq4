@@ -16,10 +16,13 @@
 #include <MyHeaders\Operations\TakeProfit.mqh>
 #include <MyHeaders\Operations\TradeControl.mqh>
 
+#define _bar_size_filter 10
 ///////////////////////////////inputs
 input int NRSI_len=13;
 input int t_spread=20;
 input double smooth_factor=0.1;
+input double sl_factor=3;
+input double tp_factor=1;
 input double   lots_base = 1;
 input bool ECN = false;
 
@@ -29,6 +32,7 @@ double nrsi0,nrsi1,nrsi2,nrsi3,nrsi4,nrsi5;
 //////////////////////////////objects
 Screen screen;
 TradeControl trade(ECN);
+double ave_bar_size=0;
 
 //+------------------------------------------------------------------+
 //| operation                                                        |
@@ -37,10 +41,10 @@ void check_for_open()
 {
    if(nrsi2==nrsi1 && nrsi1>nrsi0)
       if(nrsi3<nrsi2 || (nrsi3==nrsi2 && nrsi4<nrsi2) || (nrsi3==nrsi2 && nrsi4==nrsi2 && nrsi5<nrsi2))
-         trade.sell(lots,0,0);
+         trade.sell(lots, Open[0]+sl_factor*ave_bar_size,Open[0]-tp_factor*ave_bar_size);
    if(nrsi2==nrsi1 && nrsi1<nrsi0)
       if(nrsi3>nrsi2 || (nrsi3==nrsi2 && nrsi4>nrsi2) || (nrsi3==nrsi2 && nrsi4==nrsi2 && nrsi5>nrsi2))
-         trade.buy(lots,0,0);
+         trade.buy(lots,Open[0]-sl_factor*ave_bar_size,Open[0]+tp_factor*ave_bar_size);
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void  check_for_close()
@@ -64,6 +68,7 @@ void  check_for_close()
 int OnInit()
 {
    screen.add_L1_comment("EA started-");
+   ave_bar_size=0;
    return(INIT_SUCCEEDED);
 }
 double OnTester()
@@ -97,6 +102,7 @@ void OnTick()
       nrsi4 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 1,4); 
       nrsi5 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 1,5); 
 
+      ave_bar_size = (ave_bar_size*_bar_size_filter + High[1]-Low[1])/(_bar_size_filter+1);
 //      screen.clear_L5_comment();
 //      screen.add_L5_comment("macd "+DoubleToString(macd_macd)+"sig "+DoubleToString(macd_sig_ma)+"force "+DoubleToString(macd_force)+"dforce "+DoubleToString(macd_dforce));
       
