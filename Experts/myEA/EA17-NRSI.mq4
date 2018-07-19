@@ -43,20 +43,20 @@ void check_for_open()
 {
    if(nrsi2==nrsi1 && nrsi1>nrsi0)
       if(nrsi3<nrsi2 || (nrsi3==nrsi2 && nrsi4<nrsi2) || (nrsi3==nrsi2 && nrsi4==nrsi2 && nrsi5<nrsi2))
+      {
+         last_turn_point=nrsi1;
          if(nrsi0 > last_turn_point+min_clearance)
-         {
             trade.sell(lots, Open[0]+sl_factor*ave_bar_size,Open[0]-tp_factor*ave_bar_size);
-            last_turn_point=nrsi0;
-         }
+      }
    if(nrsi2==nrsi1 && nrsi1<nrsi0)
       if(nrsi3>nrsi2 || (nrsi3==nrsi2 && nrsi4>nrsi2) || (nrsi3==nrsi2 && nrsi4==nrsi2 && nrsi5>nrsi2))
+      {
+         last_turn_point=nrsi1;
          if(nrsi0 < last_turn_point-min_clearance)
-         {
             trade.buy(lots,Open[0]-sl_factor*ave_bar_size,Open[0]+tp_factor*ave_bar_size);
-            last_turn_point=nrsi0;
-         }
+      }
    if( (nrsi2<nrsi1 && nrsi1>nrsi0) || (nrsi2>nrsi1 && nrsi1<nrsi0) )
-      last_turn_point=nrsi0;
+      last_turn_point=nrsi1;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void  check_for_close()
