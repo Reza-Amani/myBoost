@@ -21,7 +21,7 @@ enum NRSI_SECTION
 enum IND_NRSI_STATES
 {
    NRSI_RISING,
-   NRSI_FALLSING
+   NRSI_FALLING
 };
 //+------------------------------------------------------------------+
 #define RESULTS_FILTER_LEN 10
@@ -53,16 +53,52 @@ class Results
 };
 class NRSI_Profiler
 {
-   Results results;
-   double close,nrsi0,nrsi1;
+//   double close,nrsi0,nrsi1;
+   double last_peak,last_valley;
    IND_NRSI_STATES state;
    NRSI_SECTION section;
 
  public:
-   void UpdateData(double close,double nrsi0,double nrsi1);
+   Results results[NRSI_SECTION_SIZE];
+   NRSI_Profiler(): state(NRSI_RISING),section(NRSI_SECTION_NONE),last_peak(0),last_valley(0)
+   {
+   }
+   void UpdateData(double close,double nrsi0,double nrsi1)
+   {
+      if( state==NRSI_FALLING && nrsi0>nrsi1)
+      {
+         state=NRSI_RISING;
+         last_valley=nrsi1;
+      }
+      else if( state==NRSI_RISING && nrsi0<nrsi1)
+      {
+         state=NRSI_FALLING;
+         last_peak=nrsi1;
+      }
+      
+      if(nrsi0<nrsi1)
+         section=NRSI_SECTION_NONE; //TODO: whole story is needed for falling sections
+      else if(nrsi0==nrsi1)   
+         section=NRSI_SECTION_NONE; //uncertainty
+      else if(nrsi0<-75)   
+         section=NRSI_SECTION_RISING_MINUS75; //rising -100..-75
+      else if(nrsi0<-45)   
+         section=NRSI_SECTION_RISING_MINUS75_45; //rising -75..-45
+      else if(nrsi0<-15)   
+         section=NRSI_SECTION_RISING_MINUS45_15; //rising -45..-15
+      else if(nrsi0<+15)   
+         section=NRSI_SECTION_RISING_15_15; //rising -15..+15
+      else if(nrsi0<+45)   
+         section=NRSI_SECTION_RISING_PLUS15_45; //rising +15..+45
+      else if(nrsi0<+75)   
+         section=NRSI_SECTION_RISING_PLUS45_75; //rising +45..+75
+      else         
+         section=NRSI_SECTION_RISING_PLUS75; //rising +75..+100
+
+   }
   
    void UpdateResult(double this_close, double next_close, double next_high, double next_low)
    {
-      results.UpdateResult( next_close>this_close, next_high-this_close, next_low-this_close);
+      results[section].UpdateResult( next_close>this_close, next_high-this_close, next_low-this_close);
    }
 };

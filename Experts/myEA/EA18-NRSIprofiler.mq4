@@ -15,7 +15,7 @@
 #include <MyHeaders\Operations\StopLoss.mqh>
 #include <MyHeaders\Operations\TakeProfit.mqh>
 #include <MyHeaders\Operations\TradeControl.mqh>
-#include <MyHeaders\NRSIstat_profiler.mqh>
+#include <MyHeaders\NRSI_Profiler.mqh>
 
 //#define _bar_size_filter 10
 ///////////////////////////////inputs
@@ -31,10 +31,7 @@ input bool use_history=false;
 //double lots =  lots_base;
 double nrsi0,nrsi1;
 //////////////////////////////parameters
-
-int last_valley=49,last_peak=51; 
-NRSIstat_profiler stat_profiler[NRSISTATE_SIZE];  //later it can be [][input pars]
-IND_NRSI_STATES ind_state=NRSI_RISING;
+NRSI_Profiler profile;  //later it can be [][input pars]
 //////////////////////////////objects
 Screen screen;
 MyMath math();
@@ -143,6 +140,8 @@ void OnTick()
       nrsi0 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 3,0); 
       nrsi1 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 3,1); 
 
+      profile.UpdateResult(Close[2],Close[1],High[1],Low[1]0;
+      profile.UpdateData(close
 //      screen.clear_L5_comment();
 //      screen.add_L5_comment("macd "+DoubleToString(macd_macd)+"sig "+DoubleToString(macd_sig_ma)+"force "+DoubleToString(macd_force)+"dforce "+DoubleToString(macd_dforce));
       
