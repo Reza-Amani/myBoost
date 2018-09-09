@@ -63,7 +63,7 @@ class NRSI_Profiler
    NRSI_Profiler(): state(NRSI_RISING),section(NRSI_SECTION_NONE),last_peak(0),last_valley(0)
    {
    }
-   void UpdateData(double close,double nrsi0,double nrsi1)
+   void UpdateData(double nrsi0,double nrsi1)
    {
       if( state==NRSI_FALLING && nrsi0>nrsi1)
       {

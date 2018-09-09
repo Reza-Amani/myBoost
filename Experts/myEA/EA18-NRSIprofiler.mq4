@@ -140,8 +140,11 @@ void OnTick()
       nrsi0 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 3,0); 
       nrsi1 = iCustom(Symbol(), Period(),"myIndicators/NRSI", NRSI_len, t_spread, smooth_factor, 3,1); 
 
-      profile.UpdateResult(Close[2],Close[1],High[1],Low[1]0;
-      profile.UpdateData(close
+      profile.UpdateResult(Close[2],Close[1],High[1],Low[1]);
+      profile.UpdateData(nrsi0,nrsi1);
+//      profile.results[0].
+
+
 //      screen.clear_L5_comment();
 //      screen.add_L5_comment("macd "+DoubleToString(macd_macd)+"sig "+DoubleToString(macd_sig_ma)+"force "+DoubleToString(macd_force)+"dforce "+DoubleToString(macd_dforce));
       
