@@ -15,6 +15,7 @@
 #include <MyHeaders\Operations\StopLoss.mqh>
 #include <MyHeaders\Operations\TakeProfit.mqh>
 #include <MyHeaders\Operations\TradeControl.mqh>
+#include <MyHeaders\NRSIstat_profiler.mqh>
 
 //#define _bar_size_filter 10
 ///////////////////////////////inputs
@@ -23,29 +24,16 @@ input int t_spread=20;
 input double smooth_factor=0.1;
 //input double sl_factor=3;
 //input double tp_factor=1;
+input bool use_history=false;
 //input double   lots_base = 1;
 //input bool ECN = false;
 
 //double lots =  lots_base;
 double nrsi0,nrsi1;
 //////////////////////////////parameters
-enum BAR_NRSI_STATES
-{
-   NRSISTATE_NONE,
-   NRSISTATE_RISING_MINUS75,
-   NRSISTATE_RISING_MINUS75_45,
-   NRSISTATE_RISING_MINUS45_15,
-   NRSISTATE_RISING_15_15,
-   NRSISTATE_RISING_PLUS15_45,
-   NRSISTATE_RISING_PLUS45_75,
-   NRSISTATE_RISING_PLUS75
-};
-enum IND_NRSI_STATES
-{
-   NRSI_RISING,
-   NRSI_FALLSING
-};
+
 int last_valley=49,last_peak=51; 
+NRSIstat_profiler stat_profiler[NRSISTATE_SIZE];  //later it can be [][input pars]
 IND_NRSI_STATES ind_state=NRSI_RISING;
 //////////////////////////////objects
 Screen screen;
@@ -116,10 +104,11 @@ int OnInit()
    FileWrite(file_handle,"Bar","cprice","S0-0");
 
    int history_bars = math.min(Bars, 1000) - 3 -100; //-100 is just in case, as a marging for future development
-   if(history_bars>10)
+   if(use_history && history_bars>10)
    {
       for(int i=history_bars; i>1; i--)
-      {
+      {  //process the history bars
+      
       }
       screen.add_L1_comment("history("+IntegerToString(history_bars)+")processed-");
    }
