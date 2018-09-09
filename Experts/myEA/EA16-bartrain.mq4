@@ -1,5 +1,5 @@
 //+------------------------------------------------------------------+
-//|                                                 EA7_patterns.mq4 |
+//|                                                 EA16_bartrains.mq4 |
 //|                                                             Reza |
 //|                                             https://www.mql5.com |
 //+------------------------------------------------------------------+
@@ -34,6 +34,7 @@ input double sl_factor=2;
 input double tp_factor=2;
 input double   lots_base = 1;
 input bool ECN = false;
+input bool reverse_position = false;
 
 double lots =  lots_base;
 //////////////////////////////parameters
@@ -61,9 +62,12 @@ void check_for_open()
 
    lots = lot_manager(lots_base, false, 1, 0);
    int signal = bar.GetSignal(0,TrainDepth,weight,algo_par0,algo_par1,algo_par2);
-   if(signal==1)
+   int sig = 1;
+   if(reverse_position)
+      sig = -1;
+   if(signal==sig)
       trade.buy(lots,sl_buy,0);
-   else if(signal==-1)
+   else if(signal==-sig)
       trade.sell(lots,sl_sell,0);
 }
 void  check_for_close()
