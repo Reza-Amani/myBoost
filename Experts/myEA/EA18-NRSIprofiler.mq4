@@ -29,6 +29,24 @@ input double smooth_factor=0.1;
 //double lots =  lots_base;
 double nrsi0,nrsi1;
 //////////////////////////////parameters
+enum BAR_NRSI_STATES
+{
+   NRSISTATE_NONE,
+   NRSISTATE_RISING_MINUS75,
+   NRSISTATE_RISING_MINUS75_45,
+   NRSISTATE_RISING_MINUS45_15,
+   NRSISTATE_RISING_15_15,
+   NRSISTATE_RISING_PLUS15_45,
+   NRSISTATE_RISING_PLUS45_75,
+   NRSISTATE_RISING_PLUS75
+};
+enum IND_NRSI_STATES
+{
+   NRSI_RISING,
+   NRSI_FALLSING
+};
+int last_valley=49,last_peak=51; 
+IND_NRSI_STATES ind_state=NRSI_RISING;
 //////////////////////////////objects
 Screen screen;
 MyMath math();
